@@ -27,7 +27,6 @@
     <string name="notes_type_rewrite">Rewrite</string>
 
     <!-- Notes: cards and list -->
-    <string name="notes_meta_line">%1$s · %2$s</string>
     <string name="notes_translation_prefix">Translation: %1$s</string>
     <string name="notes_time_today">Today</string>
     <string name="notes_time_yesterday">Yesterday</string>

@@ -27,7 +27,6 @@
     <string name="notes_type_rewrite">改寫</string>
 
     <!-- 筆記模組：卡片與清單 -->
-    <string name="notes_meta_line">%1$s · %2$s</string>
     <string name="notes_translation_prefix">譯：%1$s</string>
     <string name="notes_time_today">今天</string>
     <string name="notes_time_yesterday">昨天</string>

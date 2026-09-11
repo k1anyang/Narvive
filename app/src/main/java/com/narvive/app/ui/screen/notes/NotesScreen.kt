@@ -253,6 +253,19 @@ private fun AnnotationCard(item: NoteItem, onClick: () -> Unit) {
         Row {
             Box(Modifier.width(3.dp).height(96.dp).background(cardBorderColor(ann)))
             Column(Modifier.padding(start = 14.dp, end = 16.dp, top = 12.dp, bottom = 12.dp).weight(1f)) {
+                // 副标题：书名独立一行。
+                // 为什么不挤进下面的 meta 行：那一行要放 类型/章名/进度/时间，且 maxLines=1 从
+                // 末尾截断，书名排在前半段会被先截掉；另外拼接分隔符与 leftLabel 内部的「·」
+                // 相同，书名即使在屏幕上也无法一眼认出是书名。
+                Text(
+                    item.bookTitle,
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.primary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Spacer(Modifier.height(4.dp))
                 // serif 引文
                 if (ann.selectedText.isNotBlank()) {
                     Text(
@@ -276,16 +289,25 @@ private fun AnnotationCard(item: NoteItem, onClick: () -> Unit) {
                     Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary, maxLines = 3, overflow = TextOverflow.Ellipsis, modifier = Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f), NarviveShape.Xs).padding(6.dp))
                     Spacer(Modifier.height(6.dp))
                 }
-                // meta 行：类型·章名·书 + 进度 + 相对时间
+                // meta 行：类型·章名 + 进度 + 相对时间（书名已提为上方副标题，此处不再重复）
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Icon(typeIcon(ann.type), null, Modifier.size(13.dp), tint = annotationTypeColor(ann.type))
                     Spacer(Modifier.width(4.dp))
                     val chapter = ann.chapterTitle.ifBlank { null }
                     val leftLabel = listOfNotNull(typeLabel(ann.type), chapter).joinToString(" · ")
-                    Text(stringResource(R.string.notes_meta_line, leftLabel, item.bookTitle), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f))
+                    Text(
+                        leftLabel,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
                     ann.progress?.let { p ->
-                        Text("%.1f%%".format(p * 100) + " · ", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                        Spacer(Modifier.width(6.dp))
+                        Text("%.1f%%".format(p * 100), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                     }
+                    Spacer(Modifier.width(6.dp))
                     Text(relativeTime(ann.createdAt), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
