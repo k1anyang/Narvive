@@ -40,11 +40,26 @@ jobs:
       - name: Point Gradle at the CI Android SDK
         run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
 
+      # tee + set -o pipefail：完整 Gradle 输出同时进日志文件和 artifact，
+      # 失败时不必只靠 UI 里被截断的行；pipefail 保证 gradlew 的非零退出码不会被 tee 吞掉。
+      # --stacktrace：网络类失败要靠堆栈才能定位到具体是哪个仓库/URL。
       - name: Compile
-        run: ./gradlew :app:compileDebugKotlin --console=plain
+        run: |
+          set -o pipefail
+          ./gradlew :app:compileDebugKotlin --console=plain --stacktrace 2>&1 | tee gradle.log
 
       - name: Unit tests
-        run: ./gradlew :app:testDebugUnitTest --console=plain
+        run: |
+          set -o pipefail
+          ./gradlew :app:testDebugUnitTest --console=plain 2>&1 | tee -a gradle.log
+
+      - name: Upload Gradle log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gradle-log
+          path: gradle.log
+          if-no-files-found: ignore
 
       - name: Upload test report
         if: always()
