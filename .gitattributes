@@ -1,0 +1,57 @@
+# 换行符策略。
+#
+# 为什么需要这个文件：仓库在 Windows 上维护，而 Git for Windows 默认
+# core.autocrlf=true，会在检出时把文本文件转成 CRLF、提交时转回 LF。
+# 对 Markdown / Kotlin 源码无害，但 **shell 脚本被转成 CRLF 会直接构建失败**：
+#   - gradlew 在 Linux/macOS 上执行时，CRLF 会让 shebang 行失效
+#     （报错形如 `/usr/bin/env: 'sh\r': No such file or directory`），CI 会红。
+#   - CI 的 runner 是 ubuntu-latest，因此这是真实会踩到的问题。
+#
+# 规则：默认所有文本按 LF 存储；Windows 专用脚本保留 CRLF 以免双击出错；
+# 二进制文件禁止任何换行转换（否则会损坏字体与图片）。
+
+# ── 默认：文本按 LF 入库与检出 ──
+* text=auto eol=lf
+
+# ── 必须保持 LF 的脚本（shebang 敏感）──
+gradlew text eol=lf
+*.sh text eol=lf
+
+# ── Windows 专用批处理：保持 CRLF ──
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# ── 二进制：禁止换行转换与文本 diff ──
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.gif binary
+*.ico binary
+*.p12 binary
+*.jks binary
+*.keystore binary
+*.zip binary
+*.apk binary
+*.aab binary
+*.jar binary
+*.so binary
+
+# ── 语言与生成物 ──
+*.kt text diff=kotlin
+*.kts text diff=kotlin
+*.xml text
+*.toml text
+*.pro text
+*.md text
+*.json text
+*.yml text
+*.yaml text
+
+# ── 让 GitHub 语言统计忽略构建产物目录（若被误提交）──
+/build/** linguist-vendored
+/app/build/** linguist-vendored
