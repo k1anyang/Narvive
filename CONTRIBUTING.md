@@ -116,6 +116,14 @@ Two implementation gotchas worth knowing before you hit them:
 - `UiMessage.text()` is `@Composable` and **cannot** be called inside a `remember { }` lambda. Resolve it in composable scope first, then hand the `String` to `remember`.
 - When you must write **plain text** into the database or into an AI prompt (a session's chapter title, a character card's knowledge boundary), call `UiMessage.resolve(context)` at the moment you write it.
 
+**`UiMessage` alone is not enough — some values also need recomputing.** `UiMessage` only guarantees that a value is *resolved* at render time; it does not make the value itself change. Anything that is **picked from a pool**, **aggregated into a display object**, or **built through a language-dependent fallback** must additionally re-derive on a language change:
+
+```kotlin
+observeLanguageChanges(localeProvider) { refreshGreeting(...) }   // one line, in the ViewModel
+```
+
+`observeLanguageChanges` lives in `service/ai/PromptDefaultsI18n.kt`. Call it from the ViewModel's `init` — **never** add a per-screen refresh hook in a composable. `docs/i18n.md` §2.1 lists which cases need it and which do not.
+
 Do **not** re-introduce the Activity recreation to dodge this rule: that trades a silent staleness bug for a flicker the user sees on every switch. Do **not** add per-screen "refresh on language change" hooks either — with the rule above there is nothing to refresh by hand.
 
 **Never branch logic on display text.** Do not write `if (message.contains("成功"))` — it breaks the moment the string is translated. Carry a structured flag (for example `TestResult(ok: Boolean, message: String)`) instead.

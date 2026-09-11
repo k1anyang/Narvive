@@ -19,6 +19,7 @@ import com.narvive.app.service.ai.AiService
 import com.narvive.app.service.ai.AiText
 import com.narvive.app.service.ai.FallbackChain
 import com.narvive.app.service.ai.PromptLocaleProvider
+import com.narvive.app.service.ai.observeLanguageChanges
 import com.narvive.app.ui.message.UiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -148,6 +149,13 @@ class GlobalChatViewModel @Inject constructor(
             val books = bookshelfRepo.observeAllBooks().first()
             val pref = profileStore.state.first()
             refreshGreeting(books, pref.profile)
+        }
+        // 语言变化后重算问候与建议。
+        // 为什么不能只靠 UiMessage：UiMessage 只保证「渲染时解析」，而问候语需要从语言池
+        // 重新随机、建议卡需要重建，都属于「值要重算」——不订阅本流就会停留在旧语言。
+        // 本项目不重建 Activity，ViewModel 存活，所以这是必需的一环。
+        observeLanguageChanges(localeProvider) {
+            refreshGreeting(_uiState.value.books, profileStore.state.value.profile)
         }
     }
 

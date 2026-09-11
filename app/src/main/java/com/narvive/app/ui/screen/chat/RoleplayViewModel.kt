@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.narvive.app.R
+import com.narvive.app.service.ai.PromptLocaleProvider
+import com.narvive.app.service.ai.observeLanguageChanges
 import com.narvive.app.ui.message.UiMessage
 import com.narvive.app.ui.message.resolve
 import com.narvive.app.domain.model.Annotation
@@ -61,6 +63,7 @@ class RoleplayViewModel @Inject constructor(
     private val aiChatRepo: AiChatRepository,
     private val annotationRepo: AnnotationRepository,
     @ApplicationContext private val appContext: Context,
+    private val localeProvider: PromptLocaleProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RoleplayUiState())
@@ -76,6 +79,9 @@ class RoleplayViewModel @Inject constructor(
     fun init(bookId: String, sessionId: String?) {
         if (inited) return
         inited = true
+        // 语言变化后重算章节标签：它们需要「重新取值」而非仅「渲染时解析」，
+        // 因此必须订阅语言流（本项目不重建 Activity，ViewModel 会存活）。
+        observeLanguageChanges(localeProvider) { refreshLocalizedLabels() }
         viewModelScope.launch {
             val b = bookshelfRepo.getBook(bookId) ?: run {
                 _uiState.update { it.copy(notFound = true) }
@@ -144,6 +150,25 @@ class RoleplayViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    /**
+     * 界面语言变化后重算章节标签。
+     *
+     * 由 [observeLanguageChanges] 驱动。只重算这两个标签，不重新加载会话与消息。
+     */
+    private suspend fun refreshLocalizedLabels() {
+        val b = book ?: return
+        val sid = _uiState.value.sessionId.takeIf { it.isNotBlank() } ?: return
+        val session = aiChatRepo.getRoleplaySession(sid) ?: return
+        val chapterLabel = b.currentChapter?.takeIf { it.isNotBlank() }
+            ?.let { UiMessage.Raw(it) }
+            ?: UiMessage.Res(R.string.roleplay_vm_not_started)
+        val knowledgeLabel = session.lastReadChapterTitle.ifBlank { "" }
+            .takeIf { it.isNotBlank() }
+            ?.let { UiMessage.Raw(it) }
+            ?: UiMessage.Res(R.string.roleplay_vm_chapter_label, session.lastReadChapter + 1)
+        _uiState.update { it.copy(chapterLabel = chapterLabel, knowledgeLabel = knowledgeLabel) }
     }
 
     fun sendMessage(text: String) {

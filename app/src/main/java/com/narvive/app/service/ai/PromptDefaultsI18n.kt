@@ -1,11 +1,22 @@
 package com.narvive.app.service.ai
 
+import android.app.Application
+import android.content.ComponentCallbacks
 import android.content.Context
+import android.content.res.Configuration
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.narvive.app.core.AppLang
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 /**
  * 判断当前应使用的提示词语言。
@@ -28,6 +39,55 @@ class PromptLocaleProvider @Inject constructor(
             else -> AppLang.ZH_HANS
         }
     }
+
+    /**
+     * 语言变化流：[current] 的可观察版本，语言变化时发射新值。
+     *
+     * **为什么需要它**：`UiMessage` 只保证「渲染时按当前语言解析」，但**不会让值重算**。
+     * 凡是「需要根据语言重新计算内容」的状态（问候语要从语言池重新随机、建议卡要重建、
+     * 章节标签要重取兜底文案），都必须订阅本流自行重算，否则会停留在旧语言。
+     * 本项目不重建 Activity，ViewModel 存活，所以这是必需的一环。
+     *
+     * 实现：监听 `Application` 的配置变化（AppCompat / 系统改 per-app locale 都会回调它），
+     * 并做 `distinctUntilChanged`，避免无意义的重复发射。
+     */
+    fun currentFlow(): Flow<AppLang> = callbackFlow {
+        trySend(current())
+        val app = context.applicationContext as? Application
+        if (app == null) {
+            // 极端情况下拿不到 Application（如测试环境）：退化为只发射当前值
+            awaitClose { }
+            return@callbackFlow
+        }
+        val callbacks = object : ComponentCallbacks {
+            override fun onConfigurationChanged(newConfig: Configuration) {
+                trySend(current())
+            }
+
+            override fun onLowMemory() = Unit
+        }
+        app.registerComponentCallbacks(callbacks)
+        awaitClose { app.unregisterComponentCallbacks(callbacks) }
+    }.distinctUntilChanged()
+}
+
+/**
+ * 让 ViewModel 对**界面语言变化**做出反应，且**每个实例只注册一次**。
+ *
+ * 这是本项目「不重建 Activity」方案下必须配套的一环：
+ * `UiMessage` 解决「渲染时解析」，本函数解决「值要重算」。
+ *
+ * 用法：放在 ViewModel 的 `init { }` 或 `fun init(...)` 里，
+ * [onLanguageChanged] 里只做「重算 + 写回 `_uiState`」，不要做与语言无关的重活。
+ *
+ * 注意：首次订阅会立即收到当前语言一次，因此 [onLanguageChanged] 也会先被调用一次；
+ * 对幂等的重算（重取 greeting / 标签 / 预览）来说这是无害的。
+ */
+fun ViewModel.observeLanguageChanges(
+    localeProvider: PromptLocaleProvider,
+    onLanguageChanged: suspend () -> Unit,
+): Job = viewModelScope.launch {
+    localeProvider.currentFlow().collect { onLanguageChanged() }
 }
 
 /**

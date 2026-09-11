@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.narvive.app.R
+import com.narvive.app.service.ai.PromptLocaleProvider
+import com.narvive.app.service.ai.observeLanguageChanges
 import com.narvive.app.ui.message.UiMessage
 import com.narvive.app.ui.message.resolve
 import com.narvive.app.domain.model.Book
@@ -47,6 +49,7 @@ class CharacterCardViewModel @Inject constructor(
     private val extractor: CharacterCardExtractor,
     private val tocLoader: TocLoader,
     @ApplicationContext private val appContext: Context,
+    private val localeProvider: PromptLocaleProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CharacterCardUiState())
@@ -68,6 +71,8 @@ class CharacterCardViewModel @Inject constructor(
     fun init(bookId: String, characterName: String, sessionId: String?) {
         if (inited) return
         inited = true
+        // 语言变化后重算章节标签（需要「重新取值」而不仅是「渲染时解析」）
+        observeLanguageChanges(localeProvider) { refreshLocalizedLabel() }
         viewModelScope.launch {
             val b = bookshelfRepo.getBook(bookId) ?: return@launch
             book = b
@@ -103,6 +108,21 @@ class CharacterCardViewModel @Inject constructor(
                 extract(characterName)
             }
         }
+    }
+
+    /**
+     * 界面语言变化后重算章节标签（由 [observeLanguageChanges] 驱动）。
+     *
+     * 同时更新 [chapterTitle]：它会被回写到角色卡的 knowledgeBoundary，必须与界面语言一致。
+     * 若已读到章节，`currentChapter` 是书籍内容（非界面文案），不受语言影响。
+     */
+    private fun refreshLocalizedLabel() {
+        val b = book ?: return
+        val label = b.currentChapter?.takeIf { it.isNotBlank() }
+            ?.let { UiMessage.Raw(it) }
+            ?: UiMessage.Res(R.string.ai_internal_chapter_label, chapterIndex + 1)
+        chapterTitle = label
+        _uiState.update { it.copy(chapterLabel = label) }
     }
 
     /** 解析当前章索引：TXT 用 locator.chapter；EPUB 按目录 href 匹配（修复「知晓至第x章」显示） */
