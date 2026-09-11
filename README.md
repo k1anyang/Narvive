@@ -10,18 +10,15 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/k1anyang/Narvive/actions/workflows/build.yml/badge.svg)](https://github.com/k1anyang/Narvive/actions/workflows/build.yml)
 
-| Library | Reader | Selection actions |
-| --- | --- | --- |
-| ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Selection actions](docs/screenshots/selection.png) |
-
-| AI chat (cross-book) | Notes | |
-| --- | --- | --- |
-| ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) | |
+| Library | Reader | Selection actions | AI chat (cross-book) | Notes |
+| --- | --- | --- | --- | --- |
+| ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Selection actions](docs/screenshots/selection.png) | ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) |
 
 ---
 
 ## Table of contents
 
+- [About](#about)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Requirements](#requirements)
@@ -37,6 +34,18 @@
 - [Documentation](#documentation)
 - [Contributing](#contributing)
 - [License](#license)
+
+---
+
+## About
+
+Narvive is a single-module Android app (`com.narvive.app`) built around one idea: put **reading** and **AI** in the same place.
+
+- **Multi-format reading** — EPUB rendered through the [Readium Kotlin Toolkit](https://github.com/readium/kotlin-toolkit), TXT with our own chapter splitting and Compose rendering, and PDF as a **skeleton implementation** (early MVP).
+- **Local-first** — books, annotations, bookmarks and conversations all live in a local Room database and work offline; ZIP backup plus WebDAV sync are available when you want them.
+- **BYOK AI** — no model service is bundled. Bring a key for DeepSeek / OpenAI / Gemini or any OpenAI-compatible or Anthropic-compatible endpoint, and every AI feature unlocks.
+- **Trilingual interface** — 简体中文 / 繁體中文 / English, switchable in-app, with matching Simplified and Traditional Chinese typefaces.
+- **Privacy-friendly** — API keys are encrypted with `EncryptedSharedPreferences` and are **never written into a backup archive**.
 
 ---
 

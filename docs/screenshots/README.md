@@ -1,6 +1,8 @@
 # Screenshots
 
-The three READMEs (`README.md`, `README.zh-CN.md`, `README.zh-TW.md`) each reference **five** images from this folder, laid out as two rows (three + two). They are committed alongside the documentation.
+The three READMEs (`README.md`, `README.zh-CN.md`, `README.zh-TW.md`) each reference **five** images from this folder, laid out as a **single row of five columns** directly under the badges. They are committed alongside the documentation.
+
+> **On narrow screens** (GitHub mobile, or a window under ~900 px) a five-column table squeezes each image to roughly 70 px, and GitHub makes the table scroll horizontally. That is the known trade-off of the one-row layout: the wide desktop view is compact and reads as a screenshot strip, while phone users see small thumbnails.
 
 ## Files referenced
 
@@ -12,7 +14,7 @@ The three READMEs (`README.md`, `README.zh-CN.md`, `README.zh-TW.md`) each refer
 | `ai_chat.png` | Global AI tab | A conversation with the cross-book AI |
 | `notes.png` | Notes | The notes centre with several annotation types present |
 
-> **There is no `graph.png`.** An earlier draft of the READMEs referenced a relationship-graph screenshot; it was removed because the capture was not available. If you add one later, insert a column into the **second** table of all three READMEs — do not append a sixth image on its own row.
+> **There is no `graph.png`.** An earlier draft of the READMEs referenced a relationship-graph screenshot; it was removed because the capture was not available. If you add one later, extend the **single** five-column table in all three READMEs to six columns — do not add a second row.
 
 ## Capture guidelines
 

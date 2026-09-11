@@ -11,13 +11,9 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/k1anyang/Narvive/actions/workflows/build.yml/badge.svg)](https://github.com/k1anyang/Narvive/actions/workflows/build.yml)
 
-| 書架 | 閱讀器 | 選取操作 |
-| --- | --- | --- |
-| ![書架](docs/screenshots/library.png) | ![閱讀器](docs/screenshots/reader.png) | ![選取操作](docs/screenshots/selection.png) |
-
-| AI 對話（跨書） | 筆記中心 | |
-| --- | --- | --- |
-| ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) | |
+| 書架 | 閱讀器 | 選取操作 | AI 對話（跨書） | 筆記中心 |
+| --- | --- | --- | --- | --- |
+| ![書架](docs/screenshots/library.png) | ![閱讀器](docs/screenshots/reader.png) | ![選取操作](docs/screenshots/selection.png) | ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) |
 
 ---
 
