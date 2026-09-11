@@ -106,6 +106,8 @@ Text(stringResource(R.string.library_selected_count, count))
 
 **Use `UiMessage` when localizable text leaves a ViewModel.** A ViewModel or Service cannot call `stringResource`. Carry a `UiMessage.Res(id, args)` (resolved at render time, so it follows later language changes) rather than a `String` baked at assignment time. See `ui/message/UiMessage.kt` and `docs/i18n.md` §5.
 
+**Do not add "refresh on language change" hooks.** This project relies on the standard Activity recreation when the locale changes (see `docs/i18n.md` §2.1), so ViewModels are rebuilt and cached copy is correct by construction — there is nothing to refresh by hand. The reason to keep every string in resources is precisely that: a plain `String` cached in a ViewModel is the only way this can go wrong. Do **not** re-introduce `android:configChanges="locale"` to suppress the recreation; it was tried, it removed a one-frame flash at the cost of silently stale copy on several screens, and it was deliberately reverted. Do **not** add a fade-in to hide that flash either — it makes it more visible.
+
 **Never branch logic on display text.** Do not write `if (message.contains("成功"))` — it breaks the moment the string is translated. Carry a structured flag (for example `TestResult(ok: Boolean, message: String)`) instead.
 
 ### When you add a string

@@ -11,13 +11,9 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/k1anyang/Narvive/actions/workflows/build.yml/badge.svg)](https://github.com/k1anyang/Narvive/actions/workflows/build.yml)
 
-| 書架 | 閱讀器 | 選取操作 |
-| --- | --- | --- |
-| ![書架](docs/screenshots/library.png) | ![閱讀器](docs/screenshots/reader.png) | ![選取操作](docs/screenshots/selection.png) |
-
-| AI 對話（跨書） | 筆記中心 | |
-| --- | --- | --- |
-| ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) | |
+| 書架 | 閱讀器 | 選取操作 | AI 對話（跨書） | 筆記中心 |
+| --- | --- | --- | --- | --- |
+| ![書架](docs/screenshots/library.png) | ![閱讀器](docs/screenshots/reader.png) | ![選取操作](docs/screenshots/selection.png) | ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) |
 
 ---
 
@@ -290,7 +286,9 @@ Narvive 提供三語介面：**简体中文（預設）/ 繁體中文 / English*
 
 - **切換位置**：設定 → 語言（獨立頁面，每個語言一列，目前語言帶勾選標記）。
 - **即時生效**：切換後 AppCompat 會重建 Activity，介面文字立即更新；`NavController` 狀態由 `rememberSaveable` 恢復，因此**停留在目前頁面**，不會跳回書架。
-- **切換閃爍的處理**：Activity **仍會被重建**——這是 AppCompat/Android 的標準行為，也正是 Android 13+ 系統「應用程式語言」連動能生效的前提。閃爍並非靠避免重建消除，而是靠兩道措施吸收：視窗背景在 `themes.xml` 與執行階段都設成與目前主題一致的顏色（避免重建瞬間露出異色底色），根內容在合成進入時做一次 180 ms 的透明度淡入。
+- **切換閃爍與方案取捨**：本專案**刻意依賴官方的 Activity 重建行為**。切換語言會銷毀並重建 Activity，因此 ViewModel 一併重建，所有文案（含快取在狀態裡的）天生正確，**不需要任何手動重新整理鉤子**，維護成本最低。
+  - **已接受的代價**：每次切換會**閃一幀**——淺色主題閃黑、深色主題閃白。這是系統在視窗銷毀與重繪之間繪製的空視窗，**無法靠應用程式碼遮蓋**：對齊 `windowBackground`、`values-night` 變體與執行階段改寫背景只能改善**冷啟動**首幀；而疊一層淡入會讓它更明顯。
+  - 因為正確性依賴重建，**所有使用者可見文案必須走資源**。詳見 [docs/i18n.md](docs/i18n.md) §2.1（其中記錄了「攔截重建」方案實作後又回退的完整理由，勿重複踩坑）。
 - **系統同步**：`res/xml/locales_config.xml` 經 `AndroidManifest.xml` 的 `android:localeConfig` 引用，Android 13+ 的「系統設定 → 應用程式 → Narvive → 語言」也能看到這三個選項並與應用程式內選擇保持一致。
 - **AI 輸出語言跟隨介面**：系統提示詞、12 套預設提示詞範本、問候語與建議卡、意圖路由正規表達式（中英聯集）均依當前介面語言取值。**使用者自行修改過的提示詞屬於使用者資料，語言切換絕不覆蓋**。
 - **中文字形分派**：介面字族為 HarmonyOS Sans，依語言選擇 SC / TC 兩套字族（`ui/theme/Type.kt` 的 `narviveTypography(traditionalChinese)`，於 `NarviveTheme` 中經 `MaterialTheme.typography` 下發，消費端零改動）。兩套字符合計約 36 MB。

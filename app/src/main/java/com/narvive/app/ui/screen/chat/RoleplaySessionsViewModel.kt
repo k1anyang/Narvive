@@ -43,13 +43,12 @@ class RoleplaySessionsViewModel @Inject constructor(
         viewModelScope.launch {
             val book = bookshelfRepo.getBook(bookId)
             aiChatRepo.observeRoleplaySessions(bookId).collect { sessions ->
-                val items = sessions.map { s ->
-                    val last = aiChatRepo.getRoleplayMessages(s.id).lastOrNull()
-                    RoleplaySessionItem(s, last?.content ?: appContext.getString(R.string.ai_internal_empty_conversation))
-                }
                 _uiState.value = RoleplaySessionsUiState(
                     bookTitle = book?.title ?: "",
-                    items = items,
+                    items = sessions.map { s ->
+                        val last = aiChatRepo.getRoleplayMessages(s.id).lastOrNull()
+                        RoleplaySessionItem(s, last?.content ?: appContext.getString(R.string.ai_internal_empty_conversation))
+                    },
                     loaded = true,
                 )
             }

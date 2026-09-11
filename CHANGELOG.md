@@ -30,7 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Error messages now retranslate when the interface language changes, instead of staying in the language they were created in.
-- **Language-switch flicker mitigated.** The activity is still recreated on a language change — that is standard AppCompat/Android behaviour and the precondition for Android 13+ system app-language integration — so the flicker is absorbed by a transition rather than avoided. `Theme.Narvive` now sets `android:windowBackground` to a colour matching the default theme and `NarviveTheme` overwrites the window background at runtime from the active colour scheme's `background`, so no foreign-coloured frame is drawn during recreation; the root content additionally fades in over 180 ms when the composition is entered.
+- **Language switch: the app deliberately relies on the standard Activity recreation.** An attempt to suppress it with `android:configChanges="locale|layoutDirection"` did eliminate the flicker, but it made every cached localised string in a ViewModel go stale silently, requiring a manual refresh hook per screen. Reverted to the official behaviour, which rebuilds the ViewModels and therefore keeps copy correct by construction. See `docs/i18n.md` §2.1 for the full trade-off.
+  - **Accepted cost:** one frame flashes on each language switch — black on a light theme, white on a dark one. This is the system drawing an empty window between teardown and redraw; it cannot be covered from app code, and a fade-in over it makes it worse. Do not retry either workaround.
+  - **Kept mitigations:** `Theme.Narvive` sets `android:windowBackground` to a colour matching the default theme, `values-night/colors.xml` provides the dark counterpart, and `NarviveTheme` rewrites the window background at runtime from the active colour scheme's `background`. These only help the *cold-start* first frame.
 - **Copy fixes.** The English reader HUD now reads **"Prev chapter"** instead of "Previous chapter", and the Notes empty state gained horizontal padding with centred text so the longer English hints no longer hug the screen edges.
 
 ## [1.0.0]
