@@ -51,5 +51,5 @@ Initial release.
 - Encrypted storage of API keys and the WebDAV password via `EncryptedSharedPreferences`; credentials are never included in backup archives.
 - Downloadable reader fonts from a remote catalogue.
 
-[Unreleased]: https://github.com/k1anyang/Narvive/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/k1anyang/Narvive/releases/tag/v1.0.0
+[Unreleased]: https://github.com/k1anyang/Narvive/compare/v1.0.0-beta.2...HEAD
+[1.0.0]: https://github.com/k1anyang/Narvive/releases/tag/v1.0.0-beta.2
