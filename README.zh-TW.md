@@ -15,9 +15,9 @@
 | --- | --- | --- |
 | ![書架](docs/screenshots/library.png) | ![閱讀器](docs/screenshots/reader.png) | ![選取操作](docs/screenshots/selection.png) |
 
-| 人物關係圖 | AI 對話（跨書） | 筆記中心 |
+| AI 對話（跨書） | 筆記中心 | |
 | --- | --- | --- |
-| ![人物關係圖](docs/screenshots/graph.png) | ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) |
+| ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) | |
 
 ---
 
@@ -31,6 +31,7 @@
 - [快速上手](#快速上手)
 - [設定項說明](#設定項說明)
 - [介面語言](#介面語言)
+- [隱私](#隱私)
 - [專案目錄結構](#專案目錄結構)
 - [主要模組功能介紹](#主要模組功能介紹)
 - [使用範例](#使用範例)
@@ -403,6 +404,15 @@ Narvive
 - `BackupService`：ZIP 備份 / 還原（id 重新對應、hash 去重、設定快照，API Key 不入包）。
 - `WebDavService`：MKCOL / PUT / PROPFIND / GET / DELETE，自動同步與遠端清理。
 - `StorageService` / `AppCacheService`：儲存統計與快取清理。
+
+---
+
+## 隱私
+
+- **本機優先**：無帳號、無註冊、無行為埋點、無分析 SDK。書庫、筆記與閱讀紀錄全部留在裝置上。
+- **BYOK**：AI 唯一的網路出口是你自己設定的服務商。請求由裝置直連你填寫的端點，不經過任何中間伺服器。
+- **金鑰處理**：API Key 透過 `EncryptedSharedPreferences` 加密落盤，並被排除在備份包之外。
+- 閱讀、標註與統計功能可完全離線使用。
 
 ---
 

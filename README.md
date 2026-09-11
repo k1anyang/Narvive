@@ -14,9 +14,29 @@
 | --- | --- | --- |
 | ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Selection actions](docs/screenshots/selection.png) |
 
-| Relationship graph | AI chat (cross-book) | Notes |
+| AI chat (cross-book) | Notes | |
 | --- | --- | --- |
-| ![Relationship graph](docs/screenshots/graph.png) | ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) |
+| ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) | |
+
+---
+
+## Table of contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Requirements](#requirements)
+- [Getting Started](#getting-started)
+- [Build a release APK](#build-a-release-apk)
+- [Quick start](#quick-start)
+- [Configuration](#configuration)
+- [Interface language](#interface-language)
+- [Privacy](#privacy)
+- [Project structure](#project-structure)
+- [Key modules](#key-modules)
+- [Usage examples](#usage-examples)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [License](#license)
 
 ---
 
@@ -263,6 +283,45 @@ Narvive
 - `BackupService` — ZIP export and restore (id remapping, hash-based de-duplication, settings snapshot; API keys never enter the archive).
 - `WebDavService` — MKCOL / PUT / PROPFIND / GET / DELETE, auto-sync and remote pruning.
 - `StorageService` / `AppCacheService` — storage accounting and cache clearing.
+
+---
+
+## Usage examples
+
+### Example 1 — AI translation inside the reader
+
+1. Open an English EPUB and long-press to select a passage.
+2. Tap **Translate** in the action bubble.
+3. The first call goes to the AI and is stored as a `TRANSLATION` annotation (shown with a red underline). Translating the same sentence again hits the cache, so it costs nothing.
+
+### Example 2 — Relationship graph
+
+1. Open **Ask AI** for a book (from the book details page, or the AI panel inside the reader).
+2. Switch the scope to **This chapter** or **Whole book**.
+3. Tap the **Relationship graph** quick command. The AI returns structured JSON, which `GraphSheet` parses into a zoomable, draggable Canvas graph with node highlighting.
+
+### Example 3 — Cross-book chat in the bottom AI tab
+
+1. Switch to the **AI** tab at the bottom.
+2. Type `@` to open the inline book picker (the keyboard stays up). Tick up to five books, or tick the whole library.
+3. Ask something like "summarise the themes these books share". The AI answers from the selected books' metadata (title, author, progress, summary).
+
+### Example 4 — Rewrite and continue
+
+1. In the reader, long-press to select text, then choose **Rewrite** or **Continue**.
+2. On the rewrite screen, enter an instruction such as "make it more conversational".
+3. The book title, author and chapter name plus the surrounding context are attached automatically (1200 characters of preceding text for continuation, 600 on each side for rewriting). The result can be saved as a note or exported as plain text.
+
+### Example 5 — Backup and restore
+
+1. Settings → Backup → Export produces `NarviveBackup-YYYYMMDD.zip` (books, covers, annotations, bookmarks, collections and some settings).
+2. On a new device: Settings → Backup → Import merges by hash. Books with the same title but a different hash are both kept, with a suffix added to the imported title.
+
+### Example 6 — Switching the interface language
+
+1. Settings → Language.
+2. Pick **English** or **繁體中文**. Copy updates immediately and you stay on the same page.
+3. Go back to the library, reader or AI tab — both the interface and the AI's reply language have switched. On Android 13+ the same choice appears under the system **Settings → Apps → Narvive → Language** entry.
 
 ---
 
