@@ -45,10 +45,11 @@ class MainActivity : AppCompatActivity() {
     /**
      * 用已保存的 per-app locale 覆盖 base context。
      *
-     * 为什么保留（依赖重建方案下它仍有用）：切换语言时本 Activity 会被系统重建，
-     * 重建后的**首帧**必须已经使用新语言的资源。AppCompat 也会做这件事，但在部分
-     * 时序下晚于本方法，导致首帧仍按旧 locale 排版、随后文字宽度变化。这里在 attach
-     * 阶段同步读一次已持久化的 locale 并应用，保证首帧就是新语言，不等任何异步状态。
+     * 为什么需要：`AppCompatDelegate.setApplicationLocales()` 之后本 Activity 会被重创建，
+     * 重创建的第一帧必须已经使用新语言的资源。AppCompat 也会做这件事，但它在部分
+     * 时序下晚于本方法，导致首帧仍按旧 locale 排版、随后文字宽度变化（视觉上表现为
+     * 「闪一下」）。这里在 attach 阶段同步读一次已持久化的 locale 并应用，
+     * 保证**首帧就是新语言**，不等任何异步状态。
      *
      * 读取用 `getApplicationLocales()`（同步、无 IO）。若用户尚未设置过（空列表），
      * 直接沿用系统配置，行为与改造前一致。
@@ -65,6 +66,26 @@ class MainActivity : AppCompatActivity() {
             setLocales(LocaleList(*locales))
         }
         super.attachBaseContext(newBase.createConfigurationContext(config))
+    }
+
+    /**
+     * 界面语言变更（以及布局方向变更）时**不重建 Activity**，原地换掉资源配置。
+     *
+     * 配合清单里的 `android:configChanges="locale|layoutDirection"`：
+     * 系统不再销毁重建窗口，因此消除了重建瞬间那帧「反面底色」的闪烁。
+     *
+     * 这里只需重建一个带新 locale 的 Context 并交给 super：AppCompat 与 Compose 会
+     * 从更新后的 configuration 重新取资源，`stringResource` 随之刷新。
+     * 无需手动刷新 View 或重设 content。
+     */
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        val localeConfig = Configuration(newConfig).apply {
+            val locales = AppCompatDelegate.getApplicationLocales()
+            if (!locales.isEmpty) {
+                setLocales(LocaleList(*Array(locales.size()) { index -> locales[index] }))
+            }
+        }
+        super.onConfigurationChanged(localeConfig)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

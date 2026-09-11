@@ -10,9 +10,13 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/k1anyang/Narvive/actions/workflows/build.yml/badge.svg)](https://github.com/k1anyang/Narvive/actions/workflows/build.yml)
 
-| Library | Reader | Selection actions | AI chat (cross-book) | Notes |
-| --- | --- | --- | --- | --- |
-| ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Selection actions](docs/screenshots/selection.png) | ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) |
+| Library | Reader | Selection actions |
+| --- | --- | --- |
+| ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Selection actions](docs/screenshots/selection.png) |
+
+| AI chat (cross-book) | Notes | |
+| --- | --- | --- |
+| ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) | |
 
 ---
 
@@ -161,9 +165,7 @@ Switch it at **Settings → Language**, a page of its own (one language per row,
 
 AI replies follow the interface language too — the system prompt, the 12 default templates, greeting and suggestion copy, and the intent-routing patterns are all localised. Prompts you have customised yourself are never overwritten by a language change.
 
-**The app deliberately relies on the standard Activity recreation.** Switching the locale tears down and rebuilds the Activity, so every ViewModel is rebuilt and all copy — including text cached in state — is correct by construction, with no manual refresh hooks to maintain. This is the recommended Android path.
-
-The accepted cost is that **one frame flashes on each switch** — black on a light theme, white on a dark one — because the system draws an empty window between teardown and redraw. That frame cannot be covered from app code: matching `windowBackground` in `themes.xml`, a `values-night` variant and a runtime rewrite from the active colour scheme only improve the *cold-start* frame, and a fade-in over the gap makes it more visible, not less. Because correctness depends on the recreation, all user-visible strings must live in `resources` — see [`docs/i18n.md`](docs/i18n.md) §2.1.
+**No activity recreation, and therefore no flicker.** The earlier implementation let AppCompat recreate the activity on a locale change, which exposed a frame of the system's default window colour between teardown and redraw — black on a light theme, white on a dark one. Window-background matching and fade-ins cannot cover that frame because they only affect what is drawn *after* it. `MainActivity` therefore declares `android:configChanges="locale|layoutDirection"` and handles `onConfigurationChanged` itself, so the window is never torn down. This does **not** affect the Android 13+ system app-language entry, which is driven by `res/xml/locales_config.xml` independently.
 
 Mechanism, the module-split resource layout, the coding rules and the steps for **adding a new language**: [`docs/i18n.md`](docs/i18n.md).
 

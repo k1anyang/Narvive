@@ -24,24 +24,18 @@
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.Narvive"
-            android:windowSoftInputMode="adjustResize">
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="DiscouragedApi"
+            android:configChanges="locale|layoutDirection">
             <!--
-              界面语言切换依赖 AppCompat / 系统的**官方重建行为**：不声明 locale 的
-              configChanges，因此系统会销毁并重建本 Activity。
-
-              为什么不拦截重建（曾实现过 `configChanges="locale|layoutDirection"`）：
-              拦截后确实不再闪烁，但代价是「凡把本地化文案缓存进 ViewModel 的地方
-              都要自己记得刷新」，属分散且静默的维护负担。改为官方重建后 ViewModel 随
-              Activity 重建，文案刷新由框架保证，维护成本更低、也更符合官方推荐。
-
-              已知代价：重建瞬间系统会绘制一帧空窗口，表现为「浅色闪黑、深色闪白」。
-              这一帧无法用 windowBackground 或淡入遮盖（都只能影响重建**之后**的帧），
-              属系统行为，不要再试图消除，也不要为此改回拦截重建。
-              唯一有效的缓解是「让首帧与主题同色」：见 res/values/themes.xml、
-              res/values-night/colors.xml，以及 ui/theme/Theme.kt 的窗口背景同步。
-
-              因为依赖重建，**所有用户可见文案必须走 resources**。详见
-              CONTRIBUTING.md 的本地化规范与 docs/i18n.md §2.1。
+              configChanges 里声明 locale|layoutDirection 是**必需**的，不是优化：
+              不声明时，AppCompat 切换 per-app locale 会重创建 Activity，
+              重建过程中系统会先绘制一个默认底色的空窗口 —— 表现为
+              「浅色页面闪一下黑、深色页面闪一下白」（闪烁色永远是当前主题的反面）。
+              窗口背景、淡入过渡都只能事后遮盖，改不掉这一帧。
+              声明后系统改为回调 onConfigurationChanged，窗口不销毁，闪烁从根上消失。
+              注意：这不影响 Android 13+ 系统「应用语言」联动 —— 该入口由
+              res/xml/locales_config.xml 提供，与是否重建 Activity 无关。
             -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
