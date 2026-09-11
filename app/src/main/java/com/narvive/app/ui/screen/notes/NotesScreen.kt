@@ -164,7 +164,7 @@ fun NotesScreen(
                         FilterChip(
                             selected = uiState.bookFilter == chip.id,
                             onClick = { viewModel.setBookFilter(if (uiState.bookFilter == chip.id) null else chip.id) },
-                            label = { Text(stringResource(R.string.notes_filter_count, chip.title, chip.count)) },
+                            label = { Text(stringResource(R.string.notes_filter_count, chip.title ?: stringResource(R.string.notes_unknown_book), chip.count)) },
                         )
                     }
                 }
@@ -258,7 +258,7 @@ private fun AnnotationCard(item: NoteItem, onClick: () -> Unit) {
                 // 末尾截断，书名排在前半段会被先截掉；另外拼接分隔符与 leftLabel 内部的「·」
                 // 相同，书名即使在屏幕上也无法一眼认出是书名。
                 Text(
-                    item.bookTitle,
+                    item.bookTitle ?: stringResource(R.string.notes_unknown_book),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.primary,
@@ -391,7 +391,7 @@ private fun NoteDetailSheet(item: NoteItem, onJump: () -> Unit, onDismiss: () ->
         ) {
             Text(typeLabel(ann.type), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = annotationTypeColor(ann.type))
             Spacer(Modifier.height(6.dp))
-            Text(item.bookTitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(item.bookTitle ?: stringResource(R.string.notes_unknown_book), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (ann.chapterTitle.isNotBlank()) {
                 Text(ann.chapterTitle, style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }

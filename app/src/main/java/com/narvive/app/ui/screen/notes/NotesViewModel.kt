@@ -30,12 +30,20 @@ data class NotesUiState(
     val bookChips: List<BookChip> = emptyList(),
 )
 
+/**
+ * [bookTitle] 为 null 表示书架里已经没有这本书（正常不该发生，书被删时笔记会级联删除）。
+ *
+ * 这里刻意不在这里把「未知书籍」解析成字符串：切语言不重建 Activity，ViewModel 构建出的
+ * 字符串会一直停在旧语言。兜底文案交给 Composable 在渲染时取 stringResource，
+ * 详见 docs/i18n.md §2.1 的编码规则表。
+ * 导出走的是用户主动触发的动作，字符串不进 StateFlow，所以在那边按需解析是允许的。
+ */
 data class NoteItem(
     val annotation: Annotation,
-    val bookTitle: String,
+    val bookTitle: String?,
 )
 
-data class BookChip(val id: String, val title: String, val count: Int)
+data class BookChip(val id: String, val title: String?, val count: Int)
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(
@@ -55,11 +63,11 @@ class NotesViewModel @Inject constructor(
                 _uiState,
             ) { annotations, books, state ->
                 val bookMap = books.associateBy { it.id }
-                val withTitle = annotations.map { NoteItem(it, bookMap[it.bookId]?.title ?: context.getString(R.string.notes_unknown_book)) }
+                val withTitle = annotations.map { NoteItem(it, bookMap[it.bookId]?.title) }
 
                 val typeCounts = annotations.groupBy { it.type }.mapValues { it.value.size }
                 val bookChips = annotations.groupBy { it.bookId }
-                    .map { (id, list) -> BookChip(id, bookMap[id]?.title ?: context.getString(R.string.notes_unknown_book), list.size) }
+                    .map { (id, list) -> BookChip(id, bookMap[id]?.title, list.size) }
                     .sortedByDescending { it.count }
 
                 val filtered = withTitle
@@ -90,7 +98,8 @@ class NotesViewModel @Inject constructor(
     /** 导出单条笔记为 Markdown 并系统分享 */
     fun exportAnnotation(annotation: Annotation) {
         viewModelScope.launch {
-            val bookTitle = _uiState.value.annotations.firstOrNull { it.annotation.id == annotation.id }?.bookTitle ?: ""
+            val bookTitle = _uiState.value.annotations.firstOrNull { it.annotation.id == annotation.id }?.bookTitle
+                ?: context.getString(R.string.notes_unknown_book)
             val md = buildString {
                 appendLine("# $bookTitle")
                 appendLine()
@@ -123,7 +132,7 @@ class NotesViewModel @Inject constructor(
                 appendLine("# 笔记导出")
                 appendLine()
                 items.groupBy { it.bookTitle }.forEach { (bookTitle, list) ->
-                    appendLine("## $bookTitle")
+                    appendLine("## ${bookTitle ?: context.getString(R.string.notes_unknown_book)}")
                     list.forEach { item ->
                         appendLine("- **${label(item.annotation.type)}**：${item.annotation.note ?: item.annotation.translation ?: item.annotation.rewrittenText ?: ""}")
                         if (item.annotation.selectedText.isNotBlank()) appendLine("  > ${item.annotation.selectedText.take(200)}")
