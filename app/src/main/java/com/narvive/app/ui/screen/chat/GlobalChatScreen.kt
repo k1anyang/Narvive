@@ -79,6 +79,7 @@ import com.narvive.app.domain.model.Book
 import com.narvive.app.service.ai.AiMessage
 import com.narvive.app.ui.components.TabPageScaffold
 import com.narvive.app.ui.components.StreamingCursor
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.screen.library.BookCoverImage
 import com.narvive.app.ui.theme.NarviveShape
 import com.narvive.app.ui.theme.SemanticColors
@@ -104,6 +105,8 @@ fun GlobalChatScreen(
     val untitledLabel = stringResource(R.string.chat_untitled_conversation)
     val readingReportPrompt = stringResource(R.string.chat_prompt_reading_report)
     val recommendPrompt = stringResource(R.string.chat_prompt_recommend)
+    // 模板形式（含 %1$s 书名占位符），点击时用书名现拼 —— 见 handleSuggestion
+    val summarizeTemplate = stringResource(R.string.chat_prompt_summarize_book)
 
     LaunchedEffect(Unit) { viewModel.init() }
     var lastMessageCount by remember { mutableStateOf(0) }
@@ -187,14 +190,18 @@ fun GlobalChatScreen(
                 // 空会话：个性化问候 + 建议卡片
                 if (uiState.messages.isEmpty()) {
                     Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp)) {
-                        if (uiState.greeting.isNotBlank()) {
-                            Text(uiState.greeting, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        // 表情后缀在渲染时追加（偏好开启时才加），避免把文案固化成 String
+                        val greetingText = withEmoji(uiState.greeting.text(), uiState.useEmoji)
+                        if (greetingText.isNotBlank()) {
+                            Text(greetingText, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         }
                         if (uiState.suggestions.isNotEmpty()) {
                             Spacer(Modifier.height(8.dp))
                             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 uiState.suggestions.forEach { s ->
-                                    SuggestionCard(s) { handleSuggestion(s, uiState, viewModel, onOpenBookAt, readingReportPrompt, recommendPrompt) }
+                                    SuggestionCard(s, uiState.useEmoji) {
+                                        handleSuggestion(s, uiState, viewModel, onOpenBookAt, readingReportPrompt, recommendPrompt, summarizeTemplate)
+                                    }
                                 }
                             }
                         }
@@ -310,31 +317,47 @@ fun GlobalChatScreen(
     }
 }
 
+/**
+ * 建议卡片的点击处理。
+ *
+ * 提示词（日报 / 推荐 / 总结某书）**在这里按当前语言现取**，而不是从 ViewModel 里
+ * 拿一个拼好的字符串 —— 后者会在语言切换后停留旧语言。
+ */
 private fun handleSuggestion(
     s: Suggestion,
     uiState: GlobalChatUiState,
     viewModel: GlobalChatViewModel,
     onOpenBookAt: (String, String?) -> Unit,
-    readingReportPrompt: String,
+    reportPrompt: String,
     recommendPrompt: String,
+    summarizeTemplate: String,
 ) {
     when (val a = s.action) {
-        is SuggestionAction.Report -> viewModel.sendMessage(readingReportPrompt)
+        is SuggestionAction.Report -> viewModel.sendMessage(reportPrompt)
         is SuggestionAction.Recommend -> viewModel.sendMessage(recommendPrompt)
         is SuggestionAction.Continue -> {
             val locator = uiState.books.find { it.id == a.bookId }?.currentLocator
             onOpenBookAt(a.bookId, locator)
         }
         is SuggestionAction.AskBook -> {
+            val title = uiState.books.find { it.id == a.bookId }?.title ?: ""
             viewModel.clearContext()
             viewModel.toggleBookContext(a.bookId)
-            viewModel.sendMessage(a.prompt)
+            viewModel.sendMessage(String.format(summarizeTemplate, title))
         }
     }
 }
 
+/** 按偏好追加表情后缀。仅在渲染时调用，不写入任何状态。 */
+private fun withEmoji(text: String, useEmoji: Boolean): String =
+    if (useEmoji && text.isNotBlank()) "$text ${GlobalChatViewModel.EMOJI_POOL.random()}" else text
+
 @Composable
-private fun SuggestionCard(s: Suggestion, onClick: () -> Unit) {
+private fun SuggestionCard(s: Suggestion, useEmoji: Boolean, onClick: () -> Unit) {
+    // text() 是 @Composable，必须在 composable 作用域解析后再交给 remember；
+    // 表情在首次组合时随机取一次并记住 —— 若每次重组都 random，标签会不停跳动。
+    val rawLabel = s.label.text()
+    val label = remember(s, useEmoji) { withEmoji(rawLabel, useEmoji) }
     Surface(
         shape = NarviveShape.Md,
         color = MaterialTheme.colorScheme.surface,
@@ -344,7 +367,7 @@ private fun SuggestionCard(s: Suggestion, onClick: () -> Unit) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(Icons.Rounded.AutoAwesome, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.primary)
             Spacer(Modifier.width(6.dp))
-            Text(s.label, style = MaterialTheme.typography.labelMedium)
+            Text(label, style = MaterialTheme.typography.labelMedium)
         }
     }
 }

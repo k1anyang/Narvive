@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.narvive.app.R
 import com.narvive.app.ui.components.SwipeToDeleteRow
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.theme.NarviveShape
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -191,7 +192,7 @@ private fun SessionCard(item: RoleplaySessionItem, onClick: () -> Unit) {
                 }
                 Spacer(Modifier.height(3.dp))
                 Text(
-                    item.preview,
+                    item.preview.text(),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,

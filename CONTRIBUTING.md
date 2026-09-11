@@ -104,7 +104,19 @@ Text(stringResource(R.string.library_selected_count, count))
 
 **A private helper that returns localized text must be marked `@Composable`** — for example `formatSize(...)`, `relativeTime(...)`, `typeLabel(...)`. This is an allowed and necessary change, provided every call site sits in composable scope.
 
-**Use `UiMessage` when localizable text leaves a ViewModel.** A ViewModel or Service cannot call `stringResource`. Carry a `UiMessage.Res(id, args)` (resolved at render time, so it follows later language changes) rather than a `String` baked at assignment time. See `ui/message/UiMessage.kt` and `docs/i18n.md` §5.
+**Use `UiMessage` (or `@StringRes Int`) whenever localizable text is cached outside a composable.** This project suppresses the standard Activity recreation on a language change (`android:configChanges="locale|layoutDirection"`), which removes a one-frame flicker but means **ViewModels survive the switch**. A plain `String` resolved with `getString(...)` at assignment time will therefore stay in the old language, silently.
+
+The rule, in one question: **can this value still be on screen after a language change?**
+
+- **Yes** → it must be `@StringRes Int` (plain labels) or `UiMessage` (`Res(id, args)` resolved at render time; `Raw(text)` for data, server text or AI output). See `ui/message/UiMessage.kt` and `docs/i18n.md` §2.1.
+- **No** — a dialog or snackbar dismissed within seconds → a `String` is acceptable, because the stale window is negligible. `ChatViewModel.error`, `GlobalChatViewModel.error`, `RoleplayViewModel.error`, `CharacterCardViewModel.error` and the library import errors are deliberate examples. **Do not use them as a precedent for new code.**
+
+Two implementation gotchas worth knowing before you hit them:
+
+- `UiMessage.text()` is `@Composable` and **cannot** be called inside a `remember { }` lambda. Resolve it in composable scope first, then hand the `String` to `remember`.
+- When you must write **plain text** into the database or into an AI prompt (a session's chapter title, a character card's knowledge boundary), call `UiMessage.resolve(context)` at the moment you write it.
+
+Do **not** re-introduce the Activity recreation to dodge this rule: that trades a silent staleness bug for a flicker the user sees on every switch. Do **not** add per-screen "refresh on language change" hooks either — with the rule above there is nothing to refresh by hand.
 
 **Never branch logic on display text.** Do not write `if (message.contains("成功"))` — it breaks the moment the string is translated. Carry a structured flag (for example `TestResult(ok: Boolean, message: String)`) instead.
 

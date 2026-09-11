@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.narvive.app.R
 import com.narvive.app.ui.components.EightSegmentLoading
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.theme.NarviveShape
 import com.narvive.app.ui.theme.SemanticColors
 import kotlin.math.roundToInt
@@ -307,7 +308,7 @@ fun RewriteScreen(
             // Error
             uiState.error?.let {
                 Spacer(Modifier.height(12.dp))
-                Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                Text(it.text(), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
             }
             Spacer(Modifier.height(32.dp))
         }

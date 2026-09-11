@@ -19,6 +19,7 @@ import com.narvive.app.service.ai.AiService
 import com.narvive.app.service.ai.AiText
 import com.narvive.app.service.ai.FallbackChain
 import com.narvive.app.service.ai.PromptLocaleProvider
+import com.narvive.app.ui.message.UiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,15 +39,28 @@ data class GlobalConversationInfo(
     val pinned: Boolean = false,
 )
 
+/**
+ * 建议卡片的动作。
+ *
+ * [AskBook] **只带数据（bookId）**，不再携带已拼好的提示词：提示词会在点击时由界面
+ * 按当前语言生成。这样它不会在语言切换后停留旧语言，语义也更正确——用户看到什么语言，
+ * 就发什么语言。
+ */
 sealed interface SuggestionAction {
     data object Report : SuggestionAction
     data object Recommend : SuggestionAction
     data class Continue(val bookId: String) : SuggestionAction
-    data class AskBook(val bookId: String, val prompt: String) : SuggestionAction
+    data class AskBook(val bookId: String) : SuggestionAction
 }
 
+/**
+ * 建议卡片。
+ *
+ * [label] 用 [UiMessage] 而非 String：本项目切换语言不重建 Activity，若存已解析的
+ * String 会停留在旧语言。详见 docs/i18n.md §2.1。
+ */
 data class Suggestion(
-    val label: String,
+    val label: UiMessage,
     val action: SuggestionAction,
 )
 
@@ -64,10 +78,21 @@ data class GlobalChatUiState(
     val contextBookIds: List<String> = emptyList(),
     /** 全部书库聚合上下文 */
     val allBooksContext: Boolean = false,
-    /** 个性化问候（进入/新建会话时随机一次） */
-    val greeting: String = "",
-    /** 建议卡片（随机） */
+    /**
+     * 个性化问候（进入/新建会话时随机一次）。
+     *
+     * 类型是 [UiMessage] 而非 String：切换语言不重建 Activity，存已解析的 String 会陈旧。
+     */
+    val greeting: UiMessage = UiMessage.Raw(""),
+    /** 建议卡片（随机）。label 为 [UiMessage]，见 [Suggestion]。 */
     val suggestions: List<Suggestion> = emptyList(),
+    /**
+     * AI 偏好是否要求使用表情。
+     *
+     * 表情后缀（`styled()`）改为**在界面渲染时**追加，因此偏好要随状态传给 UI。
+     * 这样既能保留原有 emoji 行为，又不会把文案固化成 String。
+     */
+    val useEmoji: Boolean = false,
 )
 
 /** 底部 AI tab：不绑定书籍的全局通用对话 */
@@ -368,34 +393,38 @@ class GlobalChatViewModel @Inject constructor(
         val recent = books.filter { it.lastReadAt > 0 }.take(4)
         _uiState.update {
             it.copy(
-                greeting = buildGreeting(profile),
-                suggestions = buildSuggestions(recent, profile),
+                greeting = buildGreeting(),
+                suggestions = buildSuggestions(recent),
+                useEmoji = profile.useEmoji,
             )
         }
     }
 
-    private fun buildGreeting(profile: AiProfile): String {
+    /** 问候语：[UiMessage.Raw] 承载，因为它是从语言池里随机取的整句，无需参数化。 */
+    private fun buildGreeting(): UiMessage {
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        val pool = AiText.greetingPool(lang(), hour)
-        return styled(pool.random(), profile)
+        return UiMessage.Raw(AiText.greetingPool(lang(), hour).random())
     }
 
-    private fun buildSuggestions(recent: List<Book>, profile: AiProfile): List<Suggestion> {
+    /**
+     * 建议卡片。
+     *
+     * 不再在这里拼 emoji 后缀（改由界面按 [GlobalChatUiState.useEmoji] 渲染时追加），
+     * 也不再把提示词写进 [SuggestionAction.AskBook]（改由界面点击时生成）。
+     */
+    private fun buildSuggestions(recent: List<Book>): List<Suggestion> {
         val lang = lang()
         val list = mutableListOf<Suggestion>()
         recent.firstOrNull()?.let { b ->
-            list.add(Suggestion(styled(AiText.suggestContinue(lang, b.title), profile), SuggestionAction.Continue(b.id)))
+            list.add(Suggestion(UiMessage.Raw(AiText.suggestContinue(lang, b.title)), SuggestionAction.Continue(b.id)))
         }
-        list.add(Suggestion(styled(AiText.suggestReport(lang), profile), SuggestionAction.Report))
-        list.add(Suggestion(styled(AiText.suggestRecommend(lang), profile), SuggestionAction.Recommend))
+        list.add(Suggestion(UiMessage.Raw(AiText.suggestReport(lang)), SuggestionAction.Report))
+        list.add(Suggestion(UiMessage.Raw(AiText.suggestRecommend(lang)), SuggestionAction.Recommend))
         recent.firstOrNull()?.let { b ->
-            list.add(Suggestion(styled(AiText.suggestSummarize(lang, b.title), profile), SuggestionAction.AskBook(b.id, AiText.suggestSummarize(lang, b.title))))
+            list.add(Suggestion(UiMessage.Raw(AiText.suggestSummarize(lang, b.title)), SuggestionAction.AskBook(b.id)))
         }
         return list.shuffled().take(4)
     }
-
-    private fun styled(text: String, profile: AiProfile): String =
-        if (profile.useEmoji) "$text ${emojiPool.random()}" else text
 
     // ── 意图路由（本地规则，命中才取本地数据注入） ──
 
@@ -510,9 +539,10 @@ class GlobalChatViewModel @Inject constructor(
 
     companion object {
         /**
-         * 全局 AI 的系统提示词已迁移到 [AiText.globalSystemPrompt]（按界面语言返回），
-         * 原硬编码常量会让英文界面下的 AI 仍用中文回答。
+         * 表情池。**由界面在渲染时**用于给问候语与建议卡追加后缀
+         * （见 [GlobalChatUiState.useEmoji]）——放在界面层是为了避免把文案
+         * 连同 emoji 一起固化成 String，那样切换语言后会陈旧。
          */
-        private val emojiPool = listOf("👋", "✨", "📚", "😊", "🌟", "📖")
+        val EMOJI_POOL = listOf("👋", "✨", "📚", "😊", "🌟", "📖")
     }
 }

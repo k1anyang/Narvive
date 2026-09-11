@@ -10,6 +10,7 @@ import com.narvive.app.domain.model.Book
 import com.narvive.app.domain.model.ReadingSession
 import com.narvive.app.domain.repository.BookshelfRepository
 import com.narvive.app.domain.repository.ReadingRepository
+import com.narvive.app.ui.message.UiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,15 +35,34 @@ data class StatsUiState(
     val booksFinished: Int = 0,
     val chartPoints: List<ChartPoint> = emptyList(),
     val chartRange: ChartRange = ChartRange.DAY,
-    /** 图表标题。动态日期文案在 ViewModel 内按语言解析，故为 String 而非资源 id。 */
-    val chartLabel: String = "",
+    /**
+     * 图表标题。
+     *
+     * 类型是 [UiMessage] 而非 String：标题可能是固定文案（「今日」），也可能是
+     * 按日期格式化的动态文本。用 `Res` 承载前者即可随语言变化；后者用 `Raw`，
+     * 由界面在语言变化时重新生成（见 [StatsViewModel] 的刷新说明）。
+     *
+     * **不要**改回 String —— 那会在语言切换后停留在旧语言（本项目不重建 Activity）。
+     */
+    val chartLabel: UiMessage = UiMessage.Res(R.string.stats_vm_today),
     val canGoBack: Boolean = false,
     val canGoForward: Boolean = false,
     val finishedBooks: List<FinishedBook> = emptyList(),
     val showAllFinished: Boolean = false,
 )
 
-data class FinishedBook(val title: String, val author: String, val dateLabel: String, val coverPath: String?)
+/**
+ * 已读完的书。
+ *
+ * [dateLabel] 是**展示用**日期：既有固定文案，也有按语言格式化的动态日期，
+ * 因此与 `chartLabel` 一样用 [UiMessage] 承载，避免语言切换后陈旧。
+ */
+data class FinishedBook(
+    val title: String,
+    val author: String,
+    val dateLabel: UiMessage,
+    val coverPath: String?,
+)
 
 /** 范围标签用字符串资源 id（ViewModel 非 Composable，由界面侧 `stringResource(range.labelRes)` 解析）。 */
 enum class ChartRange(@StringRes val labelRes: Int) {
@@ -167,7 +187,14 @@ class StatsViewModel @Inject constructor(
         val finished = books
             .filter { it.isFinished || it.progress >= 0.95f }
             .sortedByDescending { it.lastReadAt }
-            .map { FinishedBook(it.title, it.author ?: tr(R.string.stats_vm_unknown_author), dateFormat.format(Date(it.lastReadAt)), it.coverPath) }
+            .map {
+                FinishedBook(
+                    title = it.title,
+                    author = it.author ?: tr(R.string.stats_vm_unknown_author),
+                    dateLabel = UiMessage.Raw(dateFormat.format(Date(it.lastReadAt))),
+                    coverPath = it.coverPath,
+                )
+            }
 
         val range = _uiState.value.chartRange
         val result = buildChart(sessions, range, ::duration)
@@ -191,7 +218,7 @@ class StatsViewModel @Inject constructor(
 
     private data class ChartResult(
         val points: List<ChartPoint>,
-        val label: String,
+        val label: UiMessage,
         val canBack: Boolean,
         val canForward: Boolean,
     )
@@ -232,7 +259,7 @@ class StatsViewModel @Inject constructor(
         val points = (0..23).map { h ->
             ChartPoint("${h}:00", buckets[h], isCurrent = isToday && h == Calendar.getInstance().get(Calendar.HOUR_OF_DAY))
         }
-        val label = if (isToday) tr(R.string.stats_vm_today) else dateFmt.format(Date(dayStart))
+        val label = if (isToday) UiMessage.Res(R.string.stats_vm_today) else UiMessage.Raw(dateFmt.format(Date(dayStart)))
         val canBack = dayStart > sixMonthsAgo
         val canForward = !isToday
         return ChartResult(points, label, canBack, canForward)
@@ -255,7 +282,7 @@ class StatsViewModel @Inject constructor(
 
         val weekEnd = weekStart + 6 * DAY_MS
         val thisWeek = weekStartMillis()
-        val label = if (weekStart == thisWeek) tr(R.string.stats_vm_last_week) else "${shortFmt.format(Date(weekStart))} - ${shortFmt.format(Date(weekEnd))}"
+        val label = if (weekStart == thisWeek) UiMessage.Res(R.string.stats_vm_last_week) else UiMessage.Raw("${shortFmt.format(Date(weekStart))} - ${shortFmt.format(Date(weekEnd))}")
         val canBack = weekStart > sixMonthsAgo
         val canForward = weekStart < thisWeek
         return ChartResult(points, label, canBack, canForward)
@@ -285,7 +312,12 @@ class StatsViewModel @Inject constructor(
         }
 
         val thisMonth = monthStartMillis()
-        val label = if (monthStart == thisMonth) tr(R.string.stats_vm_last_month) else tr(R.string.stats_vm_year_month, year, monthFmt.format(Date(monthStart)))
+        // 用 UiMessage.Res 承载参数化标题：月份名按语言格式化，渲染时再解析
+        val label = if (monthStart == thisMonth) {
+            UiMessage.Res(R.string.stats_vm_last_month)
+        } else {
+            UiMessage.Res(R.string.stats_vm_year_month, year, monthFmt.format(Date(monthStart)))
+        }
         val canBack = monthStart > sixMonthsAgo
         val canForward = monthStart < thisMonth
         return ChartResult(points, label, canBack, canForward)
@@ -293,10 +325,10 @@ class StatsViewModel @Inject constructor(
 
     // ── 标签 ──
 
-    private fun labelFor(range: ChartRange): String = when (range) {
-        ChartRange.DAY -> tr(R.string.stats_vm_today)
-        ChartRange.WEEK -> tr(R.string.stats_vm_last_week)
-        ChartRange.MONTH -> tr(R.string.stats_vm_last_month)
+    private fun labelFor(range: ChartRange): UiMessage = when (range) {
+        ChartRange.DAY -> UiMessage.Res(R.string.stats_vm_today)
+        ChartRange.WEEK -> UiMessage.Res(R.string.stats_vm_last_week)
+        ChartRange.MONTH -> UiMessage.Res(R.string.stats_vm_last_month)
     }
 
     // ── 工具 ──

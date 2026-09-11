@@ -53,6 +53,7 @@ import com.narvive.app.domain.model.FontInfo
 import com.narvive.app.service.font.FontDownloadState
 import com.narvive.app.service.font.FontResolver
 import com.narvive.app.ui.components.TabPageScaffold
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.theme.NarviveShape
 
 /**
@@ -115,7 +116,7 @@ fun FontSettingsScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(uiState.error ?: stringResource(R.string.font_settings_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(uiState.error?.text() ?: stringResource(R.string.font_settings_empty), color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(Modifier.height(12.dp))
                         OutlinedButton(onClick = viewModel::retry) { Text(stringResource(R.string.common_retry)) }
                     }

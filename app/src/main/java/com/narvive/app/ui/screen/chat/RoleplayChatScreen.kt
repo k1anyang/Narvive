@@ -58,6 +58,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.narvive.app.R
 import com.narvive.app.service.ai.AiMessage
 import com.narvive.app.ui.components.StreamingCursor
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.theme.NarviveShape
 
 /**
@@ -104,7 +105,7 @@ fun RoleplayChatScreen(
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            "${uiState.bookTitle} · ${uiState.chapterLabel}",
+                            "${uiState.bookTitle} · ${uiState.chapterLabel.text()}",
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -178,7 +179,7 @@ fun RoleplayChatScreen(
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     Surface(shape = NarviveShape.Md, color = MaterialTheme.colorScheme.primaryContainer) {
                         Text(
-                            stringResource(R.string.chat_roleplay_knowledge_chip, uiState.characterName, uiState.knowledgeLabel),
+                            stringResource(R.string.chat_roleplay_knowledge_chip, uiState.characterName, uiState.knowledgeLabel.text()),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp),

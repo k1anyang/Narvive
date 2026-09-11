@@ -63,6 +63,7 @@
     <string name="chat_global_input_placeholder">想問什麼… 輸入 @ 選書</string>
     <string name="chat_prompt_reading_report">幫我總結閱讀日報</string>
     <string name="chat_prompt_recommend">推薦我讀什麼</string>
+    <string name="chat_prompt_summarize_book">總結《%1$s》</string>
     <string name="chat_context_pick_book">@ 選書</string>
     <string name="chat_all_library">全部書庫</string>
     <string name="chat_book_title_brackets">《%1$s》</string>

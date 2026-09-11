@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.narvive.app.R
+import com.narvive.app.ui.message.UiMessage
+import com.narvive.app.ui.message.resolve
 import com.narvive.app.domain.model.Annotation
 import com.narvive.app.domain.model.AnnotationType
 import com.narvive.app.domain.model.Book
@@ -33,10 +35,15 @@ data class RoleplayUiState(
     val sessionId: String = "",
     val characterName: String = "",
     val characterCard: CharacterCard? = null,
-    /** 实时章节标签（「与xx对话」下方副标题用，随阅读进度变化） */
-    val chapterLabel: String = "",
-    /** 知识边界快照标签（章节名，仅抽取/刷新后随会话快照变化） */
-    val knowledgeLabel: String = "",
+    /**
+     * 实时章节标签（「与xx对话」下方副标题用，随阅读进度变化）。
+     *
+     * 取到章节标题时是**数据**（[UiMessage.Raw]），否则是本地化兜底（[UiMessage.Res]）。
+     * 用 UiMessage 而非 String：本项目切换语言不重建 Activity，存 String 会陈旧。
+     */
+    val chapterLabel: UiMessage = UiMessage.Raw(""),
+    /** 知识边界快照标签（章节名，仅抽取/刷新后随会话快照变化）。同上，用 UiMessage。 */
+    val knowledgeLabel: UiMessage = UiMessage.Raw(""),
     val messages: List<AiMessage> = emptyList(),
     val isStreaming: Boolean = false,
     val notFound: Boolean = false,
@@ -75,7 +82,10 @@ class RoleplayViewModel @Inject constructor(
                 return@launch
             }
             book = b
-            val chapterLabel = b.currentChapter?.takeIf { it.isNotBlank() } ?: appContext.getString(R.string.roleplay_vm_not_started)
+            // 取到章节标题即数据（Raw），否则用资源兜底（Res）——后者会随语言变化
+            val chapterLabel = b.currentChapter?.takeIf { it.isNotBlank() }
+                ?.let { UiMessage.Raw(it) }
+                ?: UiMessage.Res(R.string.roleplay_vm_not_started)
 
             val session = sessionId?.let { aiChatRepo.getRoleplaySession(it) }
             if (session == null) {
@@ -84,7 +94,10 @@ class RoleplayViewModel @Inject constructor(
             }
 
             val card = session.characterCard
-            val knowledgeLabel = session.lastReadChapterTitle.ifBlank { appContext.getString(R.string.roleplay_vm_chapter_label, session.lastReadChapter + 1) }
+            val knowledgeLabel = session.lastReadChapterTitle.ifBlank { "" }
+                .takeIf { it.isNotBlank() }
+                ?.let { UiMessage.Raw(it) }
+                ?: UiMessage.Res(R.string.roleplay_vm_chapter_label, session.lastReadChapter + 1)
             _uiState.update {
                 it.copy(
                     bookTitle = b.title,
@@ -95,6 +108,10 @@ class RoleplayViewModel @Inject constructor(
                     knowledgeLabel = knowledgeLabel,
                 )
             }
+
+            // 发给模型的 knowledgeBoundary 需要**纯文本**，这里按当前语言解析一次
+            // （提示词本身即按界面语言生成，故不存在陈旧问题）
+            val knowledgeBoundaryText = knowledgeLabel.resolve(appContext)
 
             history.add(
                 AiMessage(
@@ -107,7 +124,7 @@ class RoleplayViewModel @Inject constructor(
                             "identity" to card.identity,
                             "personality" to card.personality,
                             "tone" to card.tone,
-                            "knowledgeBoundary" to card.knowledgeBoundary.ifBlank { knowledgeLabel },
+                            "knowledgeBoundary" to card.knowledgeBoundary.ifBlank { knowledgeBoundaryText },
                         ),
                     ),
                 )

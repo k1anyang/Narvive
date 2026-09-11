@@ -289,8 +289,8 @@ macOS / Linux：
 Narvive 提供三語介面：**简体中文（預設）/ 繁體中文 / English**。
 
 - **切換位置**：設定 → 語言（獨立頁面，每個語言一列，目前語言帶勾選標記）。
-- **即時生效**：切換後 AppCompat 會重建 Activity，介面文字立即更新；`NavController` 狀態由 `rememberSaveable` 恢復，因此**停留在目前頁面**，不會跳回書架。
-- **切換閃爍的處理**：Activity **仍會被重建**——這是 AppCompat/Android 的標準行為，也正是 Android 13+ 系統「應用程式語言」連動能生效的前提。閃爍並非靠避免重建消除，而是靠兩道措施吸收：視窗背景在 `themes.xml` 與執行階段都設成與目前主題一致的顏色（避免重建瞬間露出異色底色），根內容在合成進入時做一次 180 ms 的透明度淡入。
+- **即時生效且不閃爍**：切換語言**不重建 Activity**（`configChanges="locale|layoutDirection"` + 自研 `onConfigurationChanged`），視窗不銷毀，因此沒有閃爍；`NavController` 狀態保持，**停留在目前頁面**。
+- **代價與編碼規則**：ViewModel 會跨越語言變化存活，因此**本地化文案不能快取成普通 `String`** —— 凡可能跨語言變化繼續顯示的值，必須用 `@StringRes Int` 或 `UiMessage`（渲染時才解析）。已遷移的位置、允許保留 `String` 的少數瞬時提示、以及實作坑點見 [docs/i18n.md](docs/i18n.md) §2.1。
 - **系統同步**：`res/xml/locales_config.xml` 經 `AndroidManifest.xml` 的 `android:localeConfig` 引用，Android 13+ 的「系統設定 → 應用程式 → Narvive → 語言」也能看到這三個選項並與應用程式內選擇保持一致。
 - **AI 輸出語言跟隨介面**：系統提示詞、12 套預設提示詞範本、問候語與建議卡、意圖路由正規表達式（中英聯集）均依當前介面語言取值。**使用者自行修改過的提示詞屬於使用者資料，語言切換絕不覆蓋**。
 - **中文字形分派**：介面字族為 HarmonyOS Sans，依語言選擇 SC / TC 兩套字族（`ui/theme/Type.kt` 的 `narviveTypography(traditionalChinese)`，於 `NarviveTheme` 中經 `MaterialTheme.typography` 下發，消費端零改動）。兩套字符合計約 36 MB。

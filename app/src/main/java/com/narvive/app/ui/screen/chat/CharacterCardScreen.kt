@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.narvive.app.R
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.theme.NarviveShape
 
 /**
@@ -95,7 +96,7 @@ fun CharacterCardScreen(
                     Spacer(Modifier.height(12.dp))
                     Text(uiState.characterName, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
                     Text(
-                        "${uiState.bookTitle} · ${uiState.chapterLabel}",
+                        "${uiState.bookTitle} · ${uiState.chapterLabel.text()}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -141,7 +142,7 @@ fun CharacterCardScreen(
                 Column(Modifier.padding(16.dp)) {
                     Text(stringResource(R.string.chat_field_knowledge_boundary), style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.SemiBold)
                     Spacer(Modifier.height(6.dp))
-                    val defaultBoundary = stringResource(R.string.chat_knowledge_boundary_default, uiState.chapterLabel)
+                    val defaultBoundary = stringResource(R.string.chat_knowledge_boundary_default, uiState.chapterLabel.text())
                     Surface(shape = NarviveShape.Sm, color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)) {
                         Text(
                             card?.knowledgeBoundary?.ifBlank { defaultBoundary } ?: "",

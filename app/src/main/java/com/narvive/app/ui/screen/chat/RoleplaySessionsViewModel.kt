@@ -7,6 +7,7 @@ import com.narvive.app.R
 import com.narvive.app.domain.model.RoleplaySession
 import com.narvive.app.domain.repository.AiChatRepository
 import com.narvive.app.domain.repository.BookshelfRepository
+import com.narvive.app.ui.message.UiMessage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,9 +16,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * 角色对话会话列表项。
+ *
+ * [preview] 用 [UiMessage]：最后一条消息是**数据**（[UiMessage.Raw]），
+ * 没有消息时是本地化兜底（[UiMessage.Res]）。本项目切换语言不重建 Activity，
+ * 存 String 会让兜底文案停留在旧语言。详见 docs/i18n.md §2.1。
+ */
 data class RoleplaySessionItem(
     val session: RoleplaySession,
-    val preview: String,
+    val preview: UiMessage,
 )
 
 data class RoleplaySessionsUiState(
@@ -45,7 +53,11 @@ class RoleplaySessionsViewModel @Inject constructor(
             aiChatRepo.observeRoleplaySessions(bookId).collect { sessions ->
                 val items = sessions.map { s ->
                     val last = aiChatRepo.getRoleplayMessages(s.id).lastOrNull()
-                    RoleplaySessionItem(s, last?.content ?: appContext.getString(R.string.ai_internal_empty_conversation))
+                    RoleplaySessionItem(
+                        s,
+                        last?.content?.let { UiMessage.Raw(it) }
+                            ?: UiMessage.Res(R.string.ai_internal_empty_conversation),
+                    )
                 }
                 _uiState.value = RoleplaySessionsUiState(
                     bookTitle = book?.title ?: "",

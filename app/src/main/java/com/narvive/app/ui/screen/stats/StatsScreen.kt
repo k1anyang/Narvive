@@ -67,6 +67,7 @@ import coil.compose.AsyncImage
 import com.narvive.app.R
 import com.narvive.app.domain.model.Book
 import com.narvive.app.ui.components.TabPageScaffold
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.theme.NarviveShape
 import com.narvive.app.ui.theme.SemanticColors
 import com.narvive.app.ui.screen.library.BookCoverImage
@@ -144,7 +145,7 @@ fun StatsScreen(
                     Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, stringResource(R.string.stats_prev), modifier = Modifier.size(22.dp),
                         tint = if (uiState.canGoBack) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f))
                 }
-                Text(uiState.chartLabel, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                Text(uiState.chartLabel.text(), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), textAlign = androidx.compose.ui.text.style.TextAlign.Center)
                 IconButton(
                     onClick = {
                         when (uiState.chartRange) {
@@ -310,7 +311,7 @@ private fun FinishedBookCard(fb: FinishedBook) {
             Spacer(Modifier.width(12.dp))
             Column(Modifier.weight(1f)) {
                 Text(fb.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, maxLines = 1)
-                Text(stringResource(R.string.stats_book_meta, fb.author, fb.dateLabel), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.stats_book_meta, fb.author, fb.dateLabel.text()), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Icon(Icons.Rounded.CheckCircle, null, tint = SemanticColors.Success, modifier = Modifier.size(22.dp))
         }

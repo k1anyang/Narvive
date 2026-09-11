@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.narvive.app.R
+import com.narvive.app.ui.message.UiMessage
+import com.narvive.app.ui.message.resolve
 import com.narvive.app.domain.model.Book
 import com.narvive.app.domain.model.CharacterCard
 import com.narvive.app.domain.model.RoleplaySession
@@ -25,7 +27,8 @@ import javax.inject.Inject
 data class CharacterCardUiState(
     val bookTitle: String = "",
     val characterName: String = "",
-    val chapterLabel: String = "",
+    /** 章节标签：取到标题即数据（Raw），否则本地化兜底（Res）。用 UiMessage 以避免陈旧。 */
+    val chapterLabel: UiMessage = UiMessage.Raw(""),
     val card: CharacterCard? = null,
     val isExtracting: Boolean = false,
     /** true=编辑已有会话的角色卡；false=新建（AI 抽取） */
@@ -53,7 +56,13 @@ class CharacterCardViewModel @Inject constructor(
     private var existingSession: RoleplaySession? = null
     private var chapterIndex = 0
     /** 快照章节名（currentChapter 标题，抽取/刷新/保存时回写会话） */
-    private var chapterTitle = ""
+    /**
+     * 快照章节名（currentChapter 标题，抽取/刷新/保存时回写会话）。
+     *
+     * 类型是 [UiMessage]：它可能是书籍数据，也可能是本地化兜底「第 N 章」。
+     * 回写到数据库时按当前语言解析一次（见 [extract] 与 [saveCard]）。
+     */
+    private var chapterTitle: UiMessage = UiMessage.Raw("")
     private var inited = false
 
     fun init(bookId: String, characterName: String, sessionId: String?) {
@@ -64,7 +73,8 @@ class CharacterCardViewModel @Inject constructor(
             book = b
             chapterIndex = resolveChapterIndex(b)
             val chapterLabel = b.currentChapter?.takeIf { it.isNotBlank() }
-                ?: appContext.getString(R.string.ai_internal_chapter_label, chapterIndex + 1)
+                ?.let { UiMessage.Raw(it) }
+                ?: UiMessage.Res(R.string.ai_internal_chapter_label, chapterIndex + 1)
             chapterTitle = chapterLabel
 
             val session = sessionId?.takeIf { it.isNotBlank() }?.let { aiChatRepo.getRoleplaySession(it) }
@@ -117,9 +127,12 @@ class CharacterCardViewModel @Inject constructor(
             book = latestBook
             chapterIndex = resolveChapterIndex(latestBook)
             val chapterLabel = latestBook.currentChapter?.takeIf { it.isNotBlank() }
-                ?: appContext.getString(R.string.ai_internal_chapter_label, chapterIndex + 1)
+                ?.let { UiMessage.Raw(it) }
+                ?: UiMessage.Res(R.string.ai_internal_chapter_label, chapterIndex + 1)
             chapterTitle = chapterLabel
-            val card = extractor.extract(latestBook, name, chapterLabel, chapterIndex)
+            // 抽取器与「回写会话」都需要纯文本，按当前语言解析一次
+            val chapterLabelText = chapterLabel.resolve(appContext)
+            val card = extractor.extract(latestBook, name, chapterLabelText, chapterIndex)
             _uiState.update {
                 it.copy(
                     chapterLabel = chapterLabel,
@@ -133,7 +146,7 @@ class CharacterCardViewModel @Inject constructor(
             if (card != null) {
                 existingSession?.let { s ->
                     aiChatRepo.saveRoleplaySession(
-                        s.copy(characterCard = card, lastReadChapter = chapterIndex, lastReadChapterTitle = chapterTitle, updatedAt = System.currentTimeMillis())
+                        s.copy(characterCard = card, lastReadChapter = chapterIndex, lastReadChapterTitle = chapterLabelText, updatedAt = System.currentTimeMillis())
                     )
                 }
             }
@@ -151,8 +164,10 @@ class CharacterCardViewModel @Inject constructor(
         viewModelScope.launch {
             val now = System.currentTimeMillis()
             val existing = existingSession
+            // 回写数据库需要纯文本，按当前语言解析
+            val titleText = chapterTitle.resolve(appContext)
             val session = if (existing != null) {
-                existing.copy(characterName = card.name, characterCard = card, lastReadChapter = chapterIndex, lastReadChapterTitle = chapterTitle, updatedAt = now)
+                existing.copy(characterName = card.name, characterCard = card, lastReadChapter = chapterIndex, lastReadChapterTitle = titleText, updatedAt = now)
             } else {
                 RoleplaySession(
                     id = UUID.randomUUID().toString(),
@@ -160,7 +175,7 @@ class CharacterCardViewModel @Inject constructor(
                     characterName = card.name,
                     characterCard = card,
                     lastReadChapter = chapterIndex,
-                    lastReadChapterTitle = chapterTitle,
+                    lastReadChapterTitle = titleText,
                     createdAt = now,
                     updatedAt = now,
                 )

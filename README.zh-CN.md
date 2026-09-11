@@ -318,8 +318,8 @@ sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk
 Narvive 提供三语界面：**简体中文（默认）/ 繁體中文 / English**。
 
 - **切换位置**：设置 → 语言（独立页面，每个语言一行，当前语言带勾选标记）。
-- **即时生效**：切换后 AppCompat 重创建 Activity，界面文案立即更新；`NavController` 状态由 `rememberSaveable` 恢复，因此**停留在当前页面**，不会跳回书架。
-- **切换闪烁的处理**：Activity **仍会被重创建**——这是 AppCompat/Android 的标准行为，也正是 Android 13+ 系统「应用语言」联动能生效的前提。闪烁不是靠避免重建消除的，而是靠两道措施吸收：窗口背景在 `themes.xml` 与运行时都设成与当前主题一致的颜色（避免重建瞬间露出异色底色），根内容在合成进入时做一次 180 ms 的透明度淡入。
+- **即时生效且不闪烁**：切换语言**不重建 Activity**（`configChanges="locale|layoutDirection"` + 自研 `onConfigurationChanged`），窗口不销毁，因此没有闪烁；`NavController` 状态保持，**停留在当前页面**。
+- **代价与编码规则**：ViewModel 会跨越语言变化存活，因此**本地化文案不能缓存成普通 `String`** —— 凡可能跨语言变化继续显示的值，必须用 `@StringRes Int` 或 `UiMessage`（渲染时才解析）。已迁移的位置、允许保留 `String` 的少数瞬时提示、以及实现坑点见 [docs/i18n.md](docs/i18n.md) §2.1。
 - **系统同步**：`res/xml/locales_config.xml` 经 `AndroidManifest.xml` 的 `android:localeConfig` 引用，Android 13+ 的「系统设置 → 应用 → Narvive → 语言」也能看到这三个选项并与应用内选择保持一致。
 - **AI 输出语言跟随界面**：系统提示词、12 套默认提示词模板、问候语与建议卡、意图路由正则（中英并集）均按当前界面语言取值。**用户自行修改过的提示词属于用户数据，语言切换绝不覆盖**。
 - **中文字形分派**：界面字族为 HarmonyOS Sans，按语言选择 SC / TC 两套字族（`ui/theme/Type.kt` 的 `narviveTypography(traditionalChinese)`，在 `NarviveTheme` 中经 `MaterialTheme.typography` 下发，消费方零改动）。两套字符合计约 36 MB。

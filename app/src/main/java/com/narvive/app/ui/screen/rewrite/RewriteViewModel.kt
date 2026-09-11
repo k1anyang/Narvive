@@ -6,6 +6,7 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.narvive.app.R
+import com.narvive.app.ui.message.UiMessage
 import com.narvive.app.domain.model.Annotation
 import com.narvive.app.domain.model.AnnotationType
 import com.narvive.app.domain.model.Book
@@ -34,7 +35,11 @@ data class RewriteUiState(
     val resultText: String? = null,
     val isLoading: Boolean = false,
     val providerName: String = "",
-    val error: String? = null,
+    /**
+     * 错误提示。类型是 [UiMessage] 而非 String：改写页是**停留式**页面（用户在此等待
+     * 生成结果），错误会持续可见，必须随语言变化。详见 docs/i18n.md §2.1。
+     */
+    val error: UiMessage? = null,
     /** 当前章标题（「原文 · 第三章」eyebrow 用） */
     val chapterTitle: String = "",
     /** 本章上下文字符数（发送范围说明条用；0=不可用） */
@@ -87,7 +92,7 @@ class RewriteViewModel @Inject constructor(
         viewModelScope.launch {
             val providers = fallbackChain.getEnabledProviders()
             if (providers.isEmpty()) {
-                _uiState.update { it.copy(isLoading = false, error = context.getString(R.string.chat_vm_no_provider_short)) }; return@launch
+                _uiState.update { it.copy(isLoading = false, error = UiMessage.Res(R.string.chat_vm_no_provider_short)) }; return@launch
             }
             // 上下文：书名/作者/章节名 + 选区前后文（续写上文1200；改写前后各600，不越章界）
             val ctx = buildContextWindow()
@@ -127,7 +132,7 @@ class RewriteViewModel @Inject constructor(
                     }
                     .onFailure { fallbackChain.recordFailure(provider.id) }
             }
-            _uiState.update { it.copy(isLoading = false, error = context.getString(R.string.chat_vm_all_providers_unavailable_short)) }
+            _uiState.update { it.copy(isLoading = false, error = UiMessage.Res(R.string.chat_vm_all_providers_unavailable_short)) }
         }
     }
 
@@ -207,7 +212,7 @@ class RewriteViewModel @Inject constructor(
                 }
                 context.startActivity(Intent.createChooser(intent, "导出$kindLabel").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
             }.onFailure {
-                _uiState.update { s -> s.copy(error = context.getString(R.string.chat_vm_export_failed, it.message ?: "")) }
+                _uiState.update { s -> s.copy(error = UiMessage.Res(R.string.chat_vm_export_failed, it.message ?: "")) }
             }
         }
     }

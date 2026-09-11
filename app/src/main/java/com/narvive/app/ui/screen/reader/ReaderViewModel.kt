@@ -12,6 +12,7 @@ import com.narvive.app.domain.model.Annotation
 import com.narvive.app.domain.model.AnnotationType
 import com.narvive.app.domain.model.Book
 import com.narvive.app.R
+import com.narvive.app.ui.message.UiMessage
 import com.narvive.app.domain.model.FontInfo
 import com.narvive.app.domain.model.Bookmark
 import com.narvive.app.domain.repository.AnnotationRepository
@@ -138,7 +139,13 @@ data class ReaderUiState(
     /** 操作类错误（翻译失败/未配置 Provider 等）：底部弹窗提示，不影响阅读界面 */
     val error: String? = null,
     /** 致命错误（书籍不存在/文件损坏/打开失败）：整页错误兜底 */
-    val fatalError: String? = null,
+    /**
+     * 致命错误（打开书籍失败）。
+     *
+     * 类型是 [UiMessage] 而非 String：它会让阅读器显示为**阻断式错误页**并一直停留，
+     * 是本项目唯一「长期可见」的错误文案，必须随语言变化。详见 docs/i18n.md §2.1。
+     */
+    val fatalError: UiMessage? = null,
     /** 位置提示浮层 */
     val showPositionTip: Boolean = false,
     val previousLocator: String? = null,
@@ -202,13 +209,13 @@ class ReaderViewModel @Inject constructor(
         loadedBookId = bookId
         viewModelScope.launch {
             val book = bookshelfRepo.getBook(bookId) ?: run {
-                _uiState.update { it.copy(isLoading = false, fatalError = appContext.getString(R.string.reader_vm_book_missing)) }
+                _uiState.update { it.copy(isLoading = false, fatalError = UiMessage.Res(R.string.reader_vm_book_missing)) }
                 return@launch
             }
             // 文件存在性预检（避免 controller 内部抛 IO 异常被吞）
             val file = java.io.File(book.filePath)
             if (!file.exists() || file.length() == 0L) {
-                _uiState.update { it.copy(isLoading = false, fatalError = appContext.getString(R.string.reader_vm_file_missing, book.filePath)) }
+                _uiState.update { it.copy(isLoading = false, fatalError = UiMessage.Res(R.string.reader_vm_file_missing, book.filePath)) }
                 return@launch
             }
             try {
@@ -411,7 +418,7 @@ class ReaderViewModel @Inject constructor(
             } catch (e: Exception) {
                 // TXT 空文件/EPUB 解析失败等统一捕获并暴露错误态（不再静默崩溃或白屏）
                 android.util.Log.e("ReaderViewModel", "loadBook failed: ${book.title}", e)
-                _uiState.update { it.copy(isLoading = false, fatalError = appContext.getString(R.string.reader_vm_open_failed, e.message ?: e.javaClass.simpleName)) }
+                _uiState.update { it.copy(isLoading = false, fatalError = UiMessage.Res(R.string.reader_vm_open_failed, e.message ?: e.javaClass.simpleName)) }
             }
         }
     }

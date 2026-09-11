@@ -140,6 +140,7 @@ import com.narvive.app.service.font.resolveTxtFontFamily
 import com.narvive.app.service.reader.EpubReaderController
 import com.narvive.app.service.reader.ReadSettings
 import com.narvive.app.service.reader.TxtReaderController
+import com.narvive.app.ui.message.text
 import com.narvive.app.ui.screen.chat.ChatContent
 import com.narvive.app.ui.screen.chat.ChatViewModel
 import com.narvive.app.ui.screen.chat.GraphSheetDialog
@@ -280,7 +281,7 @@ fun ReaderScreen(
     }
 
     uiState.fatalError?.let { errMsg ->
-        ErrorFallback(message = errMsg, onBack = onBackClick)
+        ErrorFallback(message = errMsg.text(), onBack = onBackClick)
         return
     }
 

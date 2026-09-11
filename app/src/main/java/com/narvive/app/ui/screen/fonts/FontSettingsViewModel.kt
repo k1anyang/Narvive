@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.narvive.app.R
+import com.narvive.app.ui.message.UiMessage
 import com.narvive.app.data.datastore.NarviveDataStore
 import com.narvive.app.domain.model.FontInfo
 import com.narvive.app.service.font.FontCatalogRepository
@@ -33,7 +34,8 @@ class FontSettingsViewModel @Inject constructor(
 
     data class UiState(
         val loading: Boolean = true,
-        val error: String? = null,
+        /** 目录加载失败提示。用 [UiMessage] 以保证切换语言后不陈旧（字体页是停留式页面）。 */
+        val error: UiMessage? = null,
         val zh: List<FontInfo> = emptyList(),
         val en: List<FontInfo> = emptyList(),
         val currentCjk: String = FontResolver.SYSTEM_FONT_ID,
@@ -70,7 +72,7 @@ class FontSettingsViewModel @Inject constructor(
                     loading = false,
                     zh = catalog.filter { info -> info.isChinese },
                     en = catalog.filter { info -> info.isEnglish },
-                    error = if (catalog.isEmpty()) appContext.getString(R.string.font_settings_catalog_failed) else null,
+                    error = if (catalog.isEmpty()) UiMessage.Res(R.string.font_settings_catalog_failed) else null,
                 )
             }
         }

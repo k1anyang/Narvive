@@ -63,6 +63,7 @@
     <string name="chat_global_input_placeholder">Ask something… type @ to pick books</string>
     <string name="chat_prompt_reading_report">Summarize my reading report</string>
     <string name="chat_prompt_recommend">Recommend what I should read</string>
+    <string name="chat_prompt_summarize_book">Summarise “%1$s”</string>
     <string name="chat_context_pick_book">@ Pick books</string>
     <string name="chat_all_library">Entire library</string>
     <string name="chat_book_title_brackets">\"%1$s\"</string>

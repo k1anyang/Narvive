@@ -63,6 +63,8 @@
     <string name="chat_global_input_placeholder">问点什么… 输入 @ 选书</string>
     <string name="chat_prompt_reading_report">帮我总结阅读日报</string>
     <string name="chat_prompt_recommend">推荐我读什么</string>
+    <!-- 占位符为书名：点击「总结《书名》」建议卡时现拼提示词，避免把文案固化后陈旧 -->
+    <string name="chat_prompt_summarize_book">总结《%1$s》</string>
     <string name="chat_context_pick_book">@ 选书</string>
     <string name="chat_all_library">全部书库</string>
     <string name="chat_book_title_brackets">《%1$s》</string>
