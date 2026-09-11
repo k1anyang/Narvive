@@ -124,6 +124,8 @@ observeLanguageChanges(localeProvider) { refreshGreeting(...) }   // one line, i
 
 `observeLanguageChanges` lives in `service/ai/PromptDefaultsI18n.kt`. Call it from the ViewModel's `init` — **never** add a per-screen refresh hook in a composable. `docs/i18n.md` §2.1 lists which cases need it and which do not.
 
+If the language-dependent fallback is the *only* thing making a value language-dependent, prefer the cheaper shape: **keep the data field nullable and let the composable render the fallback.** `NotesViewModel` does this — `NoteItem.bookTitle` is `String?`, and `null` becomes `未知书籍` via `stringResource` at render time. No recompute needed. A `getString(...)` result that is stored in `UiState` is the anti-pattern here; a `getString(...)` result that is written straight into an exported file (and never enters a `StateFlow`) is fine.
+
 Do **not** re-introduce the Activity recreation to dodge this rule: that trades a silent staleness bug for a flicker the user sees on every switch. Do **not** add per-screen "refresh on language change" hooks either — with the rule above there is nothing to refresh by hand.
 
 **Never branch logic on display text.** Do not write `if (message.contains("成功"))` — it breaks the moment the string is translated. Carry a structured flag (for example `TestResult(ok: Boolean, message: String)`) instead.
