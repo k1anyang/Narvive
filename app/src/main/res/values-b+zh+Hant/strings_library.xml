@@ -27,7 +27,7 @@
 
     <!-- LibraryScreen · 批次刪除 -->
     <string name="library_batch_delete_title">刪除 %1$d 本書</string>
-    <string name="library_batch_delete_message">確定刪除選取的 %1$d 本書嗎？\n各書的檔案、筆記、螢光標記、翻譯、書籤、書內 AI 對話與閱讀紀錄都會一併刪除，且無法復原；閱讀統計會相應減少。原始檔案無法透過 Narvive 刪除。</string>
+    <string name="library_batch_delete_message">確定刪除選取的 %1$d 本書嗎？\n原始檔案無法透過 Narvive 刪除。</string>
     <string name="library_delete_cache_too">同時刪除快取檔案</string>
     <string name="library_delete">刪除</string>
     <string name="library_cancel">取消</string>
@@ -76,7 +76,7 @@
 
     <!-- BookDetailsScreen · 刪除確認 -->
     <string name="details_delete_book_title">刪除書籍</string>
-    <string name="details_delete_book_message">確定刪除「%1$s」嗎？\n書籍檔案、該書的筆記、螢光標記、翻譯、書籤、書內 AI 對話與閱讀紀錄都會一併刪除，且無法復原；閱讀統計會相應減少。\n（底部「AI」分頁的跨書對話不受影響。）</string>
+    <string name="details_delete_book_message">確定刪除「%1$s」嗎？\n本機檔案將一併刪除，且無法復原。</string>
     <string name="details_delete_cache_too">同時刪除快取檔案</string>
     <string name="details_source_file_note">原始檔案無法透過 Narvive 刪除</string>
     <string name="details_delete">刪除</string>

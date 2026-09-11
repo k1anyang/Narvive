@@ -27,7 +27,7 @@
 
     <!-- LibraryScreen · batch delete -->
     <string name="library_batch_delete_title">Delete %1$d books</string>
-    <string name="library_batch_delete_message">Delete the selected %1$d books?\nEach book file, its notes, highlights, translations, bookmarks, in-book AI conversations and reading history will all be deleted and cannot be recovered; your reading statistics will drop accordingly. Source files cannot be deleted by Narvive.</string>
+    <string name="library_batch_delete_message">Delete the selected %1$d books?\nSource files cannot be deleted by Narvive.</string>
     <string name="library_delete_cache_too">Also delete cached files</string>
     <string name="library_delete">Delete</string>
     <string name="library_cancel">Cancel</string>
@@ -76,7 +76,7 @@
 
     <!-- BookDetailsScreen · delete confirmation -->
     <string name="details_delete_book_title">Delete book</string>
-    <string name="details_delete_book_message">Delete “%1$s”?\nThe book file, its notes, highlights, translations, bookmarks, in-book AI conversations and reading history will all be deleted and cannot be recovered; your reading statistics will drop accordingly.\n(The cross-book chat under the “AI” tab is not affected.)</string>
+    <string name="details_delete_book_message">Delete “%1$s”?\nThe local file will be deleted as well and cannot be recovered.</string>
     <string name="details_delete_cache_too">Also delete cached files</string>
     <string name="details_source_file_note">Source files cannot be deleted by Narvive</string>
     <string name="details_delete">Delete</string>
