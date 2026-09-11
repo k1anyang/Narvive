@@ -10,11 +10,13 @@
 [![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
 [![CI](https://github.com/k1anyang/Narvive/actions/workflows/build.yml/badge.svg)](https://github.com/k1anyang/Narvive/actions/workflows/build.yml)
 
-| Library | Reader | AI Graphs |
+| Library | Reader | Selection actions |
 | --- | --- | --- |
-| ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Relationship graph](docs/screenshots/graph.png) |
+| ![Library](docs/screenshots/library.png) | ![Reader](docs/screenshots/reader.png) | ![Selection actions](docs/screenshots/selection.png) |
 
-> Screenshots are not committed yet — see [`docs/screenshots/README.md`](docs/screenshots/README.md) for the capture list.
+| Relationship graph | AI chat (cross-book) | Notes |
+| --- | --- | --- |
+| ![Relationship graph](docs/screenshots/graph.png) | ![AI chat](docs/screenshots/ai_chat.png) | ![Notes](docs/screenshots/notes.png) |
 
 ---
 
@@ -104,6 +106,17 @@ When a version tag is pushed, CI attaches **two** APKs to the GitHub Release: th
 
 ---
 
+## Quick start
+
+1. **Import a book** — Library → the import action in the top bar, then pick an EPUB / TXT / PDF file. You can also send a file to Narvive from the system share sheet or an "Open with" intent.
+2. **Start reading** — tap a book. Tap the middle of the screen to bring up the HUD, where the table of contents, font size (Aa), brightness and theme live.
+3. **Set up AI** — Settings → AI setup → pick a preset provider (DeepSeek / OpenAI / Gemini) or add a custom one → paste your API key → **Test connection** → **Fetch model list** and choose a model.
+4. **Use the AI** — in the reader, long-press to select text, then ask AI, translate, highlight, annotate, rewrite, continue or start a roleplay. The bottom **AI** tab chats across books: type `@` to reference up to five books, or tick the whole library.
+5. **Review notes and stats** — the **Notes** and **Stats** tabs aggregate annotations and reading data.
+6. **Back up** — Settings → Backup to export or restore, and Settings → Services → WebDAV to sync to your own server.
+
+---
+
 ## Configuration
 
 Preferences are persisted through `NarviveDataStore` (DataStore Preferences); **API keys and the WebDAV password are stored separately via `EncryptedSharedPreferences`.**
@@ -130,9 +143,9 @@ Narvive ships a trilingual interface: **简体中文 (default) / 繁體中文 / 
 
 Switch it at **Settings → Language**, a page of its own (one language per row, with a check mark on the active one). The change applies immediately and your navigation state is preserved, so you stay on the settings page. The choice is persisted by AndroidX AppCompat; on Android 13+ it also appears under the system **Settings → Apps → Narvive → Language** entry.
 
-The activity **is** still recreated on a language change — that is standard AppCompat/Android behaviour, and it is what keeps the Android 13+ system app-language integration working. Two measures absorb the visual flicker rather than avoiding the recreation: the window background is set to a colour matching the current theme (both in `themes.xml` and at runtime from the active colour scheme), and the root content runs a single 180 ms alpha fade-in when the composition is entered.
-
 AI replies follow the interface language too — the system prompt, the 12 default templates, greeting and suggestion copy, and the intent-routing patterns are all localised. Prompts you have customised yourself are never overwritten by a language change.
+
+**No activity recreation, and therefore no flicker.** The earlier implementation let AppCompat recreate the activity on a locale change, which exposed a frame of the system's default window colour between teardown and redraw — black on a light theme, white on a dark one. Window-background matching and fade-ins cannot cover that frame because they only affect what is drawn *after* it. `MainActivity` therefore declares `android:configChanges="locale|layoutDirection"` and handles `onConfigurationChanged` itself, so the window is never torn down. This does **not** affect the Android 13+ system app-language entry, which is driven by `res/xml/locales_config.xml` independently.
 
 Mechanism, the module-split resource layout, the coding rules and the steps for **adding a new language**: [`docs/i18n.md`](docs/i18n.md).
 
@@ -144,6 +157,112 @@ Mechanism, the module-split resource layout, the coding rules and the steps for 
 - **BYOK**: the only network egress for AI is your own provider. Requests go from the device straight to the endpoint you configured, never through an intermediary server.
 - **Key handling**: API keys are encrypted at rest via `EncryptedSharedPreferences` and excluded from backups.
 - Reading, annotating and stats work entirely offline.
+
+---
+
+## Project structure
+
+```
+Narvive
+├── gradle/                         # libs.versions.toml (version catalog) + wrapper (9.5.0)
+├── app/
+│   ├── build.gradle.kts            # app module build script
+│   ├── proguard-rules.pro          # R8 rules
+│   └── src/main/
+│       ├── AndroidManifest.xml     # permissions / entry / FileProvider / orientation / localeConfig
+│       ├── res/
+│       │   ├── values/             # resources: default locale (Simplified Chinese)
+│       │   ├── values-en/          # resources: English
+│       │   ├── values-b+zh+Hant/   # resources: Traditional Chinese
+│       │   ├── values-night/       # dark-mode window background for first frame
+│       │   ├── font/               # HarmonyOS Sans SC + TC (Regular / Medium / Bold each)
+│       │   ├── raw/                # font licence text, font-server keystore
+│       │   └── xml/                # locales_config / file_paths / network_security_config
+│       └── java/com/narvive/app/
+│           ├── MainActivity.kt     # single-Activity entry + external import + WebDAV auto-sync
+│           ├── NarviveApp.kt       # Application (Hilt + crash handling + WebView debugging)
+│           ├── CrashHandler.kt     # global crash handler
+│           ├── core/               # AppLang (shared language identifier enum)
+│           ├── di/                 # Hilt modules (database / repository bindings)
+│           ├── data/               # datastore / keystore / local (Room entities, DAOs, migrations) / repository
+│           ├── domain/             # model (domain models) + repository (interfaces)
+│           ├── service/            # ai / reader / font / import / backup / WebDAV / storage / cache
+│           └── ui/
+│               ├── prefs/          # AppLanguage (interface-language enum and switching)
+│               ├── message/        # UiMessage (localisable messages across layers)
+│               ├── navigation/     # routes and bottom navigation
+│               ├── theme/          # theme (Color / Theme / Type / Shape / Spacing / Motion)
+│               ├── components/     # shared components (streaming cursor, swipe rows, loaders)
+│               └── screen/         # screens (library / reader / chat / notes / stats / settings / …)
+└── docs/                           # DESIGN.md (visual spec) / i18n.md (localization guide)
+```
+
+---
+
+## Key modules
+
+### `ui/screen/library` — library
+
+`LibraryViewModel` combines four flows (books, collections, membership, filter preferences) into the sorted, searched and filtered list; `LibraryScreen` provides grid/list switching, collection management, multi-select batch actions and the import confirmation dialog.
+
+### `service/reader` — reading engine
+
+- `ReaderController` — the unifying interface (progress / chapters / locators / paging / search / settings / chapter text).
+- `EpubReaderController` — wraps Readium: TOC extraction, character-weighted progress, highlight and translation decorations anchored by CFI, plus a custom in-book search.
+- `TxtReaderController` — encoding detection, regex chaptering, character-offset progress, flattened chunked scroll rendering.
+- `PdfReaderController` — skeleton implementation built on `androidx.pdf` (MVP).
+- `ChapterTextExtractor` / `TocLoader` — fetch chapter text and TOC outside the reader, for rewrite, continuation, AI and the details screen.
+
+### `ui/screen/reader` — reading screen
+
+`ReaderViewModel` is the state hub for the reader: loading the book, composing settings, collecting controller state, restoring progress, and managing selection, highlights, notes, translation, bookmarks, search, auto page-turn and font injection. `ReaderScreen` and the panels under `components/` (Aa panel, brightness, TOC, search, selection bubble, translation card, highlight menu, custom theme) sit on top of it.
+
+### `service/ai` — AI infrastructure
+
+- `AiService` — wraps both non-streaming and SSE streaming requests for the three protocols and turns errors into readable messages (key error / URL error / parameter error).
+- `FallbackChain` — provider priority with an automatic demotion chain; three consecutive failures demote a provider.
+- `PromptTemplates` / `PromptRenderer` / `PromptService` — prompt definitions, placeholder rendering, and read/write against DataStore.
+- `AiText` / `PromptDefaultsI18n` / `PromptLocaleProvider` — supply the system prompt, greetings and suggestions, intent-routing patterns, and the 12 templates' default text in the current interface language.
+- `GraphModels` — structured-JSON parsing for relationship graphs and timelines.
+- `AiProfileStore` / `AiProfile` — persistence and auto-summarisation of the AI preference profile.
+- `CharacterCardExtractor` / `TranslationCache` — character-card extraction and translation-cache lookup.
+
+### `ui/screen/chat` — AI conversation
+
+- `GlobalChatViewModel` + `GlobalChatScreen` — the bottom global AI tab (cross-book context, intent routing, conversation management, auto titles, preference summarisation).
+- `ChatViewModel` + `ChatScreen` / `ChatContent` — the in-book AI panel (scope switching, quick commands, graph generation).
+- `GraphSheet` — Canvas rendering for relationship graphs and timelines (zoom, drag, highlight, fixed legend).
+- `RoleplayViewModel` and its screens — role-play sessions and character cards.
+- `CharacterCardScreen` — generate and edit character cards.
+
+### `ui/screen/rewrite` — rewrite and continue
+
+`RewriteViewModel` pulls chapter context through `ChapterTextExtractor` and assembles a context window per mode (1200 characters of preceding text for continuation, 600 on each side for rewriting). Results are stored as `REWRITE` annotations and can be saved as notes or exported as text.
+
+### `ui/screen/notes` / `stats` — notes and statistics
+
+- `NotesViewModel` — aggregates annotations, filters by type and book, searches, deletes and exports Markdown.
+- `StatsViewModel` — computes today/weekly duration, streak and books finished from reading sessions, and draws day/week/month bar charts.
+
+### `ui/screen/settings`
+
+- `AiSettingsViewModel` / `AiSettingsScreen` — provider management, connection test, model fetching, priority and demotion recovery.
+- `PromptSettingsScreen` / `AiPreferencesScreen` — prompt editing and AI preferences.
+- `AppearanceScreen` / `LanguageScreen` / `FeedbackScreen` / `StorageScreen` / `WebDavScreen` / `BackupScreen` / `FontSettingsScreen` / `MoreSettingsScreen`.
+
+### `service/font` — fonts
+
+- `FontCatalogRepository` — fetches the catalogue from a Gitee `fonts.json`, with a local cache as an offline fallback.
+- `FontDownloadManager` — OkHttp streaming download with HTTP Range resume and size validation.
+- `FontResolver` — maps an id to a file, a CSS `@font-face` injection, or a Compose `Typeface`; EPUB uses a CSS font stack for the CJK/Latin pair while TXT uses a single Typeface.
+- `FontFileServer` / `FontStorage` / `FontStatRepair` — the local HTTP server used by the EPUB WebView and font storage helpers.
+
+### Remaining `service` — data and sync
+
+- `BookImportService` — format detection, SHA-256 de-duplication, import, and EPUB metadata/cover extraction.
+- `BackupService` — ZIP export and restore (id remapping, hash-based de-duplication, settings snapshot; API keys never enter the archive).
+- `WebDavService` — MKCOL / PUT / PROPFIND / GET / DELETE, auto-sync and remote pruning.
+- `StorageService` / `AppCacheService` — storage accounting and cache clearing.
 
 ---
 

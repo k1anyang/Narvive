@@ -5,6 +5,20 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | **繁體中文**
 
+[![Platform](https://img.shields.io/badge/Platform-Android%208.0%2B-3DDC84?logo=android&logoColor=white)](https://developer.android.com)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.20-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/Jetpack%20Compose-BOM%202026.03.01-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![License](https://img.shields.io/badge/License-Apache--2.0-blue)](LICENSE)
+[![CI](https://github.com/k1anyang/Narvive/actions/workflows/build.yml/badge.svg)](https://github.com/k1anyang/Narvive/actions/workflows/build.yml)
+
+| 書架 | 閱讀器 | 選取操作 |
+| --- | --- | --- |
+| ![書架](docs/screenshots/library.png) | ![閱讀器](docs/screenshots/reader.png) | ![選取操作](docs/screenshots/selection.png) |
+
+| 人物關係圖 | AI 對話（跨書） | 筆記中心 |
+| --- | --- | --- |
+| ![人物關係圖](docs/screenshots/graph.png) | ![AI 對話](docs/screenshots/ai_chat.png) | ![筆記中心](docs/screenshots/notes.png) |
+
 ---
 
 ## 目錄
