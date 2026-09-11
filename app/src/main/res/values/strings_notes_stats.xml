@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  简体中文（默认语言）——笔记模块 / 统计模块。
+  与 values-en/strings_notes_stats.xml、values-b+zh+Hant/strings_notes_stats.xml 保持同步，
+  三个文件的 key 集合与顺序必须完全一致。详见 docs/i18n.md。
+-->
+<resources>
+    <!-- 笔记模块：标题与操作 -->
+    <string name="notes_title">笔记</string>
+    <string name="notes_search">搜索</string>
+    <string name="notes_search_hint">搜索笔记内容</string>
+    <string name="notes_filter_all_count">全部 %1$d</string>
+    <string name="notes_filter_all_books">全部书</string>
+    <string name="notes_filter_count">%1$s %2$d</string>
+
+    <!-- 笔记模块：空态 -->
+    <string name="notes_empty_title">暂无笔记</string>
+    <string name="notes_empty_hint_highlight">阅读时长按文字即可高亮、写笔记或翻译</string>
+    <string name="notes_empty_hint_ai">AI 回答与角色对话也可保存到这里</string>
+
+    <!-- 笔记模块：标注类型 -->
+    <string name="notes_type_highlight">高亮</string>
+    <string name="notes_type_note">笔记</string>
+    <string name="notes_type_translation">翻译</string>
+    <string name="notes_type_ai_answer">AI 保存</string>
+    <string name="notes_type_roleplay">角色对话</string>
+    <string name="notes_type_rewrite">改写</string>
+
+    <!-- 笔记模块：卡片与列表 -->
+    <string name="notes_meta_line">%1$s · %2$s</string>
+    <string name="notes_translation_prefix">译：%1$s</string>
+    <string name="notes_time_today">今天</string>
+    <string name="notes_time_yesterday">昨天</string>
+    <string name="notes_time_days_ago">%1$d 天前</string>
+    <string name="notes_time_last_week">上周</string>
+
+    <!-- 笔记模块：对话框 -->
+    <string name="notes_delete_title">删除笔记</string>
+    <string name="notes_delete_message">删除这条%1$s笔记？此操作不可恢复。</string>
+
+    <!-- 笔记模块：详情面板 -->
+    <string name="notes_detail_original">原文</string>
+    <string name="notes_detail_ai_content">AI 内容</string>
+    <string name="notes_detail_rewrite_content">改写/续写内容</string>
+    <string name="notes_detail_jump">跳转原文</string>
+    <string name="notes_detail_no_locator">无原文定位</string>
+
+    <!-- 笔记模块：导出与兜底 -->
+    <string name="notes_unknown_book">未知书籍</string>
+    <string name="notes_export_chooser">导出笔记</string>
+
+    <!-- 统计模块 -->
+    <string name="stats_title">统计</string>
+    <string name="stats_today_reading">今日阅读</string>
+    <string name="stats_week_reading">本周阅读</string>
+    <string name="stats_streak">连续阅读</string>
+    <string name="stats_books_finished">累计读完</string>
+    <string name="stats_unit_minutes">分</string>
+    <string name="stats_unit_days">天</string>
+
+    <!-- 统计模块：图表 -->
+    <string name="stats_tooltip_point">%1$s · %2$d 分钟</string>
+    <string name="stats_tooltip_dismiss">轻触关闭</string>
+    <string name="stats_prev">前</string>
+    <string name="stats_next">后</string>
+    <string name="stats_range_day">日</string>
+    <string name="stats_range_week">周</string>
+    <string name="stats_range_month">月</string>
+    <string name="stats_chart_empty">暂无数据，开始阅读吧！</string>
+
+    <!-- 统计模块：最近读完 -->
+    <string name="stats_recent_finished">最近读完</string>
+    <string name="stats_view_all">查看全部</string>
+    <string name="stats_collapse">收起</string>
+    <string name="stats_no_finished_books">还没有读完的书</string>
+    <string name="stats_book_meta">%1$s · %2$s</string>
+</resources>

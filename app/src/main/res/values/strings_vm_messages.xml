@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ReaderViewModel / RoleplayViewModel 层文案（简体中文）。
+  这些文案经 UiState.error / fatalError 进入 AlertDialog 或 Toast，
+  在 ViewModel 中用 context.getString 解析（非 Composable）。
+-->
+<resources>
+    <!-- ReaderViewModel -->
+    <string name="reader_vm_book_missing">书籍不存在</string>
+    <string name="reader_vm_file_missing">文件不存在或为空：%1$s</string>
+    <string name="reader_vm_open_failed">打开失败：%1$s</string>
+    <string name="reader_vm_auto_flip_finished">已到最后一页，自动翻页结束</string>
+    <string name="reader_vm_no_ai_provider">未配置 AI Provider，请先在设置中配置 API Key</string>
+    <string name="reader_vm_translate_failed">翻译失败：%1$s</string>
+    <string name="reader_vm_retranslate_failed">重新翻译失败：%1$s</string>
+    <string name="reader_vm_all_providers_unavailable">所有 Provider 均不可用</string>
+
+    <!-- RoleplayViewModel -->
+    <string name="roleplay_vm_not_started">未开始阅读</string>
+    <string name="roleplay_vm_chapter_label">第%1$d章</string>
+    <string name="roleplay_vm_all_providers_unavailable">所有 Provider 均不可用，请检查设置或稍后重试</string>
+</resources>

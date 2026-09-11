@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 提示詞模板標籤（繁體中文）。與 values/strings_prompt_meta.xml 保持同步。 -->
+<resources>
+    <string name="prompt_tpl_chat_title">閱讀助手系統提示</string>
+    <string name="prompt_tpl_chat_desc">書籍內「問 AI」對話的系統提示詞</string>
+
+    <string name="prompt_tpl_roleplay_title">角色扮演系統提示</string>
+    <string name="prompt_tpl_roleplay_desc">角色對話中的角色設定提示詞</string>
+
+    <string name="prompt_tpl_rewrite_title">改寫提示詞</string>
+    <string name="prompt_tpl_rewrite_desc">選取文字的改寫指令模板（取章節上下文）</string>
+
+    <string name="prompt_tpl_continue_title">續寫提示詞</string>
+    <string name="prompt_tpl_continue_desc">選取文字的續寫指令模板（僅取章節上文）</string>
+
+    <string name="prompt_tpl_translate_title">翻譯提示詞</string>
+    <string name="prompt_tpl_translate_desc">選取文字的翻譯模板</string>
+
+    <string name="prompt_tpl_character_card_title">角色卡生成提示詞</string>
+    <string name="prompt_tpl_character_card_desc">依書籍資訊生成角色卡</string>
+
+    <string name="prompt_tpl_quick_explain_title">快捷指令 · 解釋</string>
+    <string name="prompt_tpl_quick_explain_desc">「✦ 解釋」送出的文案</string>
+
+    <string name="prompt_tpl_quick_translate_title">快捷指令 · 翻譯</string>
+    <string name="prompt_tpl_quick_translate_desc">「譯 翻譯」送出的文案</string>
+
+    <string name="prompt_tpl_quick_summarize_title">快捷指令 · 總結本章</string>
+    <string name="prompt_tpl_quick_summarize_desc">「總結本章」送出的文案</string>
+
+    <string name="prompt_tpl_quick_vocab_title">快捷指令 · 詞彙</string>
+    <string name="prompt_tpl_quick_vocab_desc">「詞彙」送出的文案</string>
+
+    <string name="prompt_tpl_relationship_graph_title">人物關係圖提示詞</string>
+    <string name="prompt_tpl_relationship_graph_desc">依章節／全書生成人物關係圖（結構化 JSON）</string>
+
+    <string name="prompt_tpl_timeline_title">時間軸演進圖提示詞</string>
+    <string name="prompt_tpl_timeline_desc">依章節／全書生成時間軸演進圖（結構化 JSON）</string>
+
+    <string name="prompt_tpl_no_placeholders">無佔位符</string>
+</resources>

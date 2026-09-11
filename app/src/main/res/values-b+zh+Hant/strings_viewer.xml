@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  閱讀視圖（EPUB / TXT）注入文案（繁體中文）。
+  key 集合與順序必須與 values/strings_viewer.xml、values-en/strings_viewer.xml 完全一致。
+  這些文案由 EpubViewer / TxtViewer / TxtPagedViewer 使用，前綴統一為 viewer_。
+-->
+<resources>
+    <!-- 章節標籤（TXT 滾動 / TXT 分頁） -->
+    <string name="viewer_chapter_label">第 %1$d 章</string>
+
+    <!-- 載入與錯誤（EPUB） -->
+    <string name="viewer_loading_book">正在解析書籍…</string>
+    <string name="viewer_error_file_not_found">檔案不存在：%1$s</string>
+    <string name="viewer_error_epub_parse">EPUB 解析失敗，請確認檔案格式正確</string>
+    <string name="viewer_error_epub_open">EPUB 開啟異常：%1$s</string>
+    <string name="viewer_error_init">閱讀器初始化失敗：%1$s</string>
+
+    <!-- 圖片預覽（EPUB 長按圖片） -->
+    <string name="viewer_image_content_description">圖片</string>
+    <string name="viewer_action_close">關閉</string>
+    <string name="viewer_action_save">儲存</string>
+    <string name="viewer_action_share">分享</string>
+    <string name="viewer_image_saved">已儲存到相簿</string>
+    <string name="viewer_image_save_failed">儲存失敗</string>
+    <string name="viewer_share_image_title">分享圖片</string>
+</resources>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LibraryScreen / BookDetailsScreen strings (English).
+  Key set and order must match values/strings_library.xml and values-b+zh+Hant/strings_library.xml.
+-->
+<resources>
+    <!-- LibraryScreen · top bar and menus -->
+    <string name="library_selected_count">%1$d selected</string>
+    <string name="library_title">Library</string>
+    <string name="library_close">Close</string>
+    <string name="library_select_all">Select all</string>
+    <string name="library_import_books">Import books</string>
+    <string name="library_search">Search</string>
+    <string name="library_sort">Sort</string>
+    <string name="library_sort_asc">Ascending</string>
+    <string name="library_sort_desc">Descending</string>
+    <string name="library_sort_by_title">Title</string>
+    <string name="library_sort_by_author">Author</string>
+    <string name="library_sort_by_last_read">Recently read</string>
+    <string name="library_sort_by_date_added">Date added</string>
+    <string name="library_sort_by_progress">Reading progress</string>
+    <string name="library_more">More</string>
+    <string name="library_collections_manage">Collections</string>
+    <string name="library_switch_to_list">Switch to list</string>
+    <string name="library_switch_to_grid">Switch to grid</string>
+    <string name="library_search_hint">Search title or author</string>
+
+    <!-- LibraryScreen · batch delete -->
+    <string name="library_batch_delete_title">Delete %1$d books</string>
+    <string name="library_batch_delete_message">Delete the selected %1$d books?\nSource files cannot be deleted by Narvive.</string>
+    <string name="library_delete_cache_too">Also delete cached files</string>
+    <string name="library_delete">Delete</string>
+    <string name="library_cancel">Cancel</string>
+
+    <!-- LibraryScreen · collections -->
+    <string name="library_add_to_collection">Add to collection</string>
+    <string name="library_no_collections_hint">No collections yet. Create one in More → Collections first.</string>
+    <string name="library_collection_with_count">%1$s (%2$d)</string>
+    <string name="library_new_collection">New collection</string>
+    <string name="library_collection_name">Collection name</string>
+    <string name="library_create">Create</string>
+    <string name="library_rename_collection">Rename collection</string>
+    <string name="library_new_name">New name</string>
+    <string name="library_confirm">OK</string>
+    <string name="library_rename">Rename</string>
+    <string name="library_no_collections_hint_short">No collections yet. Use the button in the top right to create one.</string>
+    <string name="library_book_count">%1$d books</string>
+    <string name="library_collections_help">· A book can belong to multiple collections · Deleting a collection does not delete the books\n· Swipe the collection chips at the top of the library to filter</string>
+
+    <!-- LibraryScreen · import confirmation -->
+    <string name="library_import_confirm_title">Confirm import</string>
+    <string name="library_import_selected_files">%1$d files selected. Confirm to start importing:</string>
+    <string name="library_checking">Checking…</string>
+    <string name="library_already_in_library_skip">Already in library, skipped</string>
+    <string name="library_unknown_format">Unknown format</string>
+    <string name="library_format_and_size">%1$s · %2$s</string>
+    <string name="library_import_skip_note">Duplicate and unrecognized files will be skipped. Source files cannot be deleted by Narvive.</string>
+    <string name="library_import">Import</string>
+    <string name="library_import_with_count">Import (%1$d)</string>
+    <string name="library_unknown_size">Unknown size</string>
+
+    <!-- LibraryScreen · filters and cards -->
+    <string name="library_filter_all">All</string>
+    <string name="library_filter_reading">Reading</string>
+    <string name="library_filter_favorite">Favorites</string>
+    <string name="library_filter_ungrouped">Ungrouped</string>
+    <string name="library_continue_reading">Continue reading</string>
+    <string name="library_badge_new">New</string>
+    <string name="library_unknown_author">Unknown author</string>
+
+    <!-- LibraryScreen · empty states -->
+    <string name="library_empty_title">Your library is empty</string>
+    <string name="library_empty_subtitle">Import your first book\nSupports EPUB · PDF · TXT</string>
+    <string name="library_empty_share_hint">· You can also import from the system share menu</string>
+    <string name="library_empty_collection">This collection is empty</string>
+
+    <!-- BookDetailsScreen · delete confirmation -->
+    <string name="details_delete_book_title">Delete book</string>
+    <string name="details_delete_book_message">Delete “%1$s”?\nThe local file will be deleted as well and cannot be recovered.</string>
+    <string name="details_delete_cache_too">Also delete cached files</string>
+    <string name="details_source_file_note">Source files cannot be deleted by Narvive</string>
+    <string name="details_delete">Delete</string>
+    <string name="details_cancel">Cancel</string>
+
+    <!-- BookDetailsScreen · collections -->
+    <string name="details_add_to_collection">Add to collection</string>
+    <string name="details_no_collections_hint">No collections yet. Create one in Library → More → Collections first.</string>
+    <string name="details_remove">Remove</string>
+    <string name="details_add">Add</string>
+
+    <!-- BookDetailsScreen · notes / contents sheets -->
+    <string name="details_notes_sheet_title">Notes in this book (%1$d)</string>
+    <string name="details_toc">Contents</string>
+    <string name="details_toc_parsing">Parsing…</string>
+    <string name="details_toc_empty">No contents</string>
+
+    <!-- BookDetailsScreen · top bar -->
+    <string name="details_back">Back</string>
+    <string name="details_favorite">Favorite</string>
+    <string name="details_more">More</string>
+    <string name="details_edit_info">Edit info</string>
+    <string name="details_export_notes">Export notes</string>
+
+    <!-- BookDetailsScreen · body -->
+    <string name="details_loading">Loading...</string>
+    <string name="details_unknown_author">Unknown author</string>
+    <string name="details_read_status">Read</string>
+    <string name="details_continue_reading">Continue reading</string>
+    <string name="details_start_reading">Start reading</string>
+    <string name="details_ask_ai">Ask AI</string>
+    <string name="details_roleplay">Roleplay</string>
+    <string name="details_notes">Notes</string>
+    <string name="details_description">Description</string>
+    <string name="details_notes_section">Notes in this book</string>
+    <string name="details_view_all">View all</string>
+
+    <!-- BookDetailsScreen · metadata -->
+    <string name="details_info_format">Format</string>
+    <string name="details_info_imported_at">Imported</string>
+    <string name="details_info_last_read">Last read</string>
+    <string name="details_not_read">Not read yet</string>
+    <string name="details_info_file_hash">File hash</string>
+
+    <!-- BookDetailsScreen · note types -->
+    <string name="details_type_highlight">Highlight</string>
+    <string name="details_type_translation">Translation</string>
+    <string name="details_type_note">Note</string>
+    <string name="details_type_ai_answer">AI answer</string>
+    <string name="details_type_roleplay">Roleplay</string>
+    <string name="details_type_rewrite">Rewrite</string>
+
+    <!-- BookDetailsScreen · edit metadata -->
+    <string name="details_field_title">Title</string>
+    <string name="details_field_author">Author</string>
+    <string name="details_save">Save</string>
+</resources>

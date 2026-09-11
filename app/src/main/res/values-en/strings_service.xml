@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Service layer strings (English).
+  Keep in sync with values/strings_service.xml (same keys, same order).
+  EpubReaderController is not covered: it is constructed directly by ReaderControllerFactory,
+  so injecting a Context would ripple into the UI-layer factory and its call sites.
+-->
+<resources>
+    <!-- AiService -->
+    <string name="ai_service_no_api_key">No API key configured</string>
+    <string name="ai_service_api_key_required">Configure an API key first</string>
+    <string name="ai_service_api_key_required_for_provider">Configure an API key for %1$s first</string>
+    <string name="ai_service_response_parse_failed">Failed to parse the response</string>
+    <string name="ai_service_model_list_parse_failed">Failed to parse the model list</string>
+    <string name="ai_service_network_error">Network error</string>
+    <string name="ai_service_network_error_detail">Network error: %1$s</string>
+    <string name="ai_service_invalid_base_url">Invalid Base URL. Check the address format.</string>
+    <string name="ai_service_op_test_connection">Test connection</string>
+    <string name="ai_service_op_fetch_models">Fetch model list</string>
+    <string name="ai_service_http_401_403">Invalid API key or access denied (HTTP %1$d)</string>
+    <string name="ai_service_http_404">Endpoint not found (HTTP %1$d). Check that the Base URL is correct.</string>
+    <string name="ai_service_http_400_422">Request rejected (HTTP %1$d). Check the protocol or Base URL.</string>
+    <string name="ai_service_http_other">Request failed (HTTP %1$d)</string>
+    <string name="ai_service_http_error">%1$s: %2$s%3$s</string>
+    <string name="ai_service_http_error_provider_detail"> (%1$s)</string>
+    <string name="ai_service_request_failed_http">Request failed: HTTP %1$d</string>
+    <string name="ai_service_request_failed_http_detail">Request failed: HTTP %1$d %2$s</string>
+    <string name="ai_service_request_failed_detail">Request failed: %1$s</string>
+    <string name="ai_service_empty_response">Empty response</string>
+
+    <!-- WebDavService -->
+    <string name="webdav_service_missing_url">Enter the WebDAV server address first</string>
+    <string name="webdav_service_not_enabled">Enable WebDAV first</string>
+    <string name="webdav_service_connection_ok">Connection successful</string>
+    <string name="webdav_service_connection_failed">Connection failed</string>
+    <string name="webdav_service_synced">Synced · %1$s</string>
+    <string name="webdav_service_sync_failed">Sync failed</string>
+    <string name="webdav_service_read_failed">Read failed</string>
+    <string name="webdav_service_empty_download">The downloaded content is empty</string>
+    <string name="webdav_service_restore_failed">Restore failed</string>
+    <string name="webdav_service_backup_failed">Failed to create the backup: %1$s</string>
+    <string name="webdav_service_upload_failed">Upload failed: HTTP %1$d</string>
+
+    <!-- BackupService -->
+    <string name="backup_service_create_failed">Could not create the backup file</string>
+    <string name="backup_service_read_failed">Could not read the backup file</string>
+    <string name="backup_service_file_missing">The backup file does not exist</string>
+    <string name="backup_service_missing_manifest">The backup file is missing manifest.json</string>
+    <string name="backup_service_version_too_new">This backup (v%1$d) is newer than the supported v%2$d. Please update the app.</string>
+    <string name="backup_service_data_parse_failed">Failed to parse the backup data.json</string>
+
+    <!-- FontDownloadManager -->
+    <string name="font_dl_http_error">HTTP %1$d. Check your network or try again later.</string>
+    <string name="font_dl_empty_response">The response is empty</string>
+    <string name="font_dl_incomplete">Download incomplete (%1$d/%2$d). Please retry.</string>
+    <string name="font_dl_write_failed">Failed to write the font file</string>
+    <string name="font_dl_download_failed">Download failed</string>
+</resources>

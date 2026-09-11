@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Reader module strings (English).
+  Key set and order must match values/strings_reader.xml and values-b+zh+Hant/strings_reader.xml.
+  Reader paper theme names reuse reading_theme_* from the main strings.xml and are not redeclared here.
+-->
+<resources>
+    <!-- Common: loading and errors -->
+    <string name="reader_opening_book">Opening book…</string>
+    <string name="reader_loading">Loading…</string>
+    <string name="reader_pdf_not_available">PDF reading is not available yet. Stay tuned for a future release.</string>
+    <string name="reader_cannot_open">⚠ Cannot open</string>
+    <string name="reader_back_to_shelf">Back to library</string>
+
+    <!-- HUD top bar -->
+    <string name="reader_back">Back</string>
+    <string name="reader_search">Search</string>
+    <string name="reader_more">More</string>
+    <string name="reader_add_bookmark">Add bookmark</string>
+    <string name="reader_bookmarked">Bookmarked</string>
+    <string name="reader_release_to_add_bookmark">Release to add bookmark</string>
+    <string name="reader_release_to_remove_bookmark">Release to remove bookmark</string>
+
+    <!-- HUD bottom bar -->
+    <string name="reader_prev_chapter">Prev chapter</string>
+    <string name="reader_next_chapter">Next chapter</string>
+    <string name="reader_toc">Contents</string>
+    <string name="reader_brightness">Brightness</string>
+    <string name="reader_follow_system_brightness">Follow system brightness</string>
+    <string name="reader_eye_protection">Eye comfort</string>
+    <string name="reader_switch_to_day">Switch to day mode</string>
+    <string name="reader_switch_to_night">Switch to night mode</string>
+    <string name="reader_settings">Settings</string>
+
+    <!-- Auto page turn -->
+    <string name="reader_auto_flip">Auto page turn</string>
+    <string name="reader_auto_flip_speed_format">%1$d sec/page</string>
+    <string name="reader_exit_auto_flip">Exit auto page turn</string>
+
+    <!-- AI panel and conversation history -->
+    <string name="reader_ai_assistant">AI assistant</string>
+    <string name="reader_chat_history">Chat history</string>
+    <string name="reader_expand">Expand</string>
+    <string name="reader_history_sessions">Conversations</string>
+    <string name="reader_new_conversation">New chat</string>
+    <string name="reader_no_history">No conversations yet</string>
+    <string name="reader_untitled_conversation">Untitled chat</string>
+    <string name="reader_delete_conversation_title">Delete conversation</string>
+    <string name="reader_delete_conversation_body">Delete \"%1$s\" and all of its messages? This cannot be undone.</string>
+
+    <!-- Aa reading settings panel -->
+    <string name="reader_settings_title">Reading settings</string>
+    <string name="reader_font">Font</string>
+    <string name="reader_page_flip_animation">Page turn animation</string>
+    <string name="reader_flip_slide">Slide</string>
+    <string name="reader_flip_updown">Vertical scroll</string>
+    <string name="reader_flip_none">None</string>
+    <string name="reader_more_settings">More settings</string>
+
+    <!-- More settings screen -->
+    <string name="reader_group_page_turn">Page turning</string>
+    <string name="reader_volume_key_page_turn">Volume key page turn</string>
+    <string name="reader_book_open_animation">Book open animation</string>
+    <string name="reader_book_open_animation_hint">Show a cover-opening animation when entering the reader from the book detail page</string>
+    <string name="reader_group_screen_reminder">Screen and reminders</string>
+    <string name="reader_screen_off_time">Screen timeout</string>
+    <string name="reader_screen_off_always">Always on</string>
+    <string name="reader_rest_reminder_display">Rest reminder</string>
+    <string name="reader_minutes_format">%1$d min</string>
+    <string name="reader_off">Off</string>
+    <string name="reader_group_display">Display</string>
+    <string name="reader_epub_publisher_styles">EPUB publisher styles</string>
+    <string name="reader_progress_display_mode">Progress display</string>
+    <string name="reader_progress_percentage">Percentage</string>
+    <string name="reader_progress_page">Page number</string>
+    <string name="reader_show_top_info">Show top info area</string>
+    <string name="reader_show_bottom_info">Show bottom info area</string>
+    <string name="reader_battery_percent">Show battery as percentage</string>
+
+    <!-- Contents / bookmarks / notes panel -->
+    <string name="reader_bookmarks">Bookmarks</string>
+    <string name="reader_notes">Notes</string>
+    <string name="reader_empty_toc">No chapters yet</string>
+    <string name="reader_empty_bookmarks">No bookmarks yet</string>
+    <string name="reader_empty_notes">Notes for this book will appear as you read</string>
+    <string name="reader_current">Current</string>
+
+    <!-- In-book search -->
+    <string name="reader_search_placeholder">Search in this book</string>
+    <string name="reader_cancel">Cancel</string>
+    <string name="reader_search_no_result">No results for \"%1$s\"</string>
+    <string name="reader_search_no_result_hint">Try a shorter keyword, or check for typos</string>
+    <string name="reader_search_result_count">%1$d results found</string>
+
+    <!-- Selection bubble / highlight menu -->
+    <string name="reader_highlight">Highlight</string>
+    <string name="reader_note">Note</string>
+    <string name="reader_copy">Copy</string>
+    <string name="reader_translate">Translate</string>
+    <string name="reader_ask_ai">Ask AI</string>
+    <string name="reader_rewrite">Rewrite</string>
+    <string name="reader_continue">Continue</string>
+    <string name="reader_change_color">Change color</string>
+    <string name="reader_delete">Delete</string>
+
+    <!-- Translation annotation card -->
+    <string name="reader_translation_annotation">Translation annotation</string>
+    <string name="reader_cache_hit">Cache hit · no API call</string>
+    <string name="reader_translation_meta">Source %1$d characters → Chinese · reused throughout the book</string>
+    <string name="reader_retranslate">Translate again</string>
+
+    <!-- Custom theme sheet -->
+    <string name="reader_theme_settings">Theme settings</string>
+    <string name="reader_restore_last_settings">Restore previous settings</string>
+    <string name="reader_font_color">Text color</string>
+    <string name="reader_background_color">Background color</string>
+
+    <!-- Custom spacing sheet -->
+    <string name="reader_custom_spacing">Custom spacing</string>
+    <string name="reader_restore_defaults">Restore defaults</string>
+    <string name="reader_line_spacing">Line spacing</string>
+    <string name="reader_paragraph_spacing">Paragraph spacing</string>
+    <string name="reader_first_line_indent">First line indent</string>
+    <string name="reader_vertical_margin">Vertical margins</string>
+    <string name="reader_horizontal_margin">Horizontal margins</string>
+
+    <!-- Note / translation / notice / rest reminder dialogs -->
+    <string name="reader_edit_note">Edit note</string>
+    <string name="reader_add_note">Add note</string>
+    <string name="reader_note_placeholder">Write down your thoughts…</string>
+    <string name="reader_save">Save</string>
+    <string name="reader_close">Close</string>
+    <string name="reader_translation_hint">The translation is embedded in small red text after the source text (EPUB marks translated text with a red underline). Tap it to manage.</string>
+    <string name="reader_tip">Notice</string>
+    <string name="reader_got_it">Got it</string>
+    <string name="reader_rest_reminder_title">Rest reminder</string>
+    <string name="reader_rest_reminder_body">You have been reading for %1$d minutes straight. Get up and take a break.</string>
+</resources>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  English — Notes and Stats modules.
+  Keep key set and order identical to values/strings_notes_stats.xml (the baseline)
+  and values-b+zh+Hant/strings_notes_stats.xml. See docs/i18n.md.
+-->
+<resources>
+    <!-- Notes: title and actions -->
+    <string name="notes_title">Notes</string>
+    <string name="notes_search">Search</string>
+    <string name="notes_search_hint">Search notes</string>
+    <string name="notes_filter_all_count">All %1$d</string>
+    <string name="notes_filter_all_books">All books</string>
+    <string name="notes_filter_count">%1$s %2$d</string>
+
+    <!-- Notes: empty state -->
+    <string name="notes_empty_title">No notes yet</string>
+    <string name="notes_empty_hint_highlight">Long-press text while reading to highlight or annotate</string>
+    <string name="notes_empty_hint_ai">AI answers and roleplay chats are saved here too</string>
+
+    <!-- Notes: annotation types -->
+    <string name="notes_type_highlight">Highlight</string>
+    <string name="notes_type_note">Note</string>
+    <string name="notes_type_translation">Translation</string>
+    <string name="notes_type_ai_answer">AI answer</string>
+    <string name="notes_type_roleplay">Roleplay</string>
+    <string name="notes_type_rewrite">Rewrite</string>
+
+    <!-- Notes: cards and list -->
+    <string name="notes_meta_line">%1$s · %2$s</string>
+    <string name="notes_translation_prefix">Translation: %1$s</string>
+    <string name="notes_time_today">Today</string>
+    <string name="notes_time_yesterday">Yesterday</string>
+    <string name="notes_time_days_ago">%1$d days ago</string>
+    <string name="notes_time_last_week">Last week</string>
+
+    <!-- Notes: dialogs -->
+    <string name="notes_delete_title">Delete note</string>
+    <string name="notes_delete_message">Delete this note (%1$s)? This cannot be undone.</string>
+
+    <!-- Notes: detail sheet -->
+    <string name="notes_detail_original">Source text</string>
+    <string name="notes_detail_ai_content">AI content</string>
+    <string name="notes_detail_rewrite_content">Rewritten or continued text</string>
+    <string name="notes_detail_jump">Open source</string>
+    <string name="notes_detail_no_locator">No source location</string>
+
+    <!-- Notes: export and fallback -->
+    <string name="notes_unknown_book">Unknown book</string>
+    <string name="notes_export_chooser">Export notes</string>
+
+    <!-- Stats -->
+    <string name="stats_title">Statistics</string>
+    <string name="stats_today_reading">Today</string>
+    <string name="stats_week_reading">This week</string>
+    <string name="stats_streak">Reading streak</string>
+    <string name="stats_books_finished">Finished</string>
+    <string name="stats_unit_minutes">min</string>
+    <string name="stats_unit_days">days</string>
+
+    <!-- Stats: chart -->
+    <string name="stats_tooltip_point">%1$s · %2$d min</string>
+    <string name="stats_tooltip_dismiss">Tap to close</string>
+    <string name="stats_prev">Previous</string>
+    <string name="stats_next">Next</string>
+    <string name="stats_range_day">Day</string>
+    <string name="stats_range_week">Week</string>
+    <string name="stats_range_month">Month</string>
+    <string name="stats_chart_empty">No data yet. Start reading!</string>
+
+    <!-- Stats: recently finished -->
+    <string name="stats_recent_finished">Recently finished</string>
+    <string name="stats_view_all">View all</string>
+    <string name="stats_collapse">Show less</string>
+    <string name="stats_no_finished_books">No finished books yet</string>
+    <string name="stats_book_meta">%1$s · %2$s</string>
+</resources>

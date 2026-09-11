@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AI 內部提示詞與周邊文案（繁體中文）。
+  鍵前綴 ai_internal_；呼叫端為 Service / ViewModel 層，一律用 context.getString，禁止 stringResource。
+  鍵集合與順序必須與 values/strings_ai_internal.xml、values-en/strings_ai_internal.xml 完全一致。
+
+  注意：這裡只翻譯「說明性文字與取值範例」。
+  JSON 鍵名（summary/style/useEmoji/terms/identity/personality/tone/knowledgeBoundary）
+  與 style 的候選值（casual|concise|formal|friendly）、true/false 由程式解析，恆定不變；
+  因此 AiProfileStore 的 JSON 骨架留在 Kotlin 裡，進資源檔的只有散文部分。
+-->
+<resources>
+    <!-- AiProfileStore：自動歸納使用者偏好（發給模型，使用者看不到也改不了） -->
+    <string name="ai_internal_profile_instruction">根據以下使用者在 Narvive AI 首頁的對話，歸納使用者的偏好。嚴格輸出 JSON（不要程式碼區塊、不要額外解釋）：</string>
+    <string name="ai_internal_profile_role_user">使用者：</string>
+    <string name="ai_internal_profile_role_assistant">助手：</string>
+
+    <!-- CharacterCardExtractor：已讀內容摘錄的段落標頭（前置換行保持原有排版） -->
+    <string name="ai_internal_excerpt_header">\n已讀內容摘錄（截至使用者進度）：\n\"\"\"\n</string>
+
+    <!-- CharacterCardViewModel -->
+    <string name="ai_internal_chapter_label">第 %1$d 章</string>
+    <string name="ai_internal_card_extract_failed">AI 抽取失敗（未設定或網路無法使用），請手動填寫角色卡</string>
+
+    <!-- RoleplayViewModel：對話片段儲存為筆記時的固定前綴 -->
+    <string name="ai_internal_roleplay_note">與%1$s 對話片段 · %1$s：%2$s</string>
+
+    <!-- RoleplaySessionsViewModel -->
+    <string name="ai_internal_empty_conversation">（尚無對話，來說點什麼吧）</string>
+</resources>

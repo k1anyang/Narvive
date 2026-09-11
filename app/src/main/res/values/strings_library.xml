@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LibraryScreen / BookDetailsScreen 文案（简体中文，默认语言 / 源语言）。
+  键名分别以 library_ / details_ 前缀，避免与其他模块冲突。
+  本文件与 values-en/strings_library.xml、values-b+zh+Hant/strings_library.xml 键集与顺序必须完全一致。
+-->
+<resources>
+    <!-- LibraryScreen · 顶栏与菜单 -->
+    <string name="library_selected_count">已选 %1$d 本</string>
+    <string name="library_title">书架</string>
+    <string name="library_close">关闭</string>
+    <string name="library_select_all">全选</string>
+    <string name="library_import_books">导入书籍</string>
+    <string name="library_search">搜索</string>
+    <string name="library_sort">排序</string>
+    <string name="library_sort_asc">升序</string>
+    <string name="library_sort_desc">降序</string>
+    <string name="library_sort_by_title">书名</string>
+    <string name="library_sort_by_author">作者</string>
+    <string name="library_sort_by_last_read">最近阅读</string>
+    <string name="library_sort_by_date_added">导入时间</string>
+    <string name="library_sort_by_progress">阅读进度</string>
+    <string name="library_more">更多</string>
+    <string name="library_collections_manage">合集管理</string>
+    <string name="library_switch_to_list">切换为列表</string>
+    <string name="library_switch_to_grid">切换为网格</string>
+    <string name="library_search_hint">搜索书名或作者</string>
+
+    <!-- LibraryScreen · 批量删除 -->
+    <string name="library_batch_delete_title">删除 %1$d 本书</string>
+    <string name="library_batch_delete_message">确定删除选中的 %1$d 本书吗？\n源文件无法通过Narvive删除。</string>
+    <string name="library_delete_cache_too">同时删除缓存文件</string>
+    <string name="library_delete">删除</string>
+    <string name="library_cancel">取消</string>
+
+    <!-- LibraryScreen · 合集 -->
+    <string name="library_add_to_collection">加入合集</string>
+    <string name="library_no_collections_hint">暂无合集，请先在「更多 → 合集管理」创建</string>
+    <string name="library_collection_with_count">%1$s（%2$d）</string>
+    <string name="library_new_collection">新建合集</string>
+    <string name="library_collection_name">合集名称</string>
+    <string name="library_create">创建</string>
+    <string name="library_rename_collection">重命名合集</string>
+    <string name="library_new_name">新名称</string>
+    <string name="library_confirm">确定</string>
+    <string name="library_rename">重命名</string>
+    <string name="library_no_collections_hint_short">暂无合集，点击右上角创建</string>
+    <string name="library_book_count">%1$d 本书</string>
+    <string name="library_collections_help">· 一本书可属于多个合集 · 删除合集不会删除书籍\n· 书架顶部合集 chips 可横滑筛选</string>
+
+    <!-- LibraryScreen · 导入确认 -->
+    <string name="library_import_confirm_title">导入确认</string>
+    <string name="library_import_selected_files">已选择 %1$d 个文件，确认后开始导入：</string>
+    <string name="library_checking">检测中…</string>
+    <string name="library_already_in_library_skip">已在书架，跳过</string>
+    <string name="library_unknown_format">未知格式</string>
+    <string name="library_format_and_size">%1$s · %2$s</string>
+    <string name="library_import_skip_note">重复文件与无法识别的文件将被跳过。源文件无法通过 Narvive 删除。</string>
+    <string name="library_import">导入</string>
+    <string name="library_import_with_count">导入（%1$d）</string>
+    <string name="library_unknown_size">未知大小</string>
+
+    <!-- LibraryScreen · 筛选与卡片 -->
+    <string name="library_filter_all">全部</string>
+    <string name="library_filter_reading">正在读</string>
+    <string name="library_filter_favorite">我喜欢</string>
+    <string name="library_filter_ungrouped">未分组</string>
+    <string name="library_continue_reading">继续阅读</string>
+    <string name="library_badge_new">新</string>
+    <string name="library_unknown_author">未知作者</string>
+
+    <!-- LibraryScreen · 空状态 -->
+    <string name="library_empty_title">书架还是空的</string>
+    <string name="library_empty_subtitle">导入你的第一本书\n支持 EPUB · PDF · TXT</string>
+    <string name="library_empty_share_hint">· 也可从系统分享菜单导入</string>
+    <string name="library_empty_collection">合集还是空的</string>
+
+    <!-- BookDetailsScreen · 删除确认 -->
+    <string name="details_delete_book_title">删除书籍</string>
+    <string name="details_delete_book_message">确定删除「%1$s」吗？\n本地文件将被同时删除，且不可恢复。</string>
+    <string name="details_delete_cache_too">同时删除缓存文件</string>
+    <string name="details_source_file_note">源文件无法通过 Narvive 删除</string>
+    <string name="details_delete">删除</string>
+    <string name="details_cancel">取消</string>
+
+    <!-- BookDetailsScreen · 合集 -->
+    <string name="details_add_to_collection">加入合集</string>
+    <string name="details_no_collections_hint">暂无合集，请先在书架「更多 → 合集管理」创建</string>
+    <string name="details_remove">移除</string>
+    <string name="details_add">加入</string>
+
+    <!-- BookDetailsScreen · 笔记 / 目录弹层 -->
+    <string name="details_notes_sheet_title">本书笔记（%1$d）</string>
+    <string name="details_toc">目录</string>
+    <string name="details_toc_parsing">解析中…</string>
+    <string name="details_toc_empty">暂无目录</string>
+
+    <!-- BookDetailsScreen · 顶栏 -->
+    <string name="details_back">返回</string>
+    <string name="details_favorite">喜欢</string>
+    <string name="details_more">更多</string>
+    <string name="details_edit_info">编辑信息</string>
+    <string name="details_export_notes">导出笔记</string>
+
+    <!-- BookDetailsScreen · 正文 -->
+    <string name="details_loading">加载中...</string>
+    <string name="details_unknown_author">未知作者</string>
+    <string name="details_read_status">已读</string>
+    <string name="details_continue_reading">继续阅读</string>
+    <string name="details_start_reading">开始阅读</string>
+    <string name="details_ask_ai">问 AI</string>
+    <string name="details_roleplay">对话</string>
+    <string name="details_notes">笔记</string>
+    <string name="details_description">简介</string>
+    <string name="details_notes_section">本书笔记</string>
+    <string name="details_view_all">查看全部</string>
+
+    <!-- BookDetailsScreen · 元数据 -->
+    <string name="details_info_format">格式</string>
+    <string name="details_info_imported_at">导入时间</string>
+    <string name="details_info_last_read">最后阅读</string>
+    <string name="details_not_read">未阅读</string>
+    <string name="details_info_file_hash">文件指纹</string>
+
+    <!-- BookDetailsScreen · 笔记类型 -->
+    <string name="details_type_highlight">高亮</string>
+    <string name="details_type_translation">翻译</string>
+    <string name="details_type_note">笔记</string>
+    <string name="details_type_ai_answer">AI 保存</string>
+    <string name="details_type_roleplay">角色对话</string>
+    <string name="details_type_rewrite">改写</string>
+
+    <!-- BookDetailsScreen · 编辑信息 -->
+    <string name="details_field_title">书名</string>
+    <string name="details_field_author">作者</string>
+    <string name="details_save">保存</string>
+</resources>

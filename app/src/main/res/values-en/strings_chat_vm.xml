@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ChatViewModel strings (English).
+  Keep in sync with values/strings_chat_vm.xml.
+-->
+<resources>
+    <string name="chat_vm_ai_assistant">AI assistant</string>
+
+    <!-- Quick commands -->
+    <string name="chat_vm_cmd_explain">Explain</string>
+    <string name="chat_vm_cmd_translate">Translate</string>
+    <string name="chat_vm_cmd_summarize">Summarise chapter</string>
+    <string name="chat_vm_cmd_roleplay">Talk to character</string>
+    <string name="chat_vm_cmd_rewrite">Rewrite</string>
+    <string name="chat_vm_cmd_continue">Continue</string>
+    <string name="chat_vm_cmd_vocab">Vocabulary</string>
+    <string name="chat_vm_cmd_relationship_graph">Relationship graph</string>
+    <string name="chat_vm_cmd_timeline">Timeline</string>
+
+    <!-- Graph failures -->
+    <string name="chat_vm_graph_failed">Generation failed. Check your AI setup or try again later.</string>
+    <string name="chat_vm_graph_parse_failed">Could not parse the AI output. Please try again.</string>
+</resources>

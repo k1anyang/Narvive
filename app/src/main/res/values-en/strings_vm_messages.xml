@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ReaderViewModel / RoleplayViewModel strings (English).
+  Keep in sync with values/strings_vm_messages.xml.
+-->
+<resources>
+    <!-- ReaderViewModel -->
+    <string name="reader_vm_book_missing">Book not found</string>
+    <string name="reader_vm_file_missing">File missing or empty: %1$s</string>
+    <string name="reader_vm_open_failed">Could not open: %1$s</string>
+    <string name="reader_vm_auto_flip_finished">Reached the last page. Auto page-turn stopped.</string>
+    <string name="reader_vm_no_ai_provider">No AI provider configured. Set up an API key in Settings first.</string>
+    <string name="reader_vm_translate_failed">Translation failed: %1$s</string>
+    <string name="reader_vm_retranslate_failed">Retranslation failed: %1$s</string>
+    <string name="reader_vm_all_providers_unavailable">All providers are unavailable</string>
+
+    <!-- RoleplayViewModel -->
+    <string name="roleplay_vm_not_started">Reading not started</string>
+    <string name="roleplay_vm_chapter_label">Chapter %1$d</string>
+    <string name="roleplay_vm_all_providers_unavailable">All providers are unavailable. Check your settings or try again later.</string>
+</resources>

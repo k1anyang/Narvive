@@ -1,0 +1,106 @@
+name: Bug report
+description: Report something that is broken or behaves unexpectedly
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill in as much as you can —
+        vague reports are hard to act on.
+
+        ⚠️ **Never paste an API key.** Narvive uses BYOK, and a leaked key is a real cost to you.
+
+  - type: input
+    id: version
+    attributes:
+      label: Narvive version
+      description: Shown in 设置 → 关于 / Settings → About, or the APK file name.
+      placeholder: "1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: device
+    attributes:
+      label: Device & Android version
+      placeholder: "Pixel 8, Android 15 / 小米 14, HyperOS 2 (Android 15)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: language
+    attributes:
+      label: Interface language
+      options:
+        - 简体中文
+        - 繁體中文
+        - English
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the app?
+      multiple: true
+      options:
+        - Library / import
+        - Reader (EPUB)
+        - Reader (TXT)
+        - Reader (PDF)
+        - Annotations / notes
+        - AI chat / quick commands
+        - Roleplay
+        - Relationship graph / timeline
+        - Stats
+        - Backup / restore / WebDAV
+        - Fonts
+        - Settings / appearance / language
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Import an EPUB
+        2. Open it and long-press a paragraph
+        3. Tap 翻译
+        4. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Screenshots or a screen recording help a lot.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / crash report (optional)
+      description: |
+        If the app crashed, a log is written to the app-private `crash/` directory
+        (see `CrashHandler.kt`). Please remove anything private before pasting.
+      render: text
+
+  - type: markdown
+    attributes:
+      value: |
+        ### For AI-related issues only
+        If the problem involves an AI feature, please also tell us which **provider**
+        (DeepSeek / OpenAI / Gemini / custom) and **protocol**
+        (OpenAI Chat Completions / OpenAI Responses / Anthropic Messages) you use.
+        Again: **do not paste the key itself**.

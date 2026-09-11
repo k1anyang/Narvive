@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App chrome (reference — Compose theme handles rendering) -->
+    <color name="sky_600">#0284C7</color>
+    <color name="sky_400">#38BDF8</color>
+    <color name="slate_50">#F8FAFC</color>
+    <color name="slate_800">#1E293B</color>
+    <color name="slate_900">#0F172A</color>
+    <!--
+      窗口背景初值：与默认外观主题（sky 浅色）的 background 一致。
+      运行期由 NarviveTheme 覆盖为当前外观主题的 background，见 res/values/themes.xml。
+    -->
+    <color name="narvive_window_background">#F8FAFC</color>
+</resources>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  English — AI chat / roleplay / rewrite module.
+  Keep in sync with values/strings_chat.xml (the baseline). Same key set and order.
+-->
+<resources>
+    <!-- ChatScreen: conversations -->
+    <string name="chat_delete_conversation_title">Delete conversation</string>
+    <string name="chat_delete_conversation_body">Delete \"%1$s\" and all of its messages? This cannot be undone.</string>
+    <string name="chat_untitled_conversation">Untitled conversation</string>
+    <string name="chat_action_delete">Delete</string>
+    <string name="chat_action_cancel">Cancel</string>
+    <string name="chat_history_title">Conversation history</string>
+    <string name="chat_new_conversation">New conversation</string>
+    <string name="chat_history_empty">No conversation history yet</string>
+    <string name="chat_current">Current</string>
+    <string name="chat_action_back">Back</string>
+    <string name="chat_action_more">More</string>
+
+    <!-- Relative time (shared by ChatScreen / GlobalChatScreen / RoleplaySessionsScreen) -->
+    <string name="chat_time_just_now">Just now</string>
+    <string name="chat_time_minutes_ago">%1$d minutes ago</string>
+    <string name="chat_time_hours_ago">%1$d hours ago</string>
+    <string name="chat_time_days_ago">%1$d days ago</string>
+    <string name="chat_time_yesterday">Yesterday</string>
+
+    <!-- ChatContent: context / send scope / messages and input -->
+    <string name="chat_context_label">Context:</string>
+    <string name="chat_context_whole_book">Context: whole book</string>
+    <string name="chat_context_selection_chars">Selection · %1$d chars</string>
+    <string name="chat_context_chapter">This chapter</string>
+    <string name="chat_context_book">Whole book</string>
+    <string name="chat_send_scope_selection">Will send: %1$d characters from the selection · redacted · bookmarks and other chapters are not sent</string>
+    <string name="chat_send_scope_chapter">Will send: this chapter%1$s%2$s · redacted</string>
+    <string name="chat_send_scope_chapter_title"> \"%1$s\"</string>
+    <string name="chat_send_scope_chapter_chars"> (~%1$d chars)</string>
+    <string name="chat_send_scope_book">Will send: bibliographic metadata and table of contents · book text is not sent</string>
+    <string name="chat_thinking">Thinking…</string>
+    <string name="chat_input_placeholder">Ask a follow-up…</string>
+    <string name="chat_action_send">Send</string>
+    <string name="chat_action_saved">Saved</string>
+    <string name="chat_action_save_as_note">Save as note</string>
+    <string name="chat_action_copy">Copy</string>
+    <string name="chat_action_regenerate">Regenerate</string>
+
+    <!-- ChatContent: BYOK onboarding card -->
+    <string name="chat_onboarding_title">Enable the AI assistant</string>
+    <string name="chat_onboarding_body">Narvive uses BYOK (bring your own key): the AI provider is the only network destination. Requests go straight to the platform you configure, and the key is stored encrypted on this device only — no intermediary server is involved.</string>
+    <string name="chat_onboarding_pick_platform">Pick a platform to get an API key</string>
+    <string name="chat_onboarding_platform_deepseek_desc">platform.deepseek.com · direct access from China · recommended</string>
+    <string name="chat_onboarding_platform_gemini_desc">aistudio.google.com · OpenAI-compatible endpoint</string>
+    <string name="chat_onboarding_get_key">Get a key →</string>
+    <string name="chat_onboarding_go_settings">Go to settings to add a key</string>
+    <string name="chat_onboarding_skip_hint">Skip for now · reading is unaffected</string>
+
+    <!-- GlobalChatScreen: global chat -->
+    <string name="chat_rename_conversation_title">Rename conversation</string>
+    <string name="chat_action_save">Save</string>
+    <string name="chat_conversation_history">Chat history</string>
+    <string name="chat_recently_read">Recently read</string>
+    <string name="chat_expand">Expand</string>
+    <string name="chat_collapse">Collapse</string>
+    <string name="chat_global_input_placeholder">Ask something… type @ to pick books</string>
+    <string name="chat_prompt_reading_report">Summarize my reading report</string>
+    <string name="chat_prompt_recommend">Recommend what I should read</string>
+    <string name="chat_context_pick_book">@ Pick books</string>
+    <string name="chat_all_library">Entire library</string>
+    <string name="chat_book_title_brackets">\"%1$s\"</string>
+    <string name="chat_context_general">General</string>
+    <string name="chat_global_scope_all_books">Sends titles, authors, progress and chapters only — never book text</string>
+    <string name="chat_global_scope_metadata">Sends bibliographic metadata only — never book text</string>
+    <string name="chat_action_remove">Remove</string>
+    <string name="chat_history_empty_conversations">No chat history yet</string>
+    <string name="chat_action_pin">Pin</string>
+    <string name="chat_action_rename">Rename</string>
+    <string name="chat_pick_context_books">Choose context books</string>
+    <string name="chat_action_clear">Clear</string>
+    <string name="chat_action_done">Done</string>
+    <string name="chat_no_provider_title">No AI provider available yet</string>
+    <string name="chat_global_onboarding_body">Add an API key to start chatting with AI across your library — in BYOK mode requests go directly to the platform you configure.</string>
+    <string name="chat_global_onboarding_settings">Open settings</string>
+
+    <!-- RoleplayChatScreen: roleplay chat room -->
+    <string name="chat_roleplay_title_with_name">Chat with %1$s</string>
+    <string name="chat_role_fallback">Character</string>
+    <string name="chat_action_switch_character">Switch character</string>
+    <string name="chat_action_edit_card">Edit character card</string>
+    <string name="chat_roleplay_input_placeholder">Say something to %1$s…</string>
+    <string name="chat_roleplay_knowledge_chip">Roleplay · %1$s knows the story up to %2$s</string>
+    <string name="chat_role_thinking">The character is thinking…</string>
+    <string name="chat_roleplay_prompt_change_topic">Change the topic</string>
+    <string name="chat_roleplay_prompt_let_me_think">Let me think</string>
+    <string name="chat_roleplay_prompt_advance_plot">Move the plot forward</string>
+    <string name="chat_roleplay_prompt_about_book">Talk about this book</string>
+    <string name="chat_saved_as_note">Saved as a note</string>
+
+    <!-- RoleplaySessionsScreen: roleplay session list -->
+    <string name="chat_delete_roleplay_title">Delete roleplay chat</string>
+    <string name="chat_delete_roleplay_body">Delete the chat with \"%1$s\" and all of its messages? This cannot be undone.</string>
+    <string name="chat_roleplay_sessions_title">Roleplay chats</string>
+    <string name="chat_sessions_count">%1$s · %2$d chats</string>
+    <string name="chat_new_roleplay_session">New roleplay chat</string>
+    <string name="chat_roleplay_hints">· Character cards are extracted by AI from the chapters you have read, and you can preview and fine-tune them\n· After reading new chapters, tap \"Refresh character knowledge\" — no spoilers\n· Dialogue snippets can be saved as notes (tagged with the character)</string>
+    <string name="chat_character_name_placeholder">Character name, e.g. Lin Daiyu</string>
+    <string name="chat_extract_character_card">Extract character card</string>
+    <string name="chat_knowledge_until">Knows up to %1$s</string>
+    <string name="chat_chapter_number">Chapter %1$d</string>
+
+    <!-- CharacterCardScreen: preview / edit -->
+    <string name="chat_character_card_with_name">Character card · %1$s</string>
+    <string name="chat_character_card_title">Character card</string>
+    <string name="chat_character_card_auto_badge">AI-extracted · editable</string>
+    <string name="chat_extracting_character">AI is extracting the character\'s traits from what you have read…</string>
+    <string name="chat_field_identity">Identity</string>
+    <string name="chat_field_personality">Personality</string>
+    <string name="chat_field_tone">Tone</string>
+    <string name="chat_field_knowledge_boundary">Knowledge boundary</string>
+    <string name="chat_knowledge_boundary_default">Knows the story up to %1$s and nothing beyond it.</string>
+    <string name="chat_character_card_hint">The character card is generated automatically from the chapters you have read. After reading further, tap \"Refresh character knowledge\" to update the knowledge boundary. Saving your edits overwrites the AI-extracted content.</string>
+    <string name="chat_refresh_character_knowledge">Refresh character knowledge</string>
+    <string name="chat_continue_conversation">Continue chat</string>
+    <string name="chat_start_conversation">Start chat</string>
+
+    <!-- GraphSheet: relationship graph / timeline -->
+    <string name="chat_graph_relationship_title">Character relationship graph</string>
+    <string name="chat_graph_timeline_title">Timeline evolution graph</string>
+    <string name="chat_graph_generating_title">Generating…</string>
+    <string name="chat_action_close">Close</string>
+    <string name="chat_graph_generating">Generating…</string>
+    <string name="chat_graph_node_detail">%1$s: %2$s</string>
+    <string name="chat_graph_node_detail_with_category">%1$s · %2$s: %3$s</string>
+    <string name="chat_graph_relation_list">Relations</string>
+    <string name="chat_graph_edge">%1$s → %2$s</string>
+    <string name="chat_graph_edge_with_relation">%1$s → %2$s (%3$s)</string>
+
+    <!-- RewriteScreen: rewrite / continue -->
+    <string name="chat_mode_rewrite">Rewrite</string>
+    <string name="chat_mode_continue">Continue</string>
+    <string name="chat_rewrite_compare_title">%1$s comparison</string>
+    <string name="chat_rewrite_selected_paragraph">Rewrite selected text</string>
+    <string name="chat_continue_selected_paragraph">Continue from selected text</string>
+    <string name="chat_selection_chars">%1$d chars selected</string>
+    <string name="chat_rewrite_preset_inner_psychology">More detailed inner description</string>
+    <string name="chat_rewrite_preset_first_person">Switch to first person</string>
+    <string name="chat_rewrite_preset_more_literary">Make it more literary</string>
+    <string name="chat_rewrite_preset_tragic_ending">Change to a tragic ending</string>
+    <string name="chat_continue_preset_natural">Continue naturally</string>
+    <string name="chat_continue_preset_conflict">Add conflict</string>
+    <string name="chat_continue_preset_new_character">Introduce a new character</string>
+    <string name="chat_presets_label">Preset instructions</string>
+    <string name="chat_rewrite_custom_placeholder">Custom instruction, e.g. rewrite it in more literary language…</string>
+    <string name="chat_continue_custom_placeholder">Custom instruction, e.g. continue in more literary language…</string>
+    <string name="chat_generate_rewrite">Generate rewrite</string>
+    <string name="chat_generate_continue">Generate continuation</string>
+    <string name="chat_rewrite_send_scope_selection">Will send: %1$d characters from the selection</string>
+    <string name="chat_rewrite_send_scope_with_context">Will send: %1$d characters from the selection + a summary of earlier text in this chapter (about %2$s tokens)</string>
+    <string name="chat_original_with_chapter">Original · %1$s</string>
+    <string name="chat_current_chapter">Current chapter</string>
+    <string name="chat_rewrite_instruction_chip">%1$s · %2$s</string>
+    <string name="chat_rewrite_result_label">Rewritten text</string>
+    <string name="chat_continue_result_label">Continued text</string>
+    <string name="chat_instruction_label">Instruction</string>
+    <string name="chat_export_txt">Export .txt</string>
+    <string name="chat_delete_kind">Delete %1$s</string>
+    <string name="chat_toast_deleted_kind">%1$s deleted</string>
+    <string name="chat_toast_copied">Copied</string>
+</resources>

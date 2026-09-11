@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  StatsViewModel strings (English).
+  Keep in sync with values/strings_stats_vm.xml.
+
+  Note: stats_vm_date_month_day is a SimpleDateFormat PATTERN, so it must stay
+  locale-neutral English — the ViewModel never rewrites it through getString for
+  Chinese; it only uses it when the UI language is English.
+-->
+<resources>
+    <string name="stats_vm_today">Today</string>
+    <string name="stats_vm_last_week">Last 7 days</string>
+    <string name="stats_vm_last_month">Last 30 days</string>
+    <string name="stats_vm_year_month">%2$s %1$d</string>
+    <string name="stats_vm_day_of_month">%1$d</string>
+    <string name="stats_vm_unknown_author">Unknown author</string>
+    <string name="stats_vm_date_month_day">MMM d, yyyy</string>
+</resources>

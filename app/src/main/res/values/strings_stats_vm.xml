@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  StatsViewModel 层文案（简体中文）。
+  图表标题与坐标轴标签在 ViewModel 中拼装，非 Composable，故用 context.getString 解析。
+-->
+<resources>
+    <string name="stats_vm_today">今日</string>
+    <string name="stats_vm_last_week">近一周</string>
+    <string name="stats_vm_last_month">近一月</string>
+    <string name="stats_vm_year_month">%1$d年%2$s</string>
+    <string name="stats_vm_day_of_month">%1$d日</string>
+    <string name="stats_vm_unknown_author">未知作者</string>
+    <string name="stats_vm_date_month_day">M 月 d 日</string>
+</resources>

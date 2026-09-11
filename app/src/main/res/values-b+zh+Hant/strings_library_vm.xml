@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LibraryUiState（排序列舉）/ LibraryViewModel / BookDetailsViewModel 層文案（繁體中文，台灣／通用用法）。
+  鍵集與順序必須與 values/strings_library_vm.xml、values-en/strings_library_vm.xml 完全一致。
+-->
+<resources>
+    <!-- LibraryUiState · 排序列舉標籤（SortOrder / SortDirection） -->
+    <string name="lib_vm_sort_title">書名</string>
+    <string name="lib_vm_sort_author">作者</string>
+    <string name="lib_vm_sort_last_read">最近閱讀</string>
+    <string name="lib_vm_sort_date_added">匯入時間</string>
+    <string name="lib_vm_sort_progress">閱讀進度</string>
+    <string name="lib_vm_sort_asc">升序</string>
+    <string name="lib_vm_sort_desc">降序</string>
+
+    <!-- LibraryViewModel · 匯入／合集提示（經 UiState.error 進入 Snackbar） -->
+    <string name="lib_vm_book_exists">該書已存在</string>
+    <string name="lib_vm_import_failed">匯入失敗</string>
+    <string name="lib_vm_collection_exists">合集「%1$s」已存在</string>
+    <string name="lib_vm_unknown_file">未知檔案</string>
+    <string name="lib_vm_import_batch_result">匯入完成 %1$d 本，%2$d 本失敗：%3$s</string>
+
+    <!-- BookDetailsViewModel · 筆記匯出（系統分享標題、匯出檔名後綴） -->
+    <string name="lib_vm_export_notes_chooser">匯出筆記</string>
+    <string name="lib_vm_export_note_file_suffix">筆記</string>
+
+    <!-- BookDetailsViewModel · 匯出 Markdown 內文的欄位標籤（保持欄位順序與 Markdown 語法） -->
+    <string name="lib_vm_md_author">作者：%1$s</string>
+    <string name="lib_vm_md_chapter">章：%1$s</string>
+    <string name="lib_vm_md_progress">進度：%1$s</string>
+    <string name="lib_vm_md_time">時間：%1$s</string>
+    <string name="lib_vm_md_translation">譯文：%1$s</string>
+    <string name="lib_vm_md_rewrite">改寫（%1$s）：</string>
+
+    <!-- BookDetailsViewModel · 筆記類型標籤（匯出 Markdown 的 ## 標題） -->
+    <string name="lib_vm_type_highlight">螢光標記</string>
+    <string name="lib_vm_type_note">筆記</string>
+    <string name="lib_vm_type_translation">翻譯</string>
+    <string name="lib_vm_type_ai_answer">AI 儲存</string>
+    <string name="lib_vm_type_roleplay">對話</string>
+    <string name="lib_vm_type_rewrite">改寫</string>
+</resources>

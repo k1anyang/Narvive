@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AI internal prompts and peripheral strings (English).
+  Key prefix ai_internal_; callers live in Service / ViewModel layers and must use
+  context.getString(...) — never stringResource. Keep the key set and order identical
+  to values/strings_ai_internal.xml and values-b+zh+Hant/strings_ai_internal.xml.
+
+  Only prose and example values are translated here. JSON keys
+  (summary/style/useEmoji/terms/identity/personality/tone/knowledgeBoundary) and the
+  style candidates (casual|concise|formal|friendly), true/false are parsed by code and
+  stay byte-identical; the AiProfileStore JSON skeleton therefore stays in Kotlin.
+-->
+<resources>
+    <!-- AiProfileStore: automatic preference summarising (sent to the model, never shown or edited by the user) -->
+    <string name="ai_internal_profile_instruction">Summarise the user\'s preferences from their conversation on the Narvive AI home page below. Output strict JSON (no code block, no extra explanation):</string>
+    <string name="ai_internal_profile_role_user">User: </string>
+    <string name="ai_internal_profile_role_assistant">Assistant: </string>
+
+    <!-- CharacterCardExtractor: excerpt header (leading newline preserves the original layout) -->
+    <string name="ai_internal_excerpt_header">\nExcerpt of the content read so far (up to the reader\'s progress):\n\"\"\"\n</string>
+
+    <!-- CharacterCardViewModel -->
+    <string name="ai_internal_chapter_label">Chapter %1$d</string>
+    <string name="ai_internal_card_extract_failed">AI extraction failed (not configured or the network is unavailable). Please fill in the character card manually.</string>
+
+    <!-- RoleplayViewModel: fixed prefix when saving a conversation snippet as a note -->
+    <string name="ai_internal_roleplay_note">Conversation with %1$s · %1$s: %2$s</string>
+
+    <!-- RoleplaySessionsViewModel -->
+    <string name="ai_internal_empty_conversation">(No messages yet — say something to get started)</string>
+</resources>

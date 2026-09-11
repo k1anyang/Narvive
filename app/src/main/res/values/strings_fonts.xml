@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 字体设置页文案（简体中文）。 -->
+<resources>
+    <string name="font_settings_title">字体</string>
+    <string name="font_settings_tab_cjk">中文字体</string>
+    <string name="font_settings_tab_latin">英文字体</string>
+    <string name="font_settings_note">TXT 不支持中英字体分开渲染，优先使用中文字体。EPUB 出版方样式不支持修改字体。</string>
+    <string name="font_settings_empty">暂无可用字体</string>
+    <string name="font_settings_catalog_failed">字体目录加载失败，请检查网络后重试</string>
+    <string name="font_settings_official_site">官方网站</string>
+    <string name="font_settings_delete_font">删除字体</string>
+    <string name="font_settings_download">下载</string>
+    <string name="font_settings_downloading">下载中 %1$d%%</string>
+    <string name="font_settings_use_now">立即使用</string>
+    <string name="font_settings_system_default">系统默认</string>
+    <string name="font_settings_system_default_subtitle">使用系统字体</string>
+    <string name="font_settings_in_use">正在使用</string>
+</resources>

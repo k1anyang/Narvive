@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  English.
+  Keep in sync with values/strings.xml (the baseline). See docs/i18n.md.
+-->
+<resources>
+    <string name="app_name">Narvive</string>
+
+    <!-- Common -->
+    <string name="common_back">Back</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_confirm">OK</string>
+    <string name="common_save">Save</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_close">Close</string>
+    <string name="common_more">More</string>
+    <string name="common_retry">Retry</string>
+    <string name="common_clear">Clear</string>
+    <string name="common_done">Done</string>
+    <string name="common_copy">Copy</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_export">Export</string>
+    <string name="common_loading">Loading…</string>
+
+    <!-- Bottom navigation -->
+    <string name="tab_library">Library</string>
+    <string name="tab_notes">Notes</string>
+    <string name="tab_ai">AI</string>
+    <string name="tab_stats">Stats</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Appearance -->
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_section_theme">Color theme</string>
+    <string name="settings_appearance_section_mode">Light / dark</string>
+    <string name="settings_appearance_mode_light">Light</string>
+    <string name="settings_appearance_mode_light_desc">Always light</string>
+    <string name="settings_appearance_mode_dark">Dark</string>
+    <string name="settings_appearance_mode_dark_desc">Always dark</string>
+    <string name="settings_appearance_mode_system">System</string>
+    <string name="settings_appearance_mode_system_desc">Recommended</string>
+    <string name="settings_appearance_section_grid">Library grid</string>
+    <string name="settings_appearance_grid_per_row">per row</string>
+    <string name="settings_appearance_grid_books">%1$d</string>
+    <string name="settings_appearance_info">Color theme sets the palette, light/dark mode sets the brightness — combine them freely.\nAppearance affects the app shell only (library, notes, stats, settings). The reader follows this mode by default but can be switched independently, which never writes back here. Reader paper themes and custom colors live in the reader settings panel.</string>
+
+    <!-- Language -->
+    <string name="settings_language_section">Language</string>
+    <string name="settings_language_info">The interface updates immediately. Book content, reading text and saved notes are not affected.</string>
+    <string name="settings_language_zh_hans">简体中文</string>
+    <string name="settings_language_zh_hant">繁體中文</string>
+    <string name="settings_language_en">English</string>
+
+    <!-- Appearance theme names (AppearanceThemeSpec.displayNameRes) -->
+    <string name="appearance_theme_paper_ink">Warm Paper</string>
+    <string name="appearance_theme_paper_ink_desc">Warm · parchment &amp; terracotta</string>
+    <string name="appearance_theme_sky">Sky Blue</string>
+    <string name="appearance_theme_sky_desc">Classic · cool grey &amp; sky</string>
+    <string name="appearance_theme_pine">Pine Green</string>
+    <string name="appearance_theme_pine_desc">Calm · eastern study</string>
+    <string name="appearance_theme_plum">Plum</string>
+    <string name="appearance_theme_plum_desc">Night · romantic bedtime</string>
+
+    <!-- Settings home -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_group_appearance">Appearance</string>
+    <string name="settings_group_ai">AI</string>
+    <string name="settings_group_data">Data</string>
+    <string name="settings_group_about">About &amp; privacy</string>
+    <string name="settings_row_appearance">Appearance</string>
+    <string name="settings_row_font">Fonts</string>
+    <string name="settings_row_language">Language</string>
+    <string name="settings_row_reading">Reading settings</string>
+    <string name="settings_row_ai">AI setup</string>
+    <string name="settings_row_ai_desc">BYOK · your own key</string>
+    <string name="settings_row_prompt">Prompts</string>
+    <string name="settings_row_prompt_desc">Customise every AI prompt</string>
+    <string name="settings_row_ai_pref">AI preferences</string>
+    <string name="settings_row_ai_pref_desc">Auto-summarised or manual</string>
+    <string name="settings_row_backup">Backup &amp; restore</string>
+    <string name="settings_row_services">Services</string>
+    <string name="settings_row_services_desc">WebDAV cloud sync</string>
+    <string name="settings_row_storage">Storage</string>
+    <string name="settings_row_about">About Narvive</string>
+    <string name="settings_row_privacy">Privacy policy</string>
+    <string name="settings_row_user_agreement">Terms of use</string>
+    <string name="settings_row_licenses">Open-source licences</string>
+    <string name="settings_backup_last">Last: %1$s</string>
+    <string name="settings_backup_never">Not backed up yet</string>
+
+    <!-- Reading theme names -->
+    <string name="reading_theme_paper">Paper</string>
+    <string name="reading_theme_sepia">Sepia</string>
+    <string name="reading_theme_green">Bean green</string>
+    <string name="reading_theme_dark">Sky</string>
+    <string name="reading_theme_black">Charcoal</string>
+    <string name="reading_theme_custom">Custom</string>
+
+    <!-- Storage -->
+    <string name="storage_title">Storage</string>
+    <string name="storage_total">Total used</string>
+    <string name="storage_books">Book files</string>
+    <string name="storage_books_desc">Imported books (private app copies)</string>
+    <string name="storage_covers">Covers</string>
+    <string name="storage_covers_desc">Cover images extracted from books</string>
+    <string name="storage_fonts">Fonts</string>
+    <string name="storage_fonts_desc">Downloaded reading fonts</string>
+    <string name="storage_cache">Cache</string>
+    <string name="storage_cache_desc">Temporary files and image cache — safe to clear</string>
+    <string name="storage_count_items">%1$d</string>
+    <string name="storage_clear_cache">Clear cache</string>
+    <string name="storage_clear_confirm_title">Clear cache</string>
+    <string name="storage_clear_confirm_body">This deletes temporary exports, restore staging and image/web cache (%1$s). Books, progress and notes are not affected.</string>
+    <string name="storage_cleared">Cleared %1$s</string>
+    <string name="storage_delete_note">To prevent accidental loss, books, covers and fonts are shown read-only here. Delete books from the library or the book details page.</string>
+
+    <!-- WebDAV -->
+    <string name="webdav_title">WebDAV</string>
+    <string name="webdav_enable">Enable WebDAV</string>
+    <string name="webdav_enable_desc">Sync backup ZIPs to your own server</string>
+    <string name="webdav_server">Server URL</string>
+    <string name="webdav_username">Username</string>
+    <string name="webdav_password">Password</string>
+    <string name="webdav_password_keep">Password (leave blank to keep)</string>
+    <string name="webdav_remote_dir">Remote folder</string>
+    <string name="webdav_save_config">Save</string>
+    <string name="webdav_test">Test connection</string>
+    <string name="webdav_auto_sync">Auto sync</string>
+    <string name="webdav_auto_sync_desc">Upload a backup when the app goes to background</string>
+    <string name="webdav_sync_now">Sync now</string>
+    <string name="webdav_remote_backups">Remote backups</string>
+    <string name="webdav_no_backups">No remote backups</string>
+    <string name="webdav_restore">Restore</string>
+    <string name="webdav_restore_title">Restore from WebDAV</string>
+    <string name="webdav_restore_body">Download and restore “%1$s”?\nExisting books are merged by hash and will not be duplicated.</string>
+    <string name="webdav_refresh">Refresh</string>
+    <string name="webdav_unknown_size">Unknown size</string>
+    <string name="webdav_unknown_time">Unknown time</string>
+
+    <!-- Privacy policy -->
+    <string name="legal_privacy_title">Privacy policy</string>
+    <string name="legal_updated_at">Last updated: %1$s</string>
+    <string name="legal_privacy_h1">Where your data lives</string>
+    <string name="legal_privacy_b1">Book files, reading progress, bookmarks, highlights, notes, translations, AI conversations and all settings are stored only on your device. Narvive has no account system and no server that holds your content.</string>
+    <string name="legal_privacy_h2">What we do not collect</string>
+    <string name="legal_privacy_b2">We require no sign-up or login, collect no personally identifying information such as names or contact details, and embed no usage analytics.</string>
+    <string name="legal_privacy_h3">AI features</string>
+    <string name="legal_privacy_b3">AI is one of the app\'s network endpoints and works in BYOK (bring your own key) mode: requests go from your device straight to the AI provider you configure. Narvive does not relay or log conversations. The scope of text being sent is always shown in the interface. API keys are stored with system-level encryption, stay on your device, and never enter backups or logs.</string>
+    <string name="legal_privacy_h4">Network usage</string>
+    <string name="legal_privacy_b4">Apart from the AI requests you configure, font catalogue downloads and WebDAV sync, the app performs no other network communication. WebDAV credentials are likewise encrypted on-device, and synced files are uploaded only to the server you specify.</string>
+    <string name="legal_privacy_h5">File access</string>
+    <string name="legal_privacy_b5">File access is used solely to import book files you explicitly pick. The app reads only the selected files and keeps a copy in its private directory.</string>
+    <string name="legal_privacy_h6">Backup and export</string>
+    <string name="legal_privacy_b6">You choose where backup ZIPs and note exports are saved. Backup archives contain no API keys or WebDAV credentials.</string>
+    <string name="legal_privacy_h7">Contact</string>
+    <string name="legal_privacy_b7">If you have questions about this policy, reach us through the app store listing or the project page.</string>
+
+    <!-- Terms of use -->
+    <string name="legal_terms_title">Terms of use</string>
+    <string name="legal_terms_h1">Licence to use</string>
+    <string name="legal_terms_b1">Narvive grants you the right to use all features of this app on your personal devices, provided you comply with these terms.</string>
+    <string name="legal_terms_h2">Content copyright</string>
+    <string name="legal_terms_b2">Import only books and documents you have the legal right to read. The app offers local reading, annotation and note-taking; it provides no means of obtaining content.</string>
+    <string name="legal_terms_h3">AI-generated content</string>
+    <string name="legal_terms_b3">AI answers, translations, rewrites and role-play output are produced by third-party services and may be inaccurate or biased. They are for reference only and you must judge their suitability yourself. Use of those services is also governed by the provider\'s own terms.</string>
+    <string name="legal_terms_h4">Cloud sync</string>
+    <string name="legal_terms_b4">You configure the WebDAV server yourself. Keep your credentials safe and comply with that server\'s storage rules.</string>
+    <string name="legal_terms_h5">Disclaimer</string>
+    <string name="legal_terms_b5">This app is provided “as is”. We make every effort to avoid data or content loss caused by mistakes, device failure or third-party outages, but cannot accept liability beyond what the law allows. Export backups regularly.</string>
+    <string name="legal_terms_h6">Changes to these terms</string>
+    <string name="legal_terms_b6">We may update these terms and the privacy policy; updates will be published on this page. Continued use means you accept the revised terms.</string>
+
+    <!-- Open-source licences -->
+    <string name="legal_licenses_title">Open-source licences</string>
+    <string name="legal_licenses_intro">Narvive is built on the following open-source projects. Our thanks to them and their contributors.</string>
+    <string name="license_androidx">UI framework and component library</string>
+    <string name="license_room">Local database (books, annotations, conversations)</string>
+    <string name="license_hilt">Dependency injection</string>
+    <string name="license_navigation">Screen navigation</string>
+    <string name="license_datastore">Preference persistence</string>
+    <string name="license_security">Encrypted API key storage</string>
+    <string name="license_readium">EPUB/PDF parsing and navigation</string>
+    <string name="license_okhttp">Networking and streaming responses</string>
+    <string name="license_coil">Cover image loading and caching</string>
+    <string name="license_jsoup">EPUB metadata parsing</string>
+    <string name="license_serialization">JSON serialization</string>
+    <string name="license_font">Interface typeface</string>
+
+    <!-- AI setup -->
+    <string name="ai_settings_title">AI setup</string>
+    <string name="ai_settings_add">Add</string>
+    <string name="ai_settings_key_dialog_title">Configure API key</string>
+    <string name="ai_settings_providers_header">Providers (ordered by fallback priority)</string>
+    <string name="ai_settings_providers_hint">Tap a card to edit. Protocol and model list require a key first.</string>
+    <string name="ai_settings_add_custom">Add custom provider</string>
+    <string name="ai_settings_edit_provider">Edit provider</string>
+    <string name="ai_settings_protocols_supported">Supports OpenAI Chat Completions / OpenAI Responses API / Anthropic Messages</string>
+    <string name="ai_settings_preset_model_only">Preset providers only allow changing the model name</string>
+    <string name="ai_settings_name">Name</string>
+    <string name="ai_settings_base_url">Base URL</string>
+    <string name="ai_settings_url_invalid">Must start with http:// or https://</string>
+    <string name="ai_settings_protocol_prefix">Protocol: %1$s</string>
+    <string name="ai_settings_protocol_preset_fixed">Protocol: %1$s (fixed for presets)</string>
+    <string name="ai_settings_model_name">Model name</string>
+    <string name="ai_settings_model_placeholder">e.g. gpt-4o, deepseek-chat</string>
+    <string name="ai_settings_fetch_models">Fetch model list</string>
+    <string name="ai_settings_key_first">Enter a key first</string>
+    <string name="ai_settings_pick_model">Tap to pick a model</string>
+    <string name="ai_settings_key_keep">API key (leave blank to keep the current one)</string>
+    <string name="ai_settings_password_label">API key</string>
+    <string name="ai_settings_degrades">⚠ degraded</string>
+    <string name="ai_settings_degraded_banner">%1$s failed %2$d times in a row and was automatically degraded.\nThe fallback chain will skip this provider until you investigate and restore it manually.</string>
+    <string name="ai_settings_move_up">Move up</string>
+    <string name="ai_settings_move_down">Move down</string>
+    <string name="ai_settings_change_key">Change key</string>
+    <string name="ai_settings_set_key">Set key</string>
+    <string name="ai_settings_restore">Restore</string>
+    <string name="ai_settings_test_connection">Test connection</string>
+    <string name="ai_settings_testing">Testing…</string>
+    <string name="ai_settings_test_ok">Connected · %1$dms</string>
+    <string name="ai_settings_test_failed">Connection failed: %1$s</string>
+    <string name="ai_settings_fetch_failed">Fetch failed</string>
+
+    <!-- Backup & restore -->
+    <string name="backup_title">Backup &amp; restore</string>
+    <string name="backup_export_section">Export</string>
+    <string name="backup_export_card_title">Export backup ZIP</string>
+    <string name="backup_export_contents_books">📚 books/ · original book files (EPUB/PDF/TXT)</string>
+    <string name="backup_export_contents_data">🗂 data.json · progress / bookmarks / highlights / notes / translations / collections / settings</string>
+    <string name="backup_export_contents_manifest">📋 manifest.json · backup format version</string>
+    <string name="backup_export_action">Export ZIP</string>
+    <string name="backup_export_hint">Check the snackbar for the resulting file name</string>
+    <string name="backup_last_time">Last backup: %1$s</string>
+    <string name="backup_restore_section">Restore</string>
+    <string name="backup_restore_card_title">Import a backup ZIP</string>
+    <string name="backup_restore_desc">Validates the manifest version → unpacks → merges by file hash. Same-title conflicts keep both books and add a suffix to the title.</string>
+    <string name="backup_restore_pick">Choose backup file</string>
+    <string name="backup_key_warn_title">API keys are never included in a backup.</string>
+    <string name="backup_key_warn_body">After restoring, re-enter each provider\'s key under Settings → AI setup.</string>
+
+    <!-- About -->
+    <string name="about_title">About</string>
+    <string name="about_version">Version %1$s</string>
+    <string name="about_tagline">Narrative + Alive · bringing stories to life</string>
+    <string name="about_card_title">About</string>
+    <string name="about_card_body">Narvive is a local-first reading app: books, progress, annotations, notes and settings all stay on your device. No account, no online store.</string>
+    <string name="about_developer">Developer</string>
+    <string name="about_font_title">Interface typeface</string>
+    <string name="about_font_body">The interface uses the HarmonyOS Sans typeface (both SC and TC families, selected automatically from the interface language). HarmonyOS Sans is copyright Huawei Device Co., Ltd. and used under the HarmonyOS Sans Fonts License Agreement.</string>
+
+    <!-- AI preferences -->
+    <string name="ai_pref_title">AI preferences</string>
+    <string name="ai_pref_enable">Enable AI preferences</string>
+    <string name="ai_pref_enable_desc">Let the main AI page remember your tone, terminology and answer style</string>
+    <string name="ai_pref_mode_auto">Auto-summarised</string>
+    <string name="ai_pref_mode_manual">Fill in manually</string>
+    <string name="ai_pref_current">Current preferences</string>
+    <string name="ai_pref_empty">Nothing yet — this is generated automatically after a conversation.</string>
+    <string name="ai_pref_inducting">Summarising…</string>
+    <string name="ai_pref_induct_success">Summarised</string>
+    <string name="ai_pref_induct_now">Summarise now</string>
+    <string name="ai_pref_manual_title">Write preferences manually</string>
+    <string name="ai_pref_manual_hint">e.g. keep it concise, reply in Chinese, no emoji, literary style</string>
+    <string name="ai_pref_clear">Clear</string>
+    <string name="ai_pref_footnote">Preferences are stored only on this device and are injected solely into the main AI page\'s system prompt; they do not affect the in-book “Ask AI” or roleplay chats.</string>
+
+    <!-- Backup / WebDAV transient messages -->
+    <string name="backup_msg_exporting">Exporting…</string>
+    <string name="backup_msg_export_ok">Exported · %1$s</string>
+    <string name="backup_msg_export_failed">Export failed: %1$s</string>
+    <string name="backup_msg_importing">Importing…</string>
+    <string name="backup_msg_import_ok">Import finished, %1$d new book(s) added</string>
+    <string name="backup_msg_import_failed">Import failed: %1$s</string>
+    <string name="webdav_msg_config_saved">Settings saved</string>
+    <string name="webdav_msg_connect_ok">Connected</string>
+    <string name="webdav_msg_connect_failed">Connection failed: %1$s</string>
+    <string name="webdav_msg_sync_failed">Sync failed: %1$s</string>
+    <string name="webdav_msg_restore_ok">Restore finished, %1$d book(s) imported</string>
+    <string name="webdav_msg_restore_failed">Restore failed: %1$s</string>
+
+    <!-- Import -->
+    <string name="import_err_unsupported_format">Unsupported file format</string>
+    <string name="import_err_unsupported_format_ext">Unsupported file format: %1$s</string>
+    <string name="import_err_read_failed">Could not read the file</string>
+    <string name="import_err_duplicate">“%1$s” is already in your library; skipping the duplicate import</string>
+
+    <!-- AI chat / rewrite failures -->
+    <string name="chat_vm_provider_failed_fallback">%1$s failed, trying a fallback…</string>
+    <string name="chat_vm_all_providers_failed">No provider is available (%1$s). Check your settings or try again later.</string>
+    <string name="chat_vm_unknown_error">unknown error</string>
+    <string name="chat_vm_export_failed">Export failed: %1$s</string>
+    <string name="chat_vm_no_provider_short">No AI provider configured</string>
+    <string name="chat_vm_all_providers_unavailable_short">All providers are unavailable</string>
+
+    <!-- Prompts -->
+    <string name="prompt_settings_title">Prompts</string>
+    <string name="prompt_settings_intro">Every AI prompt can be customised here. Use {{placeholders}} to inject dynamic content; each entry can be reset individually.</string>
+    <string name="prompt_settings_modified">modified</string>
+    <string name="prompt_settings_placeholders">Available placeholders: %1$s</string>
+    <string name="prompt_settings_reset_default">Reset to default</string>
+
+    <!-- Feedback -->
+    <string name="settings_row_feedback">Feedback</string>
+    <string name="feedback_title">Feedback</string>
+    <string name="feedback_thanks_title">Thank you for your feedback</string>
+    <string name="feedback_thanks_body">Narvive is an open-source project maintained by one person. Every bug report and every suggestion is read carefully — many improvements came from users. Please include the version, your device and the steps to reproduce; it makes a huge difference when tracking an issue down.</string>
+    <string name="feedback_channel_email">Email</string>
+    <string name="feedback_channel_email_desc">Send a message to %1$s</string>
+    <string name="feedback_channel_issue">GitHub Issue</string>
+    <string name="feedback_channel_issue_desc">Report a bug or a concrete problem</string>
+    <string name="feedback_channel_discussion">GitHub Discussions</string>
+    <string name="feedback_channel_discussion_desc">Feature ideas, questions and general chat</string>
+    <string name="feedback_diagnostics_title">Diagnostics</string>
+    <string name="feedback_diagnostics_body">Copy the details below into your email or issue — it helps locate the problem quickly. It contains no reading content and no API key.</string>
+    <string name="feedback_diagnostics_copy">Copy diagnostics</string>
+    <string name="feedback_diagnostics_copied">Diagnostics copied</string>
+    <string name="feedback_guide_title">How to write useful feedback</string>
+    <string name="feedback_guide_body">1. Say what you did (imported, read, called the AI…)\n2. Say what you expected and what actually happened\n3. Include reproduction steps — the more specific, the better\n4. Attach screenshots or a screen recording if you have them\n5. Never paste an API key — that costs you real money</string>
+
+    <!-- Services -->
+    <string name="services_title">Services</string>
+    <string name="services_group_sync">Cloud sync</string>
+    <string name="services_webdav_desc">Backup sync and restore</string>
+    <string name="services_webdav_note">Sync backup ZIPs to your own server over WebDAV.</string>
+</resources>

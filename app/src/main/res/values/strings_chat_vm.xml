@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ChatViewModel 层文案（简体中文）。
+  键前缀 chat_vm_ 以区别于 strings_chat.xml 的 chat_*（后者归 Compose 屏使用）。
+-->
+<resources>
+    <string name="chat_vm_ai_assistant">AI 助手</string>
+
+    <!-- 快捷指令 -->
+    <string name="chat_vm_cmd_explain">解释</string>
+    <string name="chat_vm_cmd_translate">翻译</string>
+    <string name="chat_vm_cmd_summarize">总结本章</string>
+    <string name="chat_vm_cmd_roleplay">角色对话</string>
+    <string name="chat_vm_cmd_rewrite">改写</string>
+    <string name="chat_vm_cmd_continue">续写</string>
+    <string name="chat_vm_cmd_vocab">词汇</string>
+    <string name="chat_vm_cmd_relationship_graph">人物关系图</string>
+    <string name="chat_vm_cmd_timeline">时间轴演进图</string>
+
+    <!-- 图表失败提示 -->
+    <string name="chat_vm_graph_failed">生成失败，请检查 AI 配置或稍后重试</string>
+    <string name="chat_vm_graph_parse_failed">AI 输出无法解析，请重试</string>
+</resources>

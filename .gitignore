@@ -1,0 +1,58 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# ── Android 构建产物 ──
+/app/build/
+/app/release/
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+out/
+release/
+*.hprof
+
+# ── Gradle / Kotlin ──
+.gradlew/
+.kotlin/
+build/
+captures/
+
+# ── IDE ──
+/.idea/
+*.iws
+*.ipr
+.navigation/
+.fleet/
+/.vs/
+
+# ── 签名与密钥（务必不要提交）──
+# 注意：app/src/main/res/raw/narvive_fonts.p12 是随应用分发的本地字体服务自签证书，
+# 属于应用资源（非签名密钥），必须保留在版本库中，故用下面两条精确路径排除而不是全局 *.p12。
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+
+# ── 系统与临时文件 ──
+*.log
+*.tmp
+Thumbs.db
+ehthumbs.db
+Desktop.ini

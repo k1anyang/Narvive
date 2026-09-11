@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Service 層文案（繁體中文）。
+  與 values/strings_service.xml 保持同步（鍵名與順序一致）。
+  EpubReaderController 未納入：該類由 ReaderControllerFactory 直接 new，
+  注入 Context 會波及 UI 層工廠與呼叫點。
+-->
+<resources>
+    <!-- AiService -->
+    <string name="ai_service_no_api_key">未設定 API Key</string>
+    <string name="ai_service_api_key_required">請先設定 API Key</string>
+    <string name="ai_service_api_key_required_for_provider">請先設定 %1$s 的 API Key</string>
+    <string name="ai_service_response_parse_failed">回應解析失敗</string>
+    <string name="ai_service_model_list_parse_failed">模型清單解析失敗</string>
+    <string name="ai_service_network_error">網路錯誤</string>
+    <string name="ai_service_network_error_detail">網路錯誤：%1$s</string>
+    <string name="ai_service_invalid_base_url">Base URL 無效，請檢查網址格式</string>
+    <string name="ai_service_op_test_connection">測試連線</string>
+    <string name="ai_service_op_fetch_models">取得模型清單</string>
+    <string name="ai_service_http_401_403">API Key 錯誤或無權存取（HTTP %1$d）</string>
+    <string name="ai_service_http_404">介面位址不存在（HTTP %1$d），請檢查 Base URL 是否正確</string>
+    <string name="ai_service_http_400_422">請求被拒絕（HTTP %1$d），請檢查協定或 Base URL</string>
+    <string name="ai_service_http_other">請求失敗（HTTP %1$d）</string>
+    <string name="ai_service_http_error">%1$s：%2$s%3$s</string>
+    <string name="ai_service_http_error_provider_detail">（%1$s）</string>
+    <string name="ai_service_request_failed_http">請求失敗：HTTP %1$d</string>
+    <string name="ai_service_request_failed_http_detail">請求失敗：HTTP %1$d %2$s</string>
+    <string name="ai_service_request_failed_detail">請求失敗：%1$s</string>
+    <string name="ai_service_empty_response">空白回應</string>
+
+    <!-- WebDavService -->
+    <string name="webdav_service_missing_url">請先填寫 WebDAV 伺服器位址</string>
+    <string name="webdav_service_not_enabled">請先啟用 WebDAV</string>
+    <string name="webdav_service_connection_ok">連線成功</string>
+    <string name="webdav_service_connection_failed">連線失敗</string>
+    <string name="webdav_service_synced">已同步 · %1$s</string>
+    <string name="webdav_service_sync_failed">同步失敗</string>
+    <string name="webdav_service_read_failed">讀取失敗</string>
+    <string name="webdav_service_empty_download">下載內容為空</string>
+    <string name="webdav_service_restore_failed">還原失敗</string>
+    <string name="webdav_service_backup_failed">產生備份失敗：%1$s</string>
+    <string name="webdav_service_upload_failed">上傳失敗：HTTP %1$d</string>
+
+    <!-- BackupService -->
+    <string name="backup_service_create_failed">無法建立備份檔案</string>
+    <string name="backup_service_read_failed">無法讀取備份檔案</string>
+    <string name="backup_service_file_missing">備份檔案不存在</string>
+    <string name="backup_service_missing_manifest">備份檔案缺少 manifest.json</string>
+    <string name="backup_service_version_too_new">備份版本（v%1$d）高於目前應用程式支援的 v%2$d，請更新應用程式</string>
+    <string name="backup_service_data_parse_failed">備份資料 data.json 解析失敗</string>
+
+    <!-- FontDownloadManager -->
+    <string name="font_dl_http_error">HTTP %1$d，請檢查網路或稍後重試</string>
+    <string name="font_dl_empty_response">回應為空</string>
+    <string name="font_dl_incomplete">下載不完整（%1$d/%2$d），請重試</string>
+    <string name="font_dl_write_failed">檔案寫入失敗</string>
+    <string name="font_dl_download_failed">下載失敗</string>
+</resources>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prompt template labels (English). Keep in sync with values/strings_prompt_meta.xml. -->
+<resources>
+    <string name="prompt_tpl_chat_title">Reading assistant system prompt</string>
+    <string name="prompt_tpl_chat_desc">System prompt for the in-book “Ask AI” conversation</string>
+
+    <string name="prompt_tpl_roleplay_title">Roleplay system prompt</string>
+    <string name="prompt_tpl_roleplay_desc">Character-setting prompt used in character chat</string>
+
+    <string name="prompt_tpl_rewrite_title">Rewrite prompt</string>
+    <string name="prompt_tpl_rewrite_desc">Rewrite instruction template for selected text (with chapter context)</string>
+
+    <string name="prompt_tpl_continue_title">Continue-writing prompt</string>
+    <string name="prompt_tpl_continue_desc">Continuation instruction template for selected text (preceding text only)</string>
+
+    <string name="prompt_tpl_translate_title">Translation prompt</string>
+    <string name="prompt_tpl_translate_desc">Translation template for selected text</string>
+
+    <string name="prompt_tpl_character_card_title">Character card prompt</string>
+    <string name="prompt_tpl_character_card_desc">Generate a character card from book information</string>
+
+    <string name="prompt_tpl_quick_explain_title">Quick command · Explain</string>
+    <string name="prompt_tpl_quick_explain_desc">Text sent by “✦ Explain”</string>
+
+    <string name="prompt_tpl_quick_translate_title">Quick command · Translate</string>
+    <string name="prompt_tpl_quick_translate_desc">Text sent by “Translate”</string>
+
+    <string name="prompt_tpl_quick_summarize_title">Quick command · Summarise chapter</string>
+    <string name="prompt_tpl_quick_summarize_desc">Text sent by “Summarise chapter”</string>
+
+    <string name="prompt_tpl_quick_vocab_title">Quick command · Vocabulary</string>
+    <string name="prompt_tpl_quick_vocab_desc">Text sent by “Vocabulary”</string>
+
+    <string name="prompt_tpl_relationship_graph_title">Relationship graph prompt</string>
+    <string name="prompt_tpl_relationship_graph_desc">Generate a character relationship graph from a chapter or the whole book (structured JSON)</string>
+
+    <string name="prompt_tpl_timeline_title">Timeline prompt</string>
+    <string name="prompt_tpl_timeline_desc">Generate a timeline from a chapter or the whole book (structured JSON)</string>
+
+    <string name="prompt_tpl_no_placeholders">No placeholders</string>
+</resources>

@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  繁體中文（台灣／通用用詞，單一套）— AI 對話 / 角色扮演 / 改寫模組。
+  與 values/strings_chat.xml（基準）保持同步，key 集合與順序完全一致。
+-->
+<resources>
+    <!-- ChatScreen：對話管理 -->
+    <string name="chat_delete_conversation_title">刪除對話</string>
+    <string name="chat_delete_conversation_body">刪除「%1$s」及其全部訊息？此操作無法復原。</string>
+    <string name="chat_untitled_conversation">未命名對話</string>
+    <string name="chat_action_delete">刪除</string>
+    <string name="chat_action_cancel">取消</string>
+    <string name="chat_history_title">歷史對話</string>
+    <string name="chat_new_conversation">新對話</string>
+    <string name="chat_history_empty">尚無歷史對話</string>
+    <string name="chat_current">目前</string>
+    <string name="chat_action_back">返回</string>
+    <string name="chat_action_more">更多</string>
+
+    <!-- 相對時間（ChatScreen / GlobalChatScreen / RoleplaySessionsScreen 共用） -->
+    <string name="chat_time_just_now">剛剛</string>
+    <string name="chat_time_minutes_ago">%1$d 分鐘前</string>
+    <string name="chat_time_hours_ago">%1$d 小時前</string>
+    <string name="chat_time_days_ago">%1$d 天前</string>
+    <string name="chat_time_yesterday">昨天</string>
+
+    <!-- ChatContent：上下文 / 傳送範圍 / 訊息與輸入 -->
+    <string name="chat_context_label">上下文：</string>
+    <string name="chat_context_whole_book">上下文：全書</string>
+    <string name="chat_context_selection_chars">選取 · %1$d字</string>
+    <string name="chat_context_chapter">本章</string>
+    <string name="chat_context_book">全書</string>
+    <string name="chat_send_scope_selection">本次將傳送：選取 %1$d 字 · 已脫敏 · 不傳送書籤與其他章</string>
+    <string name="chat_send_scope_chapter">本次將傳送：本章%1$s%2$s · 已脫敏</string>
+    <string name="chat_send_scope_chapter_title">《%1$s》</string>
+    <string name="chat_send_scope_chapter_chars">約 %1$d 字</string>
+    <string name="chat_send_scope_book">本次將傳送：書目中介資料與目錄資訊 · 不傳送正文內容</string>
+    <string name="chat_thinking">正在思考…</string>
+    <string name="chat_input_placeholder">繼續提問…</string>
+    <string name="chat_action_send">傳送</string>
+    <string name="chat_action_saved">已儲存</string>
+    <string name="chat_action_save_as_note">儲存為筆記</string>
+    <string name="chat_action_copy">複製</string>
+    <string name="chat_action_regenerate">重新產生</string>
+
+    <!-- ChatContent：BYOK 引導卡 -->
+    <string name="chat_onboarding_title">啟用 AI 助手</string>
+    <string name="chat_onboarding_body">Narvive 採用 BYOK（自帶 Key）模式：AI 是唯一的網路出口，請求直連你設定的平台，Key 僅加密保存在本機，不經過任何中介伺服器。</string>
+    <string name="chat_onboarding_pick_platform">選擇一個平台取得 API Key</string>
+    <string name="chat_onboarding_platform_deepseek_desc">platform.deepseek.com · 國內直連 · 推薦</string>
+    <string name="chat_onboarding_platform_gemini_desc">aistudio.google.com · OpenAI 相容端點</string>
+    <string name="chat_onboarding_get_key">取得 Key →</string>
+    <string name="chat_onboarding_go_settings">前往設定配置 Key</string>
+    <string name="chat_onboarding_skip_hint">暫不設定 · 閱讀功能不受影響</string>
+
+    <!-- GlobalChatScreen：全域對話 -->
+    <string name="chat_rename_conversation_title">重新命名對話</string>
+    <string name="chat_action_save">儲存</string>
+    <string name="chat_conversation_history">對話記錄</string>
+    <string name="chat_recently_read">最近在讀</string>
+    <string name="chat_expand">展開</string>
+    <string name="chat_collapse">收合</string>
+    <string name="chat_global_input_placeholder">想問什麼… 輸入 @ 選書</string>
+    <string name="chat_prompt_reading_report">幫我總結閱讀日報</string>
+    <string name="chat_prompt_recommend">推薦我讀什麼</string>
+    <string name="chat_context_pick_book">@ 選書</string>
+    <string name="chat_all_library">全部書庫</string>
+    <string name="chat_book_title_brackets">《%1$s》</string>
+    <string name="chat_context_general">通用</string>
+    <string name="chat_global_scope_all_books">僅傳送書名/作者/進度/章節，不傳送正文</string>
+    <string name="chat_global_scope_metadata">僅傳送書目中介資料，不傳送正文</string>
+    <string name="chat_action_remove">移除</string>
+    <string name="chat_history_empty_conversations">尚無對話記錄</string>
+    <string name="chat_action_pin">置頂</string>
+    <string name="chat_action_rename">重新命名</string>
+    <string name="chat_pick_context_books">選擇上下文書籍</string>
+    <string name="chat_action_clear">清除</string>
+    <string name="chat_action_done">完成</string>
+    <string name="chat_no_provider_title">還沒有可用的 AI Provider</string>
+    <string name="chat_global_onboarding_body">設定 API Key 後即可開始全域 AI 對話；BYOK 模式下請求直連你設定的平台。</string>
+    <string name="chat_global_onboarding_settings">前往設定</string>
+
+    <!-- RoleplayChatScreen：角色聊天室 -->
+    <string name="chat_roleplay_title_with_name">與%1$s對話</string>
+    <string name="chat_role_fallback">角色</string>
+    <string name="chat_action_switch_character">切換角色</string>
+    <string name="chat_action_edit_card">角色卡編輯</string>
+    <string name="chat_roleplay_input_placeholder">對%1$s說些什麼…</string>
+    <string name="chat_roleplay_knowledge_chip">角色扮演 · %1$s知曉截至%2$s的劇情</string>
+    <string name="chat_role_thinking">角色正在思考…</string>
+    <string name="chat_roleplay_prompt_change_topic">換話題</string>
+    <string name="chat_roleplay_prompt_let_me_think">讓我想想</string>
+    <string name="chat_roleplay_prompt_advance_plot">推進劇情</string>
+    <string name="chat_roleplay_prompt_about_book">聊聊這本書</string>
+    <string name="chat_saved_as_note">已存為筆記</string>
+
+    <!-- RoleplaySessionsScreen：角色對話清單 -->
+    <string name="chat_delete_roleplay_title">刪除角色對話</string>
+    <string name="chat_delete_roleplay_body">刪除「%1$s」的對話及其全部訊息？此操作無法復原。</string>
+    <string name="chat_roleplay_sessions_title">角色對話</string>
+    <string name="chat_sessions_count">%1$s · %2$d 個對話</string>
+    <string name="chat_new_roleplay_session">新增角色對話</string>
+    <string name="chat_roleplay_hints">· 角色卡由 AI 從已讀章節自動擷取，可預覽微調\n· 讀到新章節後可「重新整理角色認知」，嚴格不劇透\n· 對話片段可儲存為筆記（帶角色標籤）</string>
+    <string name="chat_character_name_placeholder">角色名，例如：林黛玉</string>
+    <string name="chat_extract_character_card">AI 擷取角色卡</string>
+    <string name="chat_knowledge_until">知曉至%1$s</string>
+    <string name="chat_chapter_number">第%1$d章</string>
+
+    <!-- CharacterCardScreen：角色卡預覽 / 編輯 -->
+    <string name="chat_character_card_with_name">角色卡 · %1$s</string>
+    <string name="chat_character_card_title">角色卡</string>
+    <string name="chat_character_card_auto_badge">AI 自動擷取 · 可微調</string>
+    <string name="chat_extracting_character">AI 正在從已讀內容擷取角色特徵…</string>
+    <string name="chat_field_identity">身分</string>
+    <string name="chat_field_personality">性格傾向</string>
+    <string name="chat_field_tone">語氣特徵</string>
+    <string name="chat_field_knowledge_boundary">知識邊界</string>
+    <string name="chat_knowledge_boundary_default">知曉截至%1$s的劇情，不知曉後續發展。</string>
+    <string name="chat_character_card_hint">角色卡基於已讀章節自動產生。讀到新章節可點擊「重新整理角色認知」更新知識邊界。修改後儲存將覆蓋自動擷取結果。</string>
+    <string name="chat_refresh_character_knowledge">重新整理角色認知</string>
+    <string name="chat_continue_conversation">繼續對話</string>
+    <string name="chat_start_conversation">開始對話</string>
+
+    <!-- GraphSheet：人物關係圖 / 時間軸演進圖 -->
+    <string name="chat_graph_relationship_title">人物關係圖</string>
+    <string name="chat_graph_timeline_title">時間軸演進圖</string>
+    <string name="chat_graph_generating_title">產生中…</string>
+    <string name="chat_action_close">關閉</string>
+    <string name="chat_graph_generating">正在產生…</string>
+    <string name="chat_graph_node_detail">%1$s：%2$s</string>
+    <string name="chat_graph_node_detail_with_category">%1$s · %2$s：%3$s</string>
+    <string name="chat_graph_relation_list">關係列表</string>
+    <string name="chat_graph_edge">%1$s → %2$s</string>
+    <string name="chat_graph_edge_with_relation">%1$s → %2$s（%3$s）</string>
+
+    <!-- RewriteScreen：改寫 / 續寫 -->
+    <string name="chat_mode_rewrite">改寫</string>
+    <string name="chat_mode_continue">續寫</string>
+    <string name="chat_rewrite_compare_title">%1$s 對比</string>
+    <string name="chat_rewrite_selected_paragraph">改寫選取段落</string>
+    <string name="chat_continue_selected_paragraph">續寫選取段落</string>
+    <string name="chat_selection_chars">選取 %1$d 字</string>
+    <string name="chat_rewrite_preset_inner_psychology">更細膩的心理描寫</string>
+    <string name="chat_rewrite_preset_first_person">換第一人稱</string>
+    <string name="chat_rewrite_preset_more_literary">更文學化</string>
+    <string name="chat_rewrite_preset_tragic_ending">改成悲劇結局</string>
+    <string name="chat_continue_preset_natural">自然續寫</string>
+    <string name="chat_continue_preset_conflict">增加衝突</string>
+    <string name="chat_continue_preset_new_character">引入新角色</string>
+    <string name="chat_presets_label">預設指令</string>
+    <string name="chat_rewrite_custom_placeholder">自訂指令，例如：用更文學化的語言改寫…</string>
+    <string name="chat_continue_custom_placeholder">自訂指令，例如：用更文學化的語言續寫…</string>
+    <string name="chat_generate_rewrite">產生改寫</string>
+    <string name="chat_generate_continue">產生續寫</string>
+    <string name="chat_rewrite_send_scope_selection">本次將傳送：選取 %1$d 字</string>
+    <string name="chat_rewrite_send_scope_with_context">本次將傳送：選取 %1$d 字 + 本章前文摘要（約 %2$s token）</string>
+    <string name="chat_original_with_chapter">原文 · %1$s</string>
+    <string name="chat_current_chapter">目前章節</string>
+    <string name="chat_rewrite_instruction_chip">%1$s · %2$s</string>
+    <string name="chat_rewrite_result_label">改寫文字</string>
+    <string name="chat_continue_result_label">續寫文字</string>
+    <string name="chat_instruction_label">指令</string>
+    <string name="chat_export_txt">匯出 .txt</string>
+    <string name="chat_delete_kind">刪除%1$s</string>
+    <string name="chat_toast_deleted_kind">已刪除%1$s</string>
+    <string name="chat_toast_copied">已複製</string>
+</resources>

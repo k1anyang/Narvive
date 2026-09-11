@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ChatViewModel 文案（繁體中文）。
+  與 values/strings_chat_vm.xml 保持同步。
+-->
+<resources>
+    <string name="chat_vm_ai_assistant">AI 助手</string>
+
+    <!-- 快捷指令 -->
+    <string name="chat_vm_cmd_explain">解釋</string>
+    <string name="chat_vm_cmd_translate">翻譯</string>
+    <string name="chat_vm_cmd_summarize">總結本章</string>
+    <string name="chat_vm_cmd_roleplay">角色對話</string>
+    <string name="chat_vm_cmd_rewrite">改寫</string>
+    <string name="chat_vm_cmd_continue">續寫</string>
+    <string name="chat_vm_cmd_vocab">詞彙</string>
+    <string name="chat_vm_cmd_relationship_graph">人物關係圖</string>
+    <string name="chat_vm_cmd_timeline">時間軸演進圖</string>
+
+    <!-- 圖表失敗提示 -->
+    <string name="chat_vm_graph_failed">生成失敗，請檢查 AI 設定或稍後重試</string>
+    <string name="chat_vm_graph_parse_failed">AI 輸出無法解析，請重試</string>
+</resources>

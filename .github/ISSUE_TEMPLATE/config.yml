@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Question or idea
+    url: https://github.com/k1anyang/Narvive/discussions
+    about: Ask questions, share setups or discuss ideas in Discussions instead of opening an issue.
+  - name: Security vulnerability
+    url: https://github.com/k1anyang/Narvive/security/advisories/new
+    about: Please report security issues privately rather than in a public issue.

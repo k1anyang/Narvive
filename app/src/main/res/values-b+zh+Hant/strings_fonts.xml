@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 字型設定頁文案（繁體中文）。與 values/strings_fonts.xml 保持同步。 -->
+<resources>
+    <string name="font_settings_title">字型</string>
+    <string name="font_settings_tab_cjk">中文字型</string>
+    <string name="font_settings_tab_latin">英文字型</string>
+    <string name="font_settings_note">TXT 不支援中英字型分開呈現，優先使用中文字型。EPUB 出版方樣式不支援修改字型。</string>
+    <string name="font_settings_empty">尚無可用字型</string>
+    <string name="font_settings_catalog_failed">字型目錄載入失敗，請檢查網路後重試</string>
+    <string name="font_settings_official_site">官方網站</string>
+    <string name="font_settings_delete_font">刪除字型</string>
+    <string name="font_settings_download">下載</string>
+    <string name="font_settings_downloading">下載中 %1$d%%</string>
+    <string name="font_settings_use_now">立即使用</string>
+    <string name="font_settings_system_default">系統預設</string>
+    <string name="font_settings_system_default_subtitle">使用系統字型</string>
+    <string name="font_settings_in_use">正在使用</string>
+</resources>

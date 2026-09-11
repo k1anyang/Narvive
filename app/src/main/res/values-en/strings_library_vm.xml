@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LibraryUiState (sort enums) / LibraryViewModel / BookDetailsViewModel strings (English).
+  Key set and order must match values/strings_library_vm.xml and values-b+zh+Hant/strings_library_vm.xml.
+-->
+<resources>
+    <!-- LibraryUiState · sort enum labels (SortOrder / SortDirection) -->
+    <string name="lib_vm_sort_title">Title</string>
+    <string name="lib_vm_sort_author">Author</string>
+    <string name="lib_vm_sort_last_read">Recently read</string>
+    <string name="lib_vm_sort_date_added">Date added</string>
+    <string name="lib_vm_sort_progress">Reading progress</string>
+    <string name="lib_vm_sort_asc">Ascending</string>
+    <string name="lib_vm_sort_desc">Descending</string>
+
+    <!-- LibraryViewModel · import / collection messages (via UiState.error into a Snackbar) -->
+    <string name="lib_vm_book_exists">This book is already in your library</string>
+    <string name="lib_vm_import_failed">Import failed</string>
+    <string name="lib_vm_collection_exists">Collection \"%1$s\" already exists</string>
+    <string name="lib_vm_unknown_file">Unknown file</string>
+    <string name="lib_vm_import_batch_result">Import finished: %1$d succeeded, %2$d failed: %3$s</string>
+
+    <!-- BookDetailsViewModel · notes export (system share title, exported file name suffix) -->
+    <string name="lib_vm_export_notes_chooser">Export notes</string>
+    <string name="lib_vm_export_note_file_suffix">Notes</string>
+
+    <!-- BookDetailsViewModel · field labels in the exported Markdown body (keep field order and Markdown syntax) -->
+    <string name="lib_vm_md_author">Author: %1$s</string>
+    <string name="lib_vm_md_chapter">Chapter: %1$s</string>
+    <string name="lib_vm_md_progress">Progress: %1$s</string>
+    <string name="lib_vm_md_time">Time: %1$s</string>
+    <string name="lib_vm_md_translation">Translation: %1$s</string>
+    <string name="lib_vm_md_rewrite">Rewrite (%1$s):</string>
+
+    <!-- BookDetailsViewModel · note type labels (## headings in the exported Markdown) -->
+    <string name="lib_vm_type_highlight">Highlight</string>
+    <string name="lib_vm_type_note">Note</string>
+    <string name="lib_vm_type_translation">Translation</string>
+    <string name="lib_vm_type_ai_answer">AI answer</string>
+    <string name="lib_vm_type_roleplay">Roleplay</string>
+    <string name="lib_vm_type_rewrite">Rewrite</string>
+</resources>

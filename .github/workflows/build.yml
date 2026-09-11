@@ -1,0 +1,55 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# 只读权限即可：本工作流只做编译与单测，不发布任何产物到 Release
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Compile & unit test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 必须用 JDK 21：gradle/gradle-daemon-jvm.properties 固定了 toolchainVersion=21
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # local.properties 不入库（见 .gitignore），CI 上按 runner 的 SDK 路径生成
+      - name: Point Gradle at the CI Android SDK
+        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
+      - name: Compile
+        run: ./gradlew :app:compileDebugKotlin --console=plain
+
+      - name: Unit tests
+        run: ./gradlew :app:testDebugUnitTest --console=plain
+
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-report
+          path: app/build/reports/tests/testDebugUnitTest
+          if-no-files-found: ignore

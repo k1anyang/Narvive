@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  LibraryUiState（排序枚举）/ LibraryViewModel / BookDetailsViewModel 层文案（简体中文，默认语言 / 源语言）。
+  这些文案在 ViewModel 中用 context.getString 解析（非 Composable），或在 UI 侧用 stringResource(labelRes) 解析。
+  键名统一以 lib_vm_ 前缀，避免与 strings_library.xml 的 library_ / details_ 键冲突。
+  本文件与 values-en/strings_library_vm.xml、values-b+zh+Hant/strings_library_vm.xml 键集与顺序必须完全一致。
+-->
+<resources>
+    <!-- LibraryUiState · 排序枚举标签（SortOrder / SortDirection） -->
+    <string name="lib_vm_sort_title">书名</string>
+    <string name="lib_vm_sort_author">作者</string>
+    <string name="lib_vm_sort_last_read">最近阅读</string>
+    <string name="lib_vm_sort_date_added">导入时间</string>
+    <string name="lib_vm_sort_progress">阅读进度</string>
+    <string name="lib_vm_sort_asc">升序</string>
+    <string name="lib_vm_sort_desc">降序</string>
+
+    <!-- LibraryViewModel · 导入 / 合集提示（经 UiState.error 进入 Snackbar） -->
+    <string name="lib_vm_book_exists">该书已存在</string>
+    <string name="lib_vm_import_failed">导入失败</string>
+    <string name="lib_vm_collection_exists">合集「%1$s」已存在</string>
+    <string name="lib_vm_unknown_file">未知文件</string>
+    <string name="lib_vm_import_batch_result">导入完成 %1$d 本，%2$d 本失败：%3$s</string>
+
+    <!-- BookDetailsViewModel · 笔记导出（系统分享标题、导出文件名后缀） -->
+    <string name="lib_vm_export_notes_chooser">导出笔记</string>
+    <string name="lib_vm_export_note_file_suffix">笔记</string>
+
+    <!-- BookDetailsViewModel · 导出 Markdown 正文的字段标签（保持字段顺序与 Markdown 语法） -->
+    <string name="lib_vm_md_author">作者：%1$s</string>
+    <string name="lib_vm_md_chapter">章：%1$s</string>
+    <string name="lib_vm_md_progress">进度：%1$s</string>
+    <string name="lib_vm_md_time">时间：%1$s</string>
+    <string name="lib_vm_md_translation">译文：%1$s</string>
+    <string name="lib_vm_md_rewrite">改写（%1$s）：</string>
+
+    <!-- BookDetailsViewModel · 笔记类型标签（导出 Markdown 的 ## 标题） -->
+    <string name="lib_vm_type_highlight">高亮</string>
+    <string name="lib_vm_type_note">笔记</string>
+    <string name="lib_vm_type_translation">翻译</string>
+    <string name="lib_vm_type_ai_answer">AI 保存</string>
+    <string name="lib_vm_type_roleplay">对话</string>
+    <string name="lib_vm_type_rewrite">改写</string>
+</resources>

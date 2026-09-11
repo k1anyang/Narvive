@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  PromptTemplates 的标题/描述/占位符说明（简体中文）。
+  正文默认值见 service/ai/PromptDefaultsI18n.kt —— 那份是「发给模型的内容」，
+  本文件是「在 PROMPT 设置页给用户看的标签」。
+-->
+<resources>
+    <string name="prompt_tpl_chat_title">阅读助手系统提示</string>
+    <string name="prompt_tpl_chat_desc">书籍内「问 AI」对话的系统提示词</string>
+
+    <string name="prompt_tpl_roleplay_title">角色扮演系统提示</string>
+    <string name="prompt_tpl_roleplay_desc">角色对话中的角色设定提示词</string>
+
+    <string name="prompt_tpl_rewrite_title">改写提示词</string>
+    <string name="prompt_tpl_rewrite_desc">选中文本的改写指令模板（取章节上下文）</string>
+
+    <string name="prompt_tpl_continue_title">续写提示词</string>
+    <string name="prompt_tpl_continue_desc">选中文本的续写指令模板（仅取章节上文）</string>
+
+    <string name="prompt_tpl_translate_title">翻译提示词</string>
+    <string name="prompt_tpl_translate_desc">选中文本的翻译模板</string>
+
+    <string name="prompt_tpl_character_card_title">角色卡生成提示词</string>
+    <string name="prompt_tpl_character_card_desc">根据书籍信息生成角色卡</string>
+
+    <string name="prompt_tpl_quick_explain_title">快捷指令 · 解释</string>
+    <string name="prompt_tpl_quick_explain_desc">「✦ 解释」发送的文案</string>
+
+    <string name="prompt_tpl_quick_translate_title">快捷指令 · 翻译</string>
+    <string name="prompt_tpl_quick_translate_desc">「译 翻译」发送的文案</string>
+
+    <string name="prompt_tpl_quick_summarize_title">快捷指令 · 总结本章</string>
+    <string name="prompt_tpl_quick_summarize_desc">「总结本章」发送的文案</string>
+
+    <string name="prompt_tpl_quick_vocab_title">快捷指令 · 词汇</string>
+    <string name="prompt_tpl_quick_vocab_desc">「词汇」发送的文案</string>
+
+    <string name="prompt_tpl_relationship_graph_title">人物关系图提示词</string>
+    <string name="prompt_tpl_relationship_graph_desc">根据章节/全书生成人物关系图（结构化 JSON）</string>
+
+    <string name="prompt_tpl_timeline_title">时间轴演进图提示词</string>
+    <string name="prompt_tpl_timeline_desc">根据章节/全书生成时间轴演进图（结构化 JSON）</string>
+
+    <string name="prompt_tpl_no_placeholders">无占位符</string>
+</resources>

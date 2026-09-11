@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Font settings strings (English). Keep in sync with values/strings_fonts.xml. -->
+<resources>
+    <string name="font_settings_title">Fonts</string>
+    <string name="font_settings_tab_cjk">Chinese fonts</string>
+    <string name="font_settings_tab_latin">Latin fonts</string>
+    <string name="font_settings_note">TXT cannot render Chinese and Latin fonts separately, so the Chinese font takes priority. Publisher styles in EPUB do not allow changing the font.</string>
+    <string name="font_settings_empty">No fonts available</string>
+    <string name="font_settings_catalog_failed">Could not load the font catalogue. Check your network and try again.</string>
+    <string name="font_settings_official_site">Official site</string>
+    <string name="font_settings_delete_font">Delete font</string>
+    <string name="font_settings_download">Download</string>
+    <string name="font_settings_downloading">Downloading %1$d%%</string>
+    <string name="font_settings_use_now">Use now</string>
+    <string name="font_settings_system_default">System default</string>
+    <string name="font_settings_system_default_subtitle">Use the system font</string>
+    <string name="font_settings_in_use">In use</string>
+</resources>

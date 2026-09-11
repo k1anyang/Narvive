@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  简体中文（默认语言）。
+  约定：本文件是「唯一基准」——新增文案先写这里，再同步 values-en/ 与 values-b+zh+Hant/。
+  详见 docs/i18n.md。
+-->
+<resources>
+    <string name="app_name">Narvive</string>
+
+    <!-- 通用 -->
+    <string name="common_back">返回</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_confirm">确定</string>
+    <string name="common_save">保存</string>
+    <string name="common_delete">删除</string>
+    <string name="common_close">关闭</string>
+    <string name="common_more">更多</string>
+    <string name="common_retry">重试</string>
+    <string name="common_clear">清除</string>
+    <string name="common_done">完成</string>
+    <string name="common_copy">复制</string>
+    <string name="common_edit">编辑</string>
+    <string name="common_export">导出</string>
+    <string name="common_loading">加载中…</string>
+
+    <!-- 底部导航 -->
+    <string name="tab_library">书架</string>
+    <string name="tab_notes">笔记</string>
+    <string name="tab_ai">AI</string>
+    <string name="tab_stats">统计</string>
+    <string name="tab_settings">设置</string>
+
+    <!-- 外观设置 -->
+    <string name="settings_appearance_title">外观</string>
+    <string name="settings_appearance_section_theme">外观主题</string>
+    <string name="settings_appearance_section_mode">外观模式</string>
+    <string name="settings_appearance_mode_light">浅色</string>
+    <string name="settings_appearance_mode_light_desc">始终浅色</string>
+    <string name="settings_appearance_mode_dark">深色</string>
+    <string name="settings_appearance_mode_dark_desc">始终深色</string>
+    <string name="settings_appearance_mode_system">跟随系统</string>
+    <string name="settings_appearance_mode_system_desc">推荐</string>
+    <string name="settings_appearance_section_grid">书架网格视图</string>
+    <string name="settings_appearance_grid_per_row">每行</string>
+    <string name="settings_appearance_grid_books">%1$d 本</string>
+    <string name="settings_appearance_info">外观主题决定色彩气质，外观模式决定明暗，两者可自由组合。\n外观只影响 App 外壳（书架/笔记/统计/设置）。阅读页日/夜间默认跟随此处模式选择；进入阅读器后也可单独切换，且不会反向修改此处设置。阅读页纸色主题与自定义颜色在阅读器设置面板中独立设置。</string>
+
+    <!-- 界面语言 -->
+    <string name="settings_language_section">界面语言</string>
+    <string name="settings_language_info">切换后界面文案将立即更新。阅读正文、书籍内容与已保存的笔记不受影响。</string>
+    <string name="settings_language_zh_hans">简体中文</string>
+    <string name="settings_language_zh_hant">繁體中文</string>
+    <string name="settings_language_en">English</string>
+
+    <!-- 外观主题名（AppearanceThemeSpec.displayNameRes） -->
+    <string name="appearance_theme_paper_ink">暖纸墨</string>
+    <string name="appearance_theme_paper_ink_desc">温暖 · 羊皮纸与赤陶</string>
+    <string name="appearance_theme_sky">天际蓝</string>
+    <string name="appearance_theme_sky_desc">经典 · 冷灰与天蓝</string>
+    <string name="appearance_theme_pine">松烟绿</string>
+    <string name="appearance_theme_pine_desc">沉静 · 东方书房</string>
+    <string name="appearance_theme_plum">绛紫</string>
+    <string name="appearance_theme_plum_desc">夜色 · 浪漫睡前</string>
+
+    <!-- 设置主页 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_group_appearance">外观</string>
+    <string name="settings_group_ai">AI</string>
+    <string name="settings_group_data">数据</string>
+    <string name="settings_group_about">关于与隐私</string>
+    <string name="settings_row_appearance">外观</string>
+    <string name="settings_row_font">字体</string>
+    <string name="settings_row_language">语言</string>
+    <string name="settings_row_reading">阅读设置</string>
+    <string name="settings_row_ai">AI 配置</string>
+    <string name="settings_row_ai_desc">BYOK 自带 Key</string>
+    <string name="settings_row_prompt">PROMPT 设置</string>
+    <string name="settings_row_prompt_desc">自定义全部 AI 提示词</string>
+    <string name="settings_row_ai_pref">AI 偏好</string>
+    <string name="settings_row_ai_pref_desc">自动归纳 / 手动填写</string>
+    <string name="settings_row_backup">备份与恢复</string>
+    <string name="settings_row_services">服务</string>
+    <string name="settings_row_services_desc">WebDAV 云同步</string>
+    <string name="settings_row_storage">存储设置</string>
+    <string name="settings_row_about">关于 Narvive</string>
+    <string name="settings_row_privacy">隐私政策</string>
+    <string name="settings_row_user_agreement">用户协议</string>
+    <string name="settings_row_licenses">开源许可</string>
+    <string name="settings_backup_last">最近：%1$s</string>
+    <string name="settings_backup_never">尚未备份</string>
+
+    <!-- 阅读主题名（阅读器 HUD / 更多设置使用） -->
+    <string name="reading_theme_paper">米白</string>
+    <string name="reading_theme_sepia">牛皮</string>
+    <string name="reading_theme_green">豆沙</string>
+    <string name="reading_theme_dark">天空</string>
+    <string name="reading_theme_black">深灰</string>
+    <string name="reading_theme_custom">自定义</string>
+
+    <!-- 存储设置 -->
+    <string name="storage_title">存储设置</string>
+    <string name="storage_total">总占用</string>
+    <string name="storage_books">书籍文件</string>
+    <string name="storage_books_desc">导入的书（应用私有副本）</string>
+    <string name="storage_covers">封面</string>
+    <string name="storage_covers_desc">从书籍提取的封面图</string>
+    <string name="storage_fonts">字体</string>
+    <string name="storage_fonts_desc">下载的阅读字体</string>
+    <string name="storage_cache">缓存</string>
+    <string name="storage_cache_desc">临时文件与图片缓存，可安全清理</string>
+    <string name="storage_count_items">%1$d 个</string>
+    <string name="storage_clear_cache">清理缓存</string>
+    <string name="storage_clear_confirm_title">清理缓存</string>
+    <string name="storage_clear_confirm_body">将删除临时导出、恢复暂存与图片/网页缓存（%1$s），不会影响书籍、进度与笔记。</string>
+    <string name="storage_cleared">已清理 %1$s</string>
+    <string name="storage_delete_note">为防误删，书籍、封面与字体只做展示，不在此页提供删除；删除书籍请回到书架或详情页操作。</string>
+
+    <!-- WebDAV -->
+    <string name="webdav_title">WebDAV</string>
+    <string name="webdav_enable">启用 WebDAV</string>
+    <string name="webdav_enable_desc">同步备份 ZIP 到你自己的服务器</string>
+    <string name="webdav_server">服务器地址</string>
+    <string name="webdav_username">用户名</string>
+    <string name="webdav_password">密码</string>
+    <string name="webdav_password_keep">密码（留空不修改）</string>
+    <string name="webdav_remote_dir">远程目录</string>
+    <string name="webdav_save_config">保存配置</string>
+    <string name="webdav_test">测试连接</string>
+    <string name="webdav_auto_sync">自动同步</string>
+    <string name="webdav_auto_sync_desc">应用切到后台时自动上传备份</string>
+    <string name="webdav_sync_now">立即同步</string>
+    <string name="webdav_remote_backups">远程备份</string>
+    <string name="webdav_no_backups">暂无远程备份</string>
+    <string name="webdav_restore">恢复</string>
+    <string name="webdav_restore_title">从 WebDAV 恢复</string>
+    <string name="webdav_restore_body">下载并恢复「%1$s」？\n现有书籍按 hash 合并，不会重复导入。</string>
+    <string name="webdav_refresh">刷新</string>
+    <string name="webdav_unknown_size">未知大小</string>
+    <string name="webdav_unknown_time">未知时间</string>
+
+    <!-- 隐私政策 -->
+    <string name="legal_privacy_title">隐私政策</string>
+    <string name="legal_updated_at">更新日期：%1$s</string>
+    <string name="legal_privacy_h1">数据存储</string>
+    <string name="legal_privacy_b1">书籍文件、阅读进度、书签、高亮、笔记、翻译、AI 对话记录与全部配置均只保存在你的设备本地。Narvive 没有账号体系，也没有运营服务器存放你的内容。</string>
+    <string name="legal_privacy_h2">我们不收集什么</string>
+    <string name="legal_privacy_b2">我们不要求注册或登录，不收集姓名、联系方式等个人身份信息，也不埋设用户行为统计。</string>
+    <string name="legal_privacy_h3">AI 功能</string>
+    <string name="legal_privacy_b3">AI 是应用的网络出口之一，采用 BYOK（自带 Key）模式：请求由你的设备直接发往你自行配置的 AI 服务商，Narvive 不中转、不记录对话内容。每次发送的正文范围会在界面中明示。API Key 使用系统加密存储，只保存在本机，不进入备份包与日志。</string>
+    <string name="legal_privacy_h4">网络使用</string>
+    <string name="legal_privacy_b4">除你主动配置的 AI 请求、字体目录下载与 WebDAV 云同步外，应用不会进行其他网络通信。WebDAV 凭据同样加密保存在本机，同步文件只上传至你指定的服务器。</string>
+    <string name="legal_privacy_h5">文件访问</string>
+    <string name="legal_privacy_b5">文件访问权限仅用于导入你主动选择的书籍文件；应用只读取所选文件并将其副本保存在应用私有目录中。</string>
+    <string name="legal_privacy_h6">备份与导出</string>
+    <string name="legal_privacy_b6">备份 ZIP 与笔记导出均由你选择保存位置。备份包不包含任何 API Key 或 WebDAV 凭据。</string>
+    <string name="legal_privacy_h7">联系我们</string>
+    <string name="legal_privacy_b7">如对本政策有疑问，可通过应用商店或项目主页反馈。</string>
+
+    <!-- 用户协议 -->
+    <string name="legal_terms_title">用户协议</string>
+    <string name="legal_terms_h1">使用许可</string>
+    <string name="legal_terms_b1">Narvive 授权你在遵守本协议的前提下，于个人设备上使用本应用的全部功能。</string>
+    <string name="legal_terms_h2">内容版权</string>
+    <string name="legal_terms_b2">请仅导入你拥有合法权利阅读的书籍与文档。应用提供本地阅读、标注与笔记功能，不提供任何内容的获取渠道。</string>
+    <string name="legal_terms_h3">AI 生成内容</string>
+    <string name="legal_terms_b3">AI 回答、翻译、改写与角色扮演等输出由第三方服务生成，可能不准确或存在偏差，仅供参考。你应自行判断其适用性；相关服务的使用同时受相应服务商条款约束。</string>
+    <string name="legal_terms_h4">云同步</string>
+    <string name="legal_terms_b4">WebDAV 同步由你自行配置服务器，请妥善保管凭据，并遵守服务器的存储规范。</string>
+    <string name="legal_terms_h5">免责声明</string>
+    <string name="legal_terms_b5">本应用按“现状”提供。对于因误操作、设备故障、第三方服务不可用等导致的数据或内容损失，我们尽力避免但无法承担超出法律允许范围的责任。建议定期导出备份。</string>
+    <string name="legal_terms_h6">协议变更</string>
+    <string name="legal_terms_b6">我们可能更新本协议与隐私政策，更新后将在本页面公示。继续使用即视为接受更新后的条款。</string>
+
+    <!-- 开源许可 -->
+    <string name="legal_licenses_title">开源许可</string>
+    <string name="legal_licenses_intro">Narvive 使用以下开源项目，谨向各项目及其贡献者致谢。</string>
+    <string name="license_androidx">UI 框架与组件库</string>
+    <string name="license_room">本地数据库（书籍/标注/会话）</string>
+    <string name="license_hilt">依赖注入</string>
+    <string name="license_navigation">页面导航</string>
+    <string name="license_datastore">偏好设置持久化</string>
+    <string name="license_security">API Key 加密存储</string>
+    <string name="license_readium">EPUB/PDF 解析与导航</string>
+    <string name="license_okhttp">网络请求与流式响应</string>
+    <string name="license_coil">封面图片加载与缓存</string>
+    <string name="license_jsoup">EPUB 元数据解析</string>
+    <string name="license_serialization">JSON 序列化</string>
+    <string name="license_font">界面字体</string>
+
+    <!-- AI 配置页 -->
+    <string name="ai_settings_title">AI 配置</string>
+    <string name="ai_settings_add">添加</string>
+    <string name="ai_settings_key_dialog_title">配置 API Key</string>
+    <string name="ai_settings_providers_header">Provider（按 Fallback 优先级排序）</string>
+    <string name="ai_settings_providers_hint">点击卡片可编辑；协议与模型列表需先配置 Key。</string>
+    <string name="ai_settings_add_custom">添加自定义 Provider</string>
+    <string name="ai_settings_edit_provider">编辑 Provider</string>
+    <string name="ai_settings_protocols_supported">支持 OpenAI Chat Completions / OpenAI Responses API / Anthropic Messages</string>
+    <string name="ai_settings_preset_model_only">预设 Provider 仅支持修改模型名</string>
+    <string name="ai_settings_name">名称</string>
+    <string name="ai_settings_base_url">Base URL</string>
+    <string name="ai_settings_url_invalid">需以 http:// 或 https:// 开头</string>
+    <string name="ai_settings_protocol_prefix">协议：%1$s</string>
+    <string name="ai_settings_protocol_preset_fixed">协议：%1$s（预设固定）</string>
+    <string name="ai_settings_model_name">模型名</string>
+    <string name="ai_settings_model_placeholder">如 gpt-4o, deepseek-chat</string>
+    <string name="ai_settings_fetch_models">获取模型列表</string>
+    <string name="ai_settings_key_first">先填 Key</string>
+    <string name="ai_settings_pick_model">点击选择模型</string>
+    <string name="ai_settings_key_keep">API Key（留空保持原 Key）</string>
+    <string name="ai_settings_password_label">API Key</string>
+    <string name="ai_settings_degrades">⚠降级</string>
+    <string name="ai_settings_degraded_banner">%1$s 连续失败 %2$d 次，已自动降级。\nFallback 链将暂时跳过该 Provider，可排查后手动恢复。</string>
+    <string name="ai_settings_move_up">上移</string>
+    <string name="ai_settings_move_down">下移</string>
+    <string name="ai_settings_change_key">更换 Key</string>
+    <string name="ai_settings_set_key">设置 Key</string>
+    <string name="ai_settings_restore">恢复</string>
+    <string name="ai_settings_test_connection">测试连接</string>
+    <string name="ai_settings_testing">测试中…</string>
+    <string name="ai_settings_test_ok">连接成功 · %1$dms</string>
+    <string name="ai_settings_test_failed">连接失败：%1$s</string>
+    <string name="ai_settings_fetch_failed">获取失败</string>
+
+    <!-- 备份与恢复 -->
+    <string name="backup_title">备份与恢复</string>
+    <string name="backup_export_section">导出</string>
+    <string name="backup_export_card_title">导出备份 ZIP</string>
+    <string name="backup_export_contents_books">📚 books/ · 原始书籍文件（EPUB/PDF/TXT）</string>
+    <string name="backup_export_contents_data">🗂 data.json · 进度 / 书签 / 高亮 / 笔记 / 翻译 / 合集 / 设置</string>
+    <string name="backup_export_contents_manifest">📋 manifest.json · 备份格式版本号</string>
+    <string name="backup_export_action">导出 ZIP</string>
+    <string name="backup_export_hint">导出后请在 Snackbar 提示中确认文件名</string>
+    <string name="backup_last_time">最近备份：%1$s</string>
+    <string name="backup_restore_section">恢复</string>
+    <string name="backup_restore_card_title">导入备份 ZIP</string>
+    <string name="backup_restore_desc">校验 manifest 版本 → 解包 → 按文件 hash 合并；同名冲突保留两者，书名自动加后缀。</string>
+    <string name="backup_restore_pick">选择备份文件</string>
+    <string name="backup_key_warn_title">API Key 不进入备份包。</string>
+    <string name="backup_key_warn_body">恢复备份后，请在「设置 → AI 配置」中重新填写各 Provider 的 Key。</string>
+
+    <!-- 关于 -->
+    <string name="about_title">关于</string>
+    <string name="about_version">版本 %1$s</string>
+    <string name="about_tagline">Narrative + Alive · 让故事活过来</string>
+    <string name="about_card_title">关于</string>
+    <string name="about_card_body">Narvive 是一款本地优先的阅读应用：书籍、进度、标注、笔记与配置全部保存在本机，无账号、无在线书库。</string>
+    <string name="about_developer">开发者</string>
+    <string name="about_font_title">界面字体</string>
+    <string name="about_font_body">本应用界面使用 HarmonyOS Sans 字体（简体 SC / 繁体 TC 两套字族，按界面语言自动选用）。HarmonyOS Sans 字体版权归 Huawei Device Co., Ltd. 所有，依据 HarmonyOS Sans 字体许可协议使用。</string>
+
+    <!-- AI 偏好 -->
+    <string name="ai_pref_title">AI 偏好</string>
+    <string name="ai_pref_enable">启用 AI 偏好</string>
+    <string name="ai_pref_enable_desc">让主页 AI 记住你的语气、术语与回答偏好</string>
+    <string name="ai_pref_mode_auto">自动归纳</string>
+    <string name="ai_pref_mode_manual">手动填写</string>
+    <string name="ai_pref_current">当前偏好</string>
+    <string name="ai_pref_empty">尚未归纳，完成一段对话后自动生成。</string>
+    <string name="ai_pref_inducting">正在归纳…</string>
+    <string name="ai_pref_induct_success">归纳成功</string>
+    <string name="ai_pref_induct_now">立即归纳</string>
+    <string name="ai_pref_manual_title">手动填写偏好</string>
+    <string name="ai_pref_manual_hint">如：喜欢简洁、中文、不用表情，回答偏文学风格</string>
+    <string name="ai_pref_clear">清除</string>
+    <string name="ai_pref_footnote">偏好仅保存在本机，只注入主 AI 页的系统提示；不影响书籍「问 AI」与角色对话。</string>
+
+    <!-- 备份 / WebDAV 的即时消息（ViewModel 内构造，随语言渲染） -->
+    <string name="backup_msg_exporting">正在导出…</string>
+    <string name="backup_msg_export_ok">导出成功 · %1$s</string>
+    <string name="backup_msg_export_failed">导出失败：%1$s</string>
+    <string name="backup_msg_importing">正在导入…</string>
+    <string name="backup_msg_import_ok">导入完成，新增 %1$d 本书</string>
+    <string name="backup_msg_import_failed">导入失败：%1$s</string>
+    <string name="webdav_msg_config_saved">配置已保存</string>
+    <string name="webdav_msg_connect_ok">连接成功</string>
+    <string name="webdav_msg_connect_failed">连接失败：%1$s</string>
+    <string name="webdav_msg_sync_failed">同步失败：%1$s</string>
+    <string name="webdav_msg_restore_ok">恢复完成，导入 %1$d 本书</string>
+    <string name="webdav_msg_restore_failed">恢复失败：%1$s</string>
+
+    <!-- 导入服务 -->
+    <string name="import_err_unsupported_format">不支持的文件格式</string>
+    <string name="import_err_unsupported_format_ext">不支持的文件格式：%1$s</string>
+    <string name="import_err_read_failed">无法读取文件</string>
+    <string name="import_err_duplicate">「%1$s」已在书架中，跳过重复导入</string>
+
+    <!-- AI 对话失败与改写失败 -->
+    <string name="chat_vm_provider_failed_fallback">%1$s 失败，正在尝试备用…</string>
+    <string name="chat_vm_all_providers_failed">所有 Provider 均不可用（%1$s）。请检查设置或稍后重试。</string>
+    <string name="chat_vm_unknown_error">未知错误</string>
+    <string name="chat_vm_export_failed">导出失败：%1$s</string>
+    <string name="chat_vm_no_provider_short">未配置 AI Provider</string>
+    <string name="chat_vm_all_providers_unavailable_short">所有 Provider 不可用</string>
+
+    <!-- PROMPT 设置 -->
+    <string name="prompt_settings_title">PROMPT 设置</string>
+    <string name="prompt_settings_intro">所有 AI 功能的提示词都可在此自定义，使用 {{占位符}} 引用动态内容；每项可单独恢复默认。</string>
+    <string name="prompt_settings_modified">已修改</string>
+    <string name="prompt_settings_placeholders">可用占位符：%1$s</string>
+    <string name="prompt_settings_reset_default">恢复默认</string>
+
+    <!-- 问题反馈 -->
+    <string name="settings_row_feedback">问题反馈</string>
+    <string name="feedback_title">问题反馈</string>
+    <string name="feedback_thanks_title">感谢你的反馈</string>
+    <string name="feedback_thanks_body">Narvive 是一个人维护的开源项目。每一条 Bug 报告、每一条建议都会被认真阅读。提交前请尽量附上版本号、机型与复现步骤。再次感谢您的使用与反馈。</string>
+    <string name="feedback_channel_email">邮箱反馈</string>
+    <string name="feedback_channel_email_desc">发送邮件至 %1$s</string>
+    <string name="feedback_channel_issue">GitHub Issue</string>
+    <string name="feedback_channel_issue_desc">报告 Bug 或提出具体问题</string>
+    <string name="feedback_channel_discussion">GitHub Discussions</string>
+    <string name="feedback_channel_discussion_desc">功能建议、使用提问与经验交流</string>
+    <string name="feedback_diagnostics_title">诊断信息</string>
+    <string name="feedback_diagnostics_body">复制以下信息并粘贴到邮件或 Issue 中，可帮助快速定位问题（不含任何阅读内容或 API Key）。</string>
+    <string name="feedback_diagnostics_copy">复制诊断信息</string>
+    <string name="feedback_diagnostics_copied">诊断信息已复制</string>
+    <string name="feedback_guide_title">如何写出有效的反馈</string>
+    <string name="feedback_guide_body">1. 说明你做了什么（导入、阅读、AI 调用…）\n2. 说明期望的结果与实际的结果\n3. 附上复现步骤，越具体越好\n4. 若有截图或录屏请一并附上\n5. 切勿粘贴 API Key——那会带来真实的经济损失</string>
+
+    <!-- 服务 -->
+    <string name="services_title">服务</string>
+    <string name="services_group_sync">云同步</string>
+    <string name="services_webdav_desc">备份同步与恢复</string>
+    <string name="services_webdav_note">通过 WebDAV 将备份 ZIP 同步到你自己的服务器。</string>
+</resources>

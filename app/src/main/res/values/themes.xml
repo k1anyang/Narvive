@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+      AppCompatActivity 要求主题必须继承 AppCompat 主题，否则启动即抛
+      IllegalStateException: You need to use a Theme.AppCompat theme。
+
+      这里显式使用 Light 变体（而非 DayNight），以保持改造前的行为：
+      深色/浅色一律由 Compose 侧的 dark_theme 偏好全权控制，
+      AppCompat 不再介入明暗判定，避免窗口装饰与 Compose 界面出现色差。
+    -->
+    <style name="Theme.Narvive" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--
+          窗口背景。作用有两个：
+          1. 避免启动/重创建瞬间先闪一帧主题默认色（白）再切到应用配色；
+          2. 运行期 NarviveTheme 会把本属性覆盖为当前外观主题的 background，
+             因此这里只需给一个与默认外观主题（sky 浅色）一致的合理初值。
+        -->
+        <item name="android:windowBackground">@color/narvive_window_background</item>
+    </style>
+</resources>

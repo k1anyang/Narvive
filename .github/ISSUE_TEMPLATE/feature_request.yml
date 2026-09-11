@@ -1,0 +1,47 @@
+name: Feature request
+description: Suggest an idea or an improvement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, a quick check of existing issues and `CHANGELOG.md` may save you time.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the situation you are in, not the solution yet.
+      placeholder: "When I read a long EPUB on my phone, I cannot ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have considered
+
+  - type: dropdown
+    id: contribute
+    attributes:
+      label: Would you be willing to work on this?
+      options:
+        - "Yes, I can open a pull request"
+        - "Yes, but I would need guidance"
+        - "No, I am only reporting the idea"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This request does not require breaking the local-first / BYOK design

@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  閱讀器模組文案（繁體中文）。
+  key 集合與順序必須與 values/strings_reader.xml、values-en/strings_reader.xml 完全一致。
+  閱讀紙色主題名沿用主檔 values/strings.xml 的 reading_theme_*，此處不重複宣告。
+-->
+<resources>
+    <!-- 通用：載入與錯誤 -->
+    <string name="reader_opening_book">正在開啟書籍…</string>
+    <string name="reader_loading">載入中…</string>
+    <string name="reader_pdf_not_available">PDF 閱讀尚未開放，敬請期待後續版本</string>
+    <string name="reader_cannot_open">⚠ 無法開啟</string>
+    <string name="reader_back_to_shelf">返回書架</string>
+
+    <!-- HUD 頂欄 -->
+    <string name="reader_back">返回</string>
+    <string name="reader_search">搜尋</string>
+    <string name="reader_more">更多</string>
+    <string name="reader_add_bookmark">新增書籤</string>
+    <string name="reader_bookmarked">已加書籤</string>
+    <string name="reader_release_to_add_bookmark">鬆手新增書籤</string>
+    <string name="reader_release_to_remove_bookmark">鬆手刪除書籤</string>
+
+    <!-- HUD 底欄 -->
+    <string name="reader_prev_chapter">上一章</string>
+    <string name="reader_next_chapter">下一章</string>
+    <string name="reader_toc">目錄</string>
+    <string name="reader_brightness">亮度</string>
+    <string name="reader_follow_system_brightness">跟隨系統亮度</string>
+    <string name="reader_eye_protection">護眼模式</string>
+    <string name="reader_switch_to_day">切換日間</string>
+    <string name="reader_switch_to_night">切換夜間</string>
+    <string name="reader_settings">設定</string>
+
+    <!-- 自動翻頁 -->
+    <string name="reader_auto_flip">自動翻頁</string>
+    <string name="reader_auto_flip_speed_format">%1$d 秒/頁</string>
+    <string name="reader_exit_auto_flip">結束自動翻頁</string>
+
+    <!-- AI 面板與歷史會話 -->
+    <string name="reader_ai_assistant">AI 助手</string>
+    <string name="reader_chat_history">對話記錄</string>
+    <string name="reader_expand">展開</string>
+    <string name="reader_history_sessions">歷史會話</string>
+    <string name="reader_new_conversation">新增對話</string>
+    <string name="reader_no_history">暫無歷史會話</string>
+    <string name="reader_untitled_conversation">未命名會話</string>
+    <string name="reader_delete_conversation_title">刪除會話</string>
+    <string name="reader_delete_conversation_body">刪除「%1$s」及其全部訊息？此操作無法復原。</string>
+
+    <!-- Aa 閱讀設定面板 -->
+    <string name="reader_settings_title">閱讀設定</string>
+    <string name="reader_font">字型</string>
+    <string name="reader_page_flip_animation">翻頁動畫</string>
+    <string name="reader_flip_slide">平移</string>
+    <string name="reader_flip_updown">上下</string>
+    <string name="reader_flip_none">無</string>
+    <string name="reader_more_settings">更多設定</string>
+
+    <!-- 更多設定頁 -->
+    <string name="reader_group_page_turn">翻頁</string>
+    <string name="reader_volume_key_page_turn">音量鍵翻頁</string>
+    <string name="reader_book_open_animation">圖書開啟動畫</string>
+    <string name="reader_book_open_animation_hint">從詳細頁進入閱讀頁時顯示封面展開動畫</string>
+    <string name="reader_group_screen_reminder">螢幕與提醒</string>
+    <string name="reader_screen_off_time">螢幕關閉時間</string>
+    <string name="reader_screen_off_always">恆亮</string>
+    <string name="reader_rest_reminder_display">休息提醒顯示</string>
+    <string name="reader_minutes_format">%1$d 分鐘</string>
+    <string name="reader_off">關閉</string>
+    <string name="reader_group_display">顯示</string>
+    <string name="reader_epub_publisher_styles">EPUB 出版方樣式</string>
+    <string name="reader_progress_display_mode">進度顯示形式</string>
+    <string name="reader_progress_percentage">百分比</string>
+    <string name="reader_progress_page">頁碼</string>
+    <string name="reader_show_top_info">顯示頂部資訊區</string>
+    <string name="reader_show_bottom_info">顯示底部資訊區</string>
+    <string name="reader_battery_percent">按百分比顯示電量</string>
+
+    <!-- 目錄 / 書籤 / 筆記面板 -->
+    <string name="reader_bookmarks">書籤</string>
+    <string name="reader_notes">筆記</string>
+    <string name="reader_empty_toc">暫無目錄</string>
+    <string name="reader_empty_bookmarks">暫無書籤</string>
+    <string name="reader_empty_notes">本書筆記將在閱讀時產生</string>
+    <string name="reader_current">當前</string>
+
+    <!-- 書內搜尋 -->
+    <string name="reader_search_placeholder">搜尋本書內容</string>
+    <string name="reader_cancel">取消</string>
+    <string name="reader_search_no_result">未找到「%1$s」</string>
+    <string name="reader_search_no_result_hint">試試更短的關鍵詞，或檢查是否有錯別字</string>
+    <string name="reader_search_result_count">找到 %1$d 處結果</string>
+
+    <!-- 選區氣泡 / 高亮選單 -->
+    <string name="reader_highlight">標記</string>
+    <string name="reader_note">筆記</string>
+    <string name="reader_copy">複製</string>
+    <string name="reader_translate">翻譯</string>
+    <string name="reader_ask_ai">問 AI</string>
+    <string name="reader_rewrite">改寫</string>
+    <string name="reader_continue">續寫</string>
+    <string name="reader_change_color">改色</string>
+    <string name="reader_delete">刪除</string>
+
+    <!-- 翻譯標註卡 -->
+    <string name="reader_translation_annotation">翻譯標註</string>
+    <string name="reader_cache_hit">快取命中 · 零呼叫</string>
+    <string name="reader_translation_meta">原文 %1$d 字 → 中文 · 同詞全書複用</string>
+    <string name="reader_retranslate">重新翻譯</string>
+
+    <!-- 自訂主題視窗 -->
+    <string name="reader_theme_settings">主題設定</string>
+    <string name="reader_restore_last_settings">還原上次設定</string>
+    <string name="reader_font_color">字型顏色</string>
+    <string name="reader_background_color">背景顏色</string>
+
+    <!-- 自訂間距視窗 -->
+    <string name="reader_custom_spacing">自訂間距</string>
+    <string name="reader_restore_defaults">還原預設設定</string>
+    <string name="reader_line_spacing">行間距</string>
+    <string name="reader_paragraph_spacing">段間距</string>
+    <string name="reader_first_line_indent">首行縮排</string>
+    <string name="reader_vertical_margin">上下邊距</string>
+    <string name="reader_horizontal_margin">左右邊距</string>
+
+    <!-- 筆記 / 翻譯 / 提示 / 休息提醒對話框 -->
+    <string name="reader_edit_note">編輯筆記</string>
+    <string name="reader_add_note">新增筆記</string>
+    <string name="reader_note_placeholder">寫下你的想法…</string>
+    <string name="reader_save">儲存</string>
+    <string name="reader_close">關閉</string>
+    <string name="reader_translation_hint">譯文已以紅色小字內嵌於原文之後（EPUB 格式採用紅色底線表示「有譯文」），點按可管理</string>
+    <string name="reader_tip">提示</string>
+    <string name="reader_got_it">知道了</string>
+    <string name="reader_rest_reminder_title">休息提醒</string>
+    <string name="reader_rest_reminder_body">已連續閱讀 %1$d 分鐘，起來休息一下吧。</string>
+</resources>

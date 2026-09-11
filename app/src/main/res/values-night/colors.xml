@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  深色系统下的窗口背景初值。
+
+  默认外观主题是 sky，其深色配色 background = #0F172A（与 colors.xml 的 slate_900 一致）。
+  没有这份夜间变体时，深色系统下冷启动/重创建会先绘制浅色窗口背景，
+  再切到深色界面 —— 表现为一次白闪。
+
+  运行期 NarviveTheme 会按用户实际选择的「外观主题 × 明暗」再次覆盖该属性，
+  这里只负责首帧。
+-->
+<resources>
+    <color name="narvive_window_background">#0F172A</color>
+</resources>

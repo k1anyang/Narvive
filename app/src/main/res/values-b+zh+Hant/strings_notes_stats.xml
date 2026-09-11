@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  繁體中文（台灣／通用用詞，單一套）——筆記模組／統計模組。
+  與 values/strings_notes_stats.xml（基準）保持同步：key 集合與順序必須完全一致。
+  詳見 docs/i18n.md。
+-->
+<resources>
+    <!-- 筆記模組：標題與操作 -->
+    <string name="notes_title">筆記</string>
+    <string name="notes_search">搜尋</string>
+    <string name="notes_search_hint">搜尋筆記內容</string>
+    <string name="notes_filter_all_count">全部 %1$d</string>
+    <string name="notes_filter_all_books">全部書籍</string>
+    <string name="notes_filter_count">%1$s %2$d</string>
+
+    <!-- 筆記模組：空狀態 -->
+    <string name="notes_empty_title">暫無筆記</string>
+    <string name="notes_empty_hint_highlight">閱讀時長按文字即可標註、寫筆記或翻譯</string>
+    <string name="notes_empty_hint_ai">AI 回答與角色對話也可儲存到這裡</string>
+
+    <!-- 筆記模組：標註類型 -->
+    <string name="notes_type_highlight">標註</string>
+    <string name="notes_type_note">筆記</string>
+    <string name="notes_type_translation">翻譯</string>
+    <string name="notes_type_ai_answer">AI 儲存</string>
+    <string name="notes_type_roleplay">角色對話</string>
+    <string name="notes_type_rewrite">改寫</string>
+
+    <!-- 筆記模組：卡片與清單 -->
+    <string name="notes_meta_line">%1$s · %2$s</string>
+    <string name="notes_translation_prefix">譯：%1$s</string>
+    <string name="notes_time_today">今天</string>
+    <string name="notes_time_yesterday">昨天</string>
+    <string name="notes_time_days_ago">%1$d 天前</string>
+    <string name="notes_time_last_week">上週</string>
+
+    <!-- 筆記模組：對話框 -->
+    <string name="notes_delete_title">刪除筆記</string>
+    <string name="notes_delete_message">刪除這條%1$s筆記？此操作無法復原。</string>
+
+    <!-- 筆記模組：詳情面板 -->
+    <string name="notes_detail_original">原文</string>
+    <string name="notes_detail_ai_content">AI 內容</string>
+    <string name="notes_detail_rewrite_content">改寫／續寫內容</string>
+    <string name="notes_detail_jump">跳轉原文</string>
+    <string name="notes_detail_no_locator">無原文定位</string>
+
+    <!-- 筆記模組：匯出與備援 -->
+    <string name="notes_unknown_book">未知書籍</string>
+    <string name="notes_export_chooser">匯出筆記</string>
+
+    <!-- 統計模組 -->
+    <string name="stats_title">統計</string>
+    <string name="stats_today_reading">今日閱讀</string>
+    <string name="stats_week_reading">本週閱讀</string>
+    <string name="stats_streak">連續閱讀</string>
+    <string name="stats_books_finished">累計讀完</string>
+    <string name="stats_unit_minutes">分</string>
+    <string name="stats_unit_days">天</string>
+
+    <!-- 統計模組：圖表 -->
+    <string name="stats_tooltip_point">%1$s · %2$d 分鐘</string>
+    <string name="stats_tooltip_dismiss">輕觸關閉</string>
+    <string name="stats_prev">前</string>
+    <string name="stats_next">後</string>
+    <string name="stats_range_day">日</string>
+    <string name="stats_range_week">週</string>
+    <string name="stats_range_month">月</string>
+    <string name="stats_chart_empty">暫無資料，開始閱讀吧！</string>
+
+    <!-- 統計模組：最近讀完 -->
+    <string name="stats_recent_finished">最近讀完</string>
+    <string name="stats_view_all">查看全部</string>
+    <string name="stats_collapse">收合</string>
+    <string name="stats_no_finished_books">還沒有讀完的書</string>
+    <string name="stats_book_meta">%1$s · %2$s</string>
+</resources>
