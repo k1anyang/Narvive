@@ -27,4 +27,13 @@
 
     <!-- Retrieval degraded: automatic chunk selection failed, local keyword matching is used -->
     <string name="chat_vm_retrieval_degraded">Automatic passage selection did not finish; local keyword matching was used, so the answer may be incomplete.</string>
+
+    <!-- Whole-book index (cached chapter summaries) -->
+    <string name="chat_vm_index_none_title">Whole-book search is not ready yet</string>
+    <string name="chat_vm_index_none_desc">With an index, whole-book questions are answered from chapter summaries. One call per chapter, cancellable at any time.</string>
+    <string name="chat_vm_index_start">Build index</string>
+    <string name="chat_vm_index_progress">Building the book index %1$d/%2$d</string>
+    <string name="chat_vm_index_cached">%1$d chapter summaries cached</string>
+    <string name="chat_vm_index_complete">Complete index</string>
+    <string name="chat_vm_index_no_provider">No AI provider is configured, so the index cannot be built.</string>
 </resources>

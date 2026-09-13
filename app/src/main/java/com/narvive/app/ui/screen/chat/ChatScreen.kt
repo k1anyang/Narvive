@@ -238,6 +238,8 @@ fun ChatScreen(
             onRegenerate = viewModel::regenerate,
             onDismissError = viewModel::clearError,
             onOpenAiSettings = onOpenAiSettings,
+            onStartBookIndex = viewModel::startBookIndexing,
+            onCancelBookIndex = viewModel::cancelBookIndexing,
             modifier = Modifier.fillMaxSize().padding(padding).imePadding(),
             simplified = true,
         )

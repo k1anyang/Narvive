@@ -27,4 +27,13 @@
 
     <!-- 檢索降級提示：智慧選段失敗，已改用本機關鍵字比對 -->
     <string name="chat_vm_retrieval_degraded">智慧選段未完成，本輪改用本機關鍵字比對，回答可能不完整</string>
+
+    <!-- 全書索引（章節摘要快取） -->
+    <string name="chat_vm_index_none_title">全書檢索尚未就緒</string>
+    <string name="chat_vm_index_none_desc">建立索引後，全書提問會依各章摘要回答。每章一次呼叫，可隨時取消。</string>
+    <string name="chat_vm_index_start">建立索引</string>
+    <string name="chat_vm_index_progress">正在建立全書索引 %1$d/%2$d</string>
+    <string name="chat_vm_index_cached">已索引 %1$d 章摘要</string>
+    <string name="chat_vm_index_complete">補全索引</string>
+    <string name="chat_vm_index_no_provider">未設定可用的 AI，無法建立索引</string>
 </resources>

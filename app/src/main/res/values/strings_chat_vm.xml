@@ -27,4 +27,13 @@
 
     <!-- 检索降级提示：智能选段失败，已改用本地关键词匹配 -->
     <string name="chat_vm_retrieval_degraded">智能选段未完成，本轮改用本地关键词匹配，回答可能不完整</string>
+
+    <!-- 全书索引（章节摘要缓存） -->
+    <string name="chat_vm_index_none_title">全书检索尚未就绪</string>
+    <string name="chat_vm_index_none_desc">建立索引后，全书提问会基于各章摘要回答。每章一次调用，可随时取消。</string>
+    <string name="chat_vm_index_start">建立索引</string>
+    <string name="chat_vm_index_progress">正在建立全书索引 %1$d/%2$d</string>
+    <string name="chat_vm_index_cached">已索引 %1$d 章摘要</string>
+    <string name="chat_vm_index_complete">补全索引</string>
+    <string name="chat_vm_index_no_provider">未配置可用的 AI，无法建立索引</string>
 </resources>

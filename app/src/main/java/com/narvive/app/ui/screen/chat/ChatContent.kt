@@ -34,6 +34,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -76,6 +77,8 @@ fun ChatContent(
     onRegenerate: () -> Unit,
     onDismissError: () -> Unit,
     onOpenAiSettings: () -> Unit,
+    onStartBookIndex: () -> Unit,
+    onCancelBookIndex: () -> Unit,
     modifier: Modifier = Modifier,
     /** 简化模式（书籍详情 AI 面板）：上下文固定全书、隐藏快捷指令栏 */
     simplified: Boolean = false,
@@ -186,6 +189,11 @@ fun ChatContent(
             }
         }
 
+        // ---------- 全书索引卡片（仅全书范围；索引是全书检索的前提） ----------
+        if (!simplified && uiState.contextScope == ChatContextScope.BOOK) {
+            BookIndexCard(uiState, onStartBookIndex, onCancelBookIndex)
+        }
+
         // ---------- 检索降级提示（横幅，与错误条同区，点击可收起） ----------
         if (uiState.retrievalDegraded) {
             Surface(
@@ -290,13 +298,94 @@ private fun sendScopeText(uiState: ChatUiState): String = when (uiState.contextS
         stringResource(R.string.chat_send_scope_book)
 }
 
-/** 快捷指令可用性：选区类指令需有选区，总结本章需有章上下文，角色对话始终可用 */
+/**
+ * 快捷指令可用性。
+ *
+ * 「总结本章」只在**本章范围**可用：它的语义就是读当前这一章，在全书范围下点它
+ * 既没有意义、又需要偷偷切范围，因此直接置灰。
+ */
 private fun quickCommandEnabled(cmd: QuickCommand, uiState: ChatUiState): Boolean = when (cmd) {
     QuickCommand.EXPLAIN, QuickCommand.TRANSLATE, QuickCommand.VOCAB,
-    QuickCommand.REWRITE, QuickCommand.CONTINUE -> uiState.selectionText != null
-    QuickCommand.SUMMARIZE -> uiState.chapterChars > 0
+    QuickCommand.REWRITE, QuickCommand.CONTINUE,
+    -> uiState.selectionText != null
+
+    QuickCommand.SUMMARIZE ->
+        uiState.chapterChars > 0 && uiState.contextScope == ChatContextScope.CHAPTER
+
     QuickCommand.ROLEPLAY -> true
-    QuickCommand.RELATIONSHIP_GRAPH, QuickCommand.TIMELINE -> uiState.contextScope != ChatContextScope.SELECTION
+
+    QuickCommand.RELATIONSHIP_GRAPH, QuickCommand.TIMELINE ->
+        uiState.contextScope != ChatContextScope.SELECTION
+}
+
+/**
+ * 全书索引卡片：让「全书检索」这件事对用户可见、可控。
+ *
+ * 索引 = 每章一份摘要（每章一次模型调用），因此必须由用户主动触发、
+ * 显示进度、并且随时可取消，而不是在后台悄悄烧调用。
+ */
+@Composable
+private fun BookIndexCard(
+    uiState: ChatUiState,
+    onStart: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    Surface(
+        shape = NarviveShape.Sm,
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+    ) {
+        Column(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+            if (uiState.indexing) {
+                Text(
+                    stringResource(R.string.chat_vm_index_progress, uiState.indexDone, uiState.indexTotal),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(4.dp))
+                LinearProgressIndicator(
+                    progress = {
+                        if (uiState.indexTotal <= 0) 0f
+                        else (uiState.indexDone.toFloat() / uiState.indexTotal).coerceIn(0f, 1f)
+                    },
+                    modifier = Modifier.fillMaxWidth().height(3.dp),
+                )
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(R.string.common_cancel),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(onClick = onCancel),
+                )
+            } else {
+                val ready = uiState.indexedChapters > 0
+                Text(
+                    if (ready) {
+                        stringResource(R.string.chat_vm_index_cached, uiState.indexedChapters)
+                    } else {
+                        stringResource(R.string.chat_vm_index_none_title)
+                    },
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                if (!ready) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        stringResource(R.string.chat_vm_index_none_desc),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    stringResource(if (ready) R.string.chat_vm_index_complete else R.string.chat_vm_index_start),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.clickable(enabled = uiState.isConfigured, onClick = onStart),
+                )
+            }
+        }
+    }
 }
 
 @Composable

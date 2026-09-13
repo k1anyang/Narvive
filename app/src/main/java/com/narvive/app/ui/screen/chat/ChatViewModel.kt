@@ -42,10 +42,13 @@ import com.narvive.app.service.ai.retrieval.RetrievalBudgetConfig
 import com.narvive.app.service.ai.retrieval.RetrievalCache
 import com.narvive.app.service.ai.retrieval.RetrievalMode
 import com.narvive.app.service.ai.retrieval.TokenEstimator
+import com.narvive.app.service.reader.ChapterKey
+import com.narvive.app.service.reader.ChapterTextExtractor
 import com.narvive.app.service.reader.TocLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -123,6 +126,12 @@ data class ChatUiState(
     val retrievalStage: RetrievalStage = RetrievalStage.NONE,
     /** 本轮检索已降级（智能选段失败，改用本地关键词匹配） */
     val retrievalDegraded: Boolean = false,
+    /** 正在建立全书索引（章节摘要） */
+    val indexing: Boolean = false,
+    val indexDone: Int = 0,
+    val indexTotal: Int = 0,
+    /** 本书已缓存摘要的章数（0 = 全书检索尚未就绪） */
+    val indexedChapters: Int = 0,
 )
 
 @HiltViewModel
@@ -135,6 +144,7 @@ class ChatViewModel @Inject constructor(
     private val annotationRepo: AnnotationRepository,
     private val aiChatRepo: AiChatRepository,
     private val tocLoader: TocLoader,
+    private val chapterTextExtractor: ChapterTextExtractor,
     private val localeProvider: PromptLocaleProvider,
     private val retrievalCache: RetrievalCache,
     @ApplicationContext private val appContext: Context,
@@ -163,6 +173,9 @@ class ChatViewModel @Inject constructor(
 
     /** 「总结本章」等快捷指令显式要求覆盖全章，由下一次组装上下文时消费一次 */
     private var coverageRequested = false
+
+    /** 全书索引任务句柄（用户可取消） */
+    private var indexJob: Job? = null
 
     /**
      * 当前生效的模型上下文规模（token），由 Provider 配置带入。
@@ -200,6 +213,7 @@ class ChatViewModel @Inject constructor(
 
         viewModelScope.launch {
             book = bookshelfRepo.getBook(bookId)
+            refreshSummaryStats()
             val providers = fallbackChain.getEnabledProviders()
             _uiState.update {
                 it.copy(
@@ -445,7 +459,10 @@ class ChatViewModel @Inject constructor(
     private suspend fun retrieveBookSummaries(bookId: String, question: String): BookRetrieval? {
         val cached = readingRepo.getCachedSummaries(bookId)
         if (cached.isEmpty()) return null
-        val summaries = cached.mapIndexed { i, s -> s.toBookSummary(i + 1) }
+        // 按章节位置排序：缓存是按写入顺序存的（用户可能先问了第 50 章再建索引），
+        // 而「开头几章 / 最近几章」的兜底依赖真实的书内顺序
+        val ordered = cached.sortedWith(compareBy({ ChapterKey.positionOf(it.chapterHref) }, { it.chapterHref }))
+        val summaries = ordered.mapIndexed { i, s -> s.toBookSummary(i + 1) }
         val ctx = currentCoroutineContext()
         return withStage(RetrievalStage.SELECTING) {
             retriever.retrieveBook(summaries, question, isActive = { ctx.isActive }) { overview, q, itemCount, maxPick ->
@@ -486,34 +503,102 @@ class ChatViewModel @Inject constructor(
     private suspend fun cacheChapterSummaryIfNeeded() {
         val b = book ?: return
         val text = chapterTextCache ?: return
-        val key = currentLocatorJson
-        if (key.isBlank() || key == "{}") return
+        val key = ChapterKey.of(b.format, currentLocatorJson) ?: return
         if (readingRepo.getCachedSummary(b.id, key) != null) return
 
         val index = indexOfChapter(text)
         val budget = retrievalBudget()
         if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return
 
-        val lang = lang()
+        val provider = fallbackChain.getEnabledProviders().firstOrNull { !it.isDegraded } ?: return
+        val title = _uiState.value.chapterTitle.orEmpty()
+        // 只尝试当前可用的第一个 Provider，失败也不重试——这是后台回填，不值得占用链路
+        if (summarizeChapter(b.id, key, title, text, provider) != null) refreshSummaryStats()
+    }
+
+    /** 生成并缓存一章摘要；成功返回摘要正文，失败或内容为空返回 null */
+    private suspend fun summarizeChapter(
+        bookId: String,
+        key: String,
+        title: String,
+        text: String,
+        provider: ProviderConfig,
+    ): String? {
+        val index = indexOfChapter(text)
+        val budget = retrievalBudget()
+        // 先本地压到预算内再发：一次调用读全章主干，而不是把整章原样丢过去
         val compressed = withContext(Dispatchers.Default) {
             retriever.coverage(text, index, budget, CoveragePurpose.SUMMARY)
         }
-        val title = _uiState.value.chapterTitle.orEmpty()
-        val prompt = AiText.chapterSummaryPrompt(lang, title, compressed.text)
-        for (provider in fallbackChain.getEnabledProviders()) {
-            if (provider.isDegraded) continue
-            aiService.simpleChat(provider, listOf(AiMessage("user", prompt)))
-                .onSuccess { raw ->
-                    fallbackChain.recordUtilitySuccess(provider.id)
-                    val body = raw.trim().take(SUMMARY_MAX_CHARS)
-                    if (body.isBlank()) return@onSuccess
-                    val stored = if (title.isBlank()) body else "$title\n$body"
-                    readingRepo.cacheSummary(b.id, key, stored, provider.id)
+        if (compressed.text.isBlank()) return null
+        val prompt = AiText.chapterSummaryPrompt(lang(), title, compressed.text)
+        val result = aiService.simpleChat(provider, listOf(AiMessage("user", prompt)))
+        if (result.isSuccess) fallbackChain.recordUtilitySuccess(provider.id)
+        else fallbackChain.recordUtilityFailure(provider.id)
+        val body = result.getOrNull()?.trim()?.take(SUMMARY_MAX_CHARS)?.takeIf { it.isNotBlank() } ?: return null
+        readingRepo.cacheSummary(bookId, key, if (title.isBlank()) body else "$title\n$body", provider.id)
+        return body
+    }
+
+    // ---------- 全书索引（用户主动触发，可取消） ----------
+
+    /**
+     * 建立／补全全书索引：逐章生成摘要并落缓存。
+     *
+     * 纪律：
+     * - **只在用户点击时运行**，绝不自动触发（每章一次调用，属于花钱的操作）；
+     * - **串行**逐章，避免并发把服务端限流打成 429；
+     * - 已缓存的章直接跳过，所以「补全」是增量的；
+     * - 全程可取消，进度写进 UI 状态。
+     */
+    fun startBookIndexing() {
+        val b = book ?: return
+        if (_uiState.value.indexing) return
+        indexJob = viewModelScope.launch {
+            val providers = fallbackChain.getEnabledProviders()
+            val provider = providers.firstOrNull { !it.isDegraded }
+            if (provider == null) {
+                _uiState.update { it.copy(error = tr(R.string.chat_vm_index_no_provider)) }
+                return@launch
+            }
+            val inventory = chapterTextExtractor.chapterInventory(b.format, b.filePath)
+            if (inventory.isEmpty()) return@launch
+
+            val cached = readingRepo.getCachedSummaries(b.id).mapTo(HashSet()) { it.chapterHref }
+            _uiState.update { it.copy(indexing = true, indexDone = 0, indexTotal = inventory.size) }
+
+            val ctx = currentCoroutineContext()
+            var done = 0
+            runCatching {
+                chapterTextExtractor.forEachChapter(b.format, b.filePath) { chapter ->
+                    if (!ctx.isActive) return@forEachChapter false
+                    done++
+                    _uiState.update { it.copy(indexDone = done) }
+                    if (chapter.key !in cached && chapter.text.isNotBlank()) {
+                        if (summarizeChapter(b.id, chapter.key, chapter.title, chapter.text, provider) != null) {
+                            cached.add(chapter.key)
+                        }
+                    }
+                    true
                 }
-                .onFailure { fallbackChain.recordUtilityFailure(provider.id) }
-            // 只尝试当前可用的第一个 Provider，失败也不重试——这是后台回填，不值得占用链路
-            return
+            }
+            _uiState.update { it.copy(indexing = false, indexDone = 0, indexTotal = 0) }
+            refreshSummaryStats()
         }
+    }
+
+    fun cancelBookIndexing() {
+        indexJob?.cancel()
+        indexJob = null
+        _uiState.update { it.copy(indexing = false, indexDone = 0, indexTotal = 0) }
+        viewModelScope.launch { refreshSummaryStats() }
+    }
+
+    /** 读取本书已缓存的摘要章数（决定「全书检索是否就绪」的展示） */
+    private suspend fun refreshSummaryStats() {
+        val id = book?.id ?: return
+        val count = readingRepo.cachedSummaryCount(id)
+        _uiState.update { it.copy(indexedChapters = count) }
     }
 
     private fun retrievalBudget(): RetrievalBudget = RetrievalBudgetConfig.of(activeContextTokens)

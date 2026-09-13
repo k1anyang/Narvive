@@ -1545,6 +1545,8 @@ fun ReaderScreen(
                     },
                     onSaveAsNote = chatViewModel::saveAsNote, onRegenerate = chatViewModel::regenerate, onDismissError = chatViewModel::clearError,
                     onOpenAiSettings = { coroutineScope.launch { sheetState.hide() }.invokeOnCompletion { aiSheetOpen = false; onOpenAiSettings() } },
+                    onStartBookIndex = chatViewModel::startBookIndexing,
+                    onCancelBookIndex = chatViewModel::cancelBookIndexing,
                     modifier = Modifier.fillMaxWidth().weight(1f))
             }
         }
