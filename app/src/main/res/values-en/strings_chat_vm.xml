@@ -20,4 +20,11 @@
     <!-- Graph failures -->
     <string name="chat_vm_graph_failed">Generation failed. Check your AI setup or try again later.</string>
     <string name="chat_vm_graph_parse_failed">Could not parse the AI output. Please try again.</string>
+
+    <!-- Long-chapter retrieval: progress (only shown when the chapter exceeds one send) -->
+    <string name="chat_vm_retrieving">Finding the relevant passages…</string>
+    <string name="chat_vm_condensing">Condensing this chapter…</string>
+
+    <!-- Retrieval degraded: automatic chunk selection failed, local keyword matching is used -->
+    <string name="chat_vm_retrieval_degraded">Automatic passage selection did not finish; local keyword matching was used, so the answer may be incomplete.</string>
 </resources>

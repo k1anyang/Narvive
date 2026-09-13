@@ -186,6 +186,22 @@ fun ChatContent(
             }
         }
 
+        // ---------- 检索降级提示（横幅，与错误条同区，点击可收起） ----------
+        if (uiState.retrievalDegraded) {
+            Surface(
+                shape = NarviveShape.Sm,
+                color = MaterialTheme.colorScheme.tertiaryContainer,
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp).clickable(onClick = onDismissError),
+            ) {
+                Text(
+                    stringResource(R.string.chat_vm_retrieval_degraded),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                )
+            }
+        }
+
         // ---------- 消息流 ----------
         LazyColumn(
             state = listState,
@@ -210,7 +226,18 @@ fun ChatContent(
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(start = 8.dp)) {
                         CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                         Spacer(Modifier.width(6.dp))
-                        Text(stringResource(R.string.chat_thinking), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        // 长章节会先做本地检索/压缩再发请求，此前只有「正在思考」会让用户以为卡住
+                        Text(
+                            stringResource(
+                                when (uiState.retrievalStage) {
+                                    RetrievalStage.SELECTING -> R.string.chat_vm_retrieving
+                                    RetrievalStage.CONDENSING -> R.string.chat_vm_condensing
+                                    RetrievalStage.NONE -> R.string.chat_thinking
+                                },
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }

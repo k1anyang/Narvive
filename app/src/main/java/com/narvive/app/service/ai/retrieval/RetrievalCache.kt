@@ -17,13 +17,18 @@ class RetrievalCache @Inject constructor() {
     private val lock = Any()
     private val entries = LinkedHashMap<Long, ChapterIndex>(4, 0.75f, true)
 
-    /** 命中/构建章节索引。构建是 CPU 密集的，调用方应确保在后台线程执行。 */
+    /**
+     * 命中/构建章节索引。构建是 CPU 密集的，调用方应确保在后台线程执行。
+     *
+     * 索引构建自带本地时间预算：超时后放弃人名候选这类「锦上添花」的工作，
+     * 保证低配机在超长章节上也不会长时间占着 CPU。
+     */
     fun indexOf(text: String, config: ChunkConfig = ChunkConfig()): ChapterIndex {
         val key = hashOf(text, config)
         synchronized(lock) {
             entries[key]?.let { return it }
         }
-        val built = TextChunker.index(text, config)
+        val built = TextChunker.index(text, config, LocalBudget.ofMillis())
         synchronized(lock) {
             entries[key] = built
             while (entries.size > MAX_ENTRIES) {

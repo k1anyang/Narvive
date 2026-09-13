@@ -162,7 +162,9 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
         selector: ChunkSelector,
     ): QaRetrieval {
         val overview = overviewLines(text, index, labels)
-        val lexical = LexicalScorer.score(text, index.chunks, question, isActive)
+        // 词法扫描也有本地预算：超时就放弃词法信号（退化为纯模型 rerank，即旧行为）
+        val local = LocalBudget.ofMillis()
+        val lexical = LexicalScorer.score(text, index.chunks, question) { isActive() && !local.expired() }
         val maxChunks = chunkLimit(index, budget.qaChunkTokens)
 
         var mode: RetrievalMode
@@ -231,7 +233,14 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
         budget: RetrievalBudget,
         purpose: CoveragePurpose,
         isActive: () -> Boolean = { true },
-    ): CoverageResult = CoverageCompressor.compress(text, index, budget.coverageTokens, purpose, isActive)
+    ): CoverageResult = CoverageCompressor.compress(
+        text = text,
+        index = index,
+        budgetTokens = budget.coverageTokens,
+        purpose = purpose,
+        isActive = isActive,
+        budget = LocalBudget.ofMillis(),
+    )
 
     // ── 内部 ──
 

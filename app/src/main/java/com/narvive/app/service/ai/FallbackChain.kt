@@ -56,6 +56,8 @@ class FallbackChain @Inject constructor(
                 isEnabled = s.isEnabled,
                 priority = s.priority,
                 modelName = s.modelName.ifBlank { preset.modelName },
+                // 0 = 旧数据里没有这个字段，保留预设自身的上下文规模
+                contextWindow = if (s.contextWindow > 0) s.contextWindow else preset.contextWindow,
             )
             else preset
         }

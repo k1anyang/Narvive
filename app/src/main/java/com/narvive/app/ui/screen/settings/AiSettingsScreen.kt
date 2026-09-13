@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Add
@@ -52,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -197,6 +199,10 @@ private fun ProviderFormSheet(
     var key by remember(initial.id) { mutableStateOf("") }
     var protocol by remember(initial.id) { mutableStateOf(initial.protocol) }
     var protocolMenu by remember(initial.id) { mutableStateOf(false) }
+    // 上下文规模以「千 token」为单位输入；留空 = 未设置（0），由预设/默认值决定
+    var contextK by remember(initial.id) {
+        mutableStateOf(initial.contextWindow.takeIf { it > 0 }?.let { (it / 1000).toString() } ?: "")
+    }
 
     val urlValid = runCatching {
         val u = java.net.URL(url)
@@ -266,6 +272,23 @@ private fun ProviderFormSheet(
                 placeholder = { Text(stringResource(R.string.ai_settings_model_placeholder)) },
             )
             Spacer(Modifier.height(8.dp))
+            OutlinedTextField(
+                contextK,
+                { contextK = it.filter { c -> c.isDigit() }.take(7) },
+                label = { Text(stringResource(R.string.ai_settings_context_window)) },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                supportingText = {
+                    Text(
+                        stringResource(
+                            R.string.ai_settings_context_window_hint,
+                            if (initial.contextWindow > 0) initial.contextWindow / 1000 else ProviderConfig.DEFAULT_CONTEXT_WINDOW / 1000,
+                        ),
+                    )
+                },
+            )
+            Spacer(Modifier.height(8.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
@@ -275,6 +298,7 @@ private fun ProviderFormSheet(
                             baseUrl = url.trim(),
                             modelName = model.trim(),
                             protocol = protocol,
+                            contextWindow = contextK.trim().toIntOrNull()?.times(1000) ?: 0,
                         )
                         onFetchModels(config, key.ifBlank { null })
                     },
@@ -338,6 +362,7 @@ private fun ProviderFormSheet(
                         baseUrl = url.trim(),
                         modelName = model.trim(),
                         protocol = protocol,
+                        contextWindow = contextK.trim().toIntOrNull()?.times(1000) ?: 0,
                     )
                     onSave(config, key.trim().ifBlank { null })
                 },

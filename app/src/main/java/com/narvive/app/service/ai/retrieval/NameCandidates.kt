@@ -40,12 +40,19 @@ object NameCandidates {
     )
 
     private const val MAX_MATCHES = 4_000
+    private const val BUDGET_CHECK_INTERVAL = 256
 
     /**
      * @param limit 最多返回多少个候选
      * @param minCount 最少出现次数；低于此值视为噪声
+     * @param budget 本地时间预算；超时则提前收工（人名只影响线索标签与压缩取舍，不影响正确性）
      */
-    fun top(text: CharSequence, limit: Int = 12, minCount: Int = 3): List<String> {
+    fun top(
+        text: CharSequence,
+        limit: Int = 12,
+        minCount: Int = 3,
+        budget: LocalBudget = LocalBudget.UNLIMITED,
+    ): List<String> {
         if (text.isEmpty()) return emptyList()
         val counts = HashMap<String, Int>(64)
         val display = HashMap<String, String>(64)
@@ -53,12 +60,14 @@ object NameCandidates {
         var seen = 0
         for (m in CJK_SPEAKER.findAll(text)) {
             if (seen++ >= MAX_MATCHES) break
+            if (seen % BUDGET_CHECK_INTERVAL == 0 && budget.expired()) break
             val name = m.groupValues.getOrNull(1) ?: continue
             if (!plausibleCjk(name)) continue
             counts[name] = (counts[name] ?: 0) + 1
         }
         for (m in LATIN_SPEAKER.findAll(text)) {
             if (seen++ >= MAX_MATCHES) break
+            if (seen % BUDGET_CHECK_INTERVAL == 0 && budget.expired()) break
             val raw = m.groupValues.getOrNull(1) ?: continue
             val key = raw.lowercase()
             if (key.length < 3 || key in LATIN_STOPWORDS) continue

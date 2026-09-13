@@ -21,6 +21,7 @@ import com.narvive.app.service.ai.PromptLocaleProvider
 import com.narvive.app.service.ai.PromptRenderer
 import com.narvive.app.service.ai.PromptService
 import com.narvive.app.service.ai.PromptTemplates
+import com.narvive.app.service.ai.ProviderConfig
 import com.narvive.app.service.ai.RelationshipGraph
 import com.narvive.app.service.ai.TimelineStage
 import com.narvive.app.service.ai.parseRelationshipGraph
@@ -54,6 +55,22 @@ import javax.inject.Inject
 
 /** AI 面板上下文范围（原型：选区 / 本章 / 全书 三 chip 可切换） */
 enum class ChatContextScope { SELECTION, CHAPTER, BOOK }
+
+/**
+ * 长章节检索阶段（用于进度提示）。
+ *
+ * 检索发生在「用户点发送」到「模型开始吐字」之间，占 1~3 秒且此前没有任何反馈；
+ * 这里把阶段暴露给界面，让等待可感知。
+ */
+enum class RetrievalStage {
+    NONE,
+
+    /** 从概览中筛选相关段落（含一次模型调用） */
+    SELECTING,
+
+    /** 覆盖式压缩整章（总结 / 关系图 / 时间线） */
+    CONDENSING,
+}
 
 /** 快捷指令（原型屏15 chips；rewrite/continue/roleplay 由 UI 层接管跳转） */
 enum class QuickCommand(@StringRes val labelRes: Int) {
@@ -98,6 +115,10 @@ data class ChatUiState(
     /** 图表弹窗状态（null=未打开） */
     val graphSheet: GraphSheet? = null,
     val graphLoading: Boolean = false,
+    /** 长章节检索阶段（NONE=不在检索） */
+    val retrievalStage: RetrievalStage = RetrievalStage.NONE,
+    /** 本轮检索已降级（智能选段失败，改用本地关键词匹配） */
+    val retrievalDegraded: Boolean = false,
 )
 
 @HiltViewModel
@@ -137,6 +158,19 @@ class ChatViewModel @Inject constructor(
 
     /** 「总结本章」等快捷指令显式要求覆盖全章，由下一次组装上下文时消费一次 */
     private var coverageRequested = false
+
+    /**
+     * 当前生效的模型上下文规模（token），由 Provider 配置带入。
+     *
+     * 在加载 Provider 后立即写入，避免每个提问都重复读一次 KeyStore；
+     * 用户把模型换成小上下文档时，长章节会自动转为检索模式而不是硬塞整章。
+     */
+    private var activeContextTokens: Int = ProviderConfig.DEFAULT_CONTEXT_WINDOW
+
+    private fun applyProviderBudget(providers: List<ProviderConfig>) {
+        activeContextTokens = providers.firstOrNull()?.effectiveContextWindow
+            ?: ProviderConfig.DEFAULT_CONTEXT_WINDOW
+    }
 
     /**
      * @param selectedText 阅读器选区文本（问 AI 入口）
@@ -316,18 +350,37 @@ class ChatViewModel @Inject constructor(
         val question = _uiState.value.messages.lastOrNull { it.role == "user" }?.content.orEmpty()
         val wantCoverage = coverageRequested || AiText.INTENT_COVERAGE.containsMatchIn(question)
         coverageRequested = false
-        if (wantCoverage) return buildCoverageContext(text, lang, index, budget, CoveragePurpose.SUMMARY)
+        if (wantCoverage) {
+            return withStage(RetrievalStage.CONDENSING) {
+                buildCoverageContext(text, lang, index, budget, CoveragePurpose.SUMMARY)
+            }
+        }
 
         val ctx = currentCoroutineContext()
-        val result = retriever.retrieveQa(
-            text = text,
-            index = index,
-            question = question,
-            budget = budget,
-            labels = cueLabels(lang),
-            isActive = { ctx.isActive },
-        ) { overview, q, itemCount, maxPick -> aiSelectChunks(overview, q, itemCount, maxPick) }
+        val result = withStage(RetrievalStage.SELECTING) {
+            retriever.retrieveQa(
+                text = text,
+                index = index,
+                question = question,
+                budget = budget,
+                labels = cueLabels(lang),
+                isActive = { ctx.isActive },
+            ) { overview, q, itemCount, maxPick -> aiSelectChunks(overview, q, itemCount, maxPick) }
+        }
+        if (result.mode == RetrievalMode.LEXICAL_FALLBACK) {
+            _uiState.update { it.copy(retrievalDegraded = true) }
+        }
         return assembleQaContext(lang, text, index, result)
+    }
+
+    /** 在本地检索/压缩期间暴露进度阶段，结束（含异常）后必定复位 */
+    private suspend fun <T> withStage(stage: RetrievalStage, block: suspend () -> T): T {
+        _uiState.update { it.copy(retrievalStage = stage) }
+        try {
+            return block()
+        } finally {
+            _uiState.update { it.copy(retrievalStage = RetrievalStage.NONE) }
+        }
     }
 
     /** 组装问答上下文：概览 + 选中块全文，并按检索模式给出**如实**的说明 */
@@ -372,7 +425,7 @@ class ChatViewModel @Inject constructor(
     private suspend fun indexOfChapter(text: String): ChapterIndex =
         withContext(Dispatchers.Default) { retrievalCache.indexOf(text) }
 
-    private fun retrievalBudget(): RetrievalBudget = RetrievalBudgetConfig.of()
+    private fun retrievalBudget(): RetrievalBudget = RetrievalBudgetConfig.of(activeContextTokens)
 
     private fun cueLabels(lang: AppLang): CueLabels =
         CueLabels(AiText.cueNamesLabel(lang), AiText.cueTimeLabel(lang))
@@ -466,13 +519,14 @@ class ChatViewModel @Inject constructor(
     }
 
     private fun runCompletion() {
-        _uiState.update { it.copy(isStreaming = true, error = null) }
+        _uiState.update { it.copy(isStreaming = true, error = null, retrievalDegraded = false) }
         viewModelScope.launch {
             val providers = fallbackChain.getEnabledProviders()
             if (providers.isEmpty()) {
                 _uiState.update { it.copy(isConfigured = false, isStreaming = false) }
                 return@launch
             }
+            applyProviderBudget(providers)
             val systemPrompt = buildSystemPrompt()
 
             var success = false
@@ -552,7 +606,10 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun clearError() { _uiState.update { it.copy(error = null) } }
+    fun clearError() {
+        // 同时收起「检索降级」提示：两者都是横幅，用户点一下就都该消失
+        _uiState.update { it.copy(error = null, retrievalDegraded = false) }
+    }
 
     // ---------- 人物关系图 / 时间轴演进图（阅读器内 AI 面板） ----------
 
@@ -590,6 +647,7 @@ class ChatViewModel @Inject constructor(
     private suspend fun graphCompletion(templateId: String, purpose: CoveragePurpose): String? {
         val providers = fallbackChain.getEnabledProviders()
         if (providers.isEmpty()) return null
+        applyProviderBudget(providers)
         val lang = lang()
         val b = book
         val isBookScope = _uiState.value.contextScope == ChatContextScope.BOOK

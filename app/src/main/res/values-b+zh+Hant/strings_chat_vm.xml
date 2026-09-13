@@ -20,4 +20,11 @@
     <!-- 圖表失敗提示 -->
     <string name="chat_vm_graph_failed">生成失敗，請檢查 AI 設定或稍後重試</string>
     <string name="chat_vm_graph_parse_failed">AI 輸出無法解析，請重試</string>
+
+    <!-- 長章節檢索：進度提示（正文超過單次可傳送上限時才會出現） -->
+    <string name="chat_vm_retrieving">正在本章中篩選相關段落…</string>
+    <string name="chat_vm_condensing">正在整理本章內容…</string>
+
+    <!-- 檢索降級提示：智慧選段失敗，已改用本機關鍵字比對 -->
+    <string name="chat_vm_retrieval_degraded">智慧選段未完成，本輪改用本機關鍵字比對，回答可能不完整</string>
 </resources>

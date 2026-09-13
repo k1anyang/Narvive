@@ -96,12 +96,17 @@ data class ChunkConfig(
  */
 object TextChunker {
 
-    fun index(text: CharSequence, config: ChunkConfig = ChunkConfig()): ChapterIndex {
+    fun index(
+        text: CharSequence,
+        config: ChunkConfig = ChunkConfig(),
+        budget: LocalBudget = LocalBudget.UNLIMITED,
+    ): ChapterIndex {
         val cjkRatio = TokenEstimator.cjkRatio(text)
         val perChar = TokenEstimator.tokensPerChar(cjkRatio)
         val sentences = SentenceSplitter.ranges(text)
         val cores = buildCores(sentences, config, perChar)
-        val names = NameCandidates.top(text)
+        // 人名候选只影响概览线索与压缩取舍，超时就放弃，不拖慢整体
+        val names = if (budget.expired()) emptyList() else NameCandidates.top(text, budget = budget)
 
         val chunks = cores.map { (s, e) ->
             val (hitNames, hasTime) = cuesOf(text, s, e, names)

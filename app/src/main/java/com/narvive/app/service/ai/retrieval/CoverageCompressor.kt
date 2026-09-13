@@ -11,6 +11,8 @@ class CoverageResult(
     val originalChars: Int,
     /** true = 已压到预算上限（说明仍有内容被丢弃） */
     val budgetHit: Boolean,
+    /** true = 本地时间预算用尽，走了「每块首句」的轻量模式（覆盖性仍在，句子挑选变粗） */
+    val lightweight: Boolean = false,
 ) {
     val keptRatio: Double
         get() = if (originalChars == 0) 1.0 else keptChars.toDouble() / originalChars
@@ -47,6 +49,7 @@ object CoverageCompressor {
         budgetTokens: Int,
         purpose: CoveragePurpose,
         isActive: () -> Boolean = { true },
+        budget: LocalBudget = LocalBudget.UNLIMITED,
     ): CoverageResult {
         val ranges = index.sentenceRanges
         val sentenceCount = ranges.size / 2
@@ -59,18 +62,25 @@ object CoverageCompressor {
             return CoverageResult(text.toString(), sentenceCount, sentenceCount, text.length, text.length, false)
         }
 
-        // ── 1. 逐句打分 ──
+        // ── 1. 逐句打分（本地时间预算用尽则转入轻量模式） ──
         val scores = DoubleArray(sentenceCount)
         val tokens = IntArray(sentenceCount)
         val isChunkFirst = BooleanArray(sentenceCount)
         markChunkFirsts(ranges, index, isChunkFirst)
 
         val names = index.nameCandidates
+        var lightweight = false
         var i = 0
         while (i < sentenceCount) {
-            if (i % 512 == 0 && !isActive()) {
-                // 取消/超预算：直接返回原文，由调用方决定降级策略
-                return CoverageResult(text.toString(), sentenceCount, sentenceCount, text.length, text.length, true)
+            if (i % 512 == 0) {
+                if (!isActive()) {
+                    // 协程被取消（用户已离开）：返回原文，结果不会被使用
+                    return CoverageResult(text.toString(), sentenceCount, sentenceCount, text.length, text.length, true)
+                }
+                if (budget.expired()) {
+                    lightweight = true
+                    break
+                }
             }
             val s = ranges[i * 2]
             val e = ranges[i * 2 + 1]
@@ -123,9 +133,36 @@ object CoverageCompressor {
         // ── 3. 选取：先保每块一句，再按分数填满预算 ──
         val chosen = BooleanArray(sentenceCount)
         var used = 0
+        if (lightweight) {
+            // 轻量模式：跳过用途过滤与逐句打分，只保留每块的**首句**。
+            // 覆盖性仍然成立（每块都有内容进上下文），代价是句子挑选变粗；
+            // 这条路径只在低配机处理超长章节、本地预算用尽时才会走到。
+            for (k in 0 until sentenceCount) {
+                if (!isChunkFirst[k]) continue
+                val t = sentenceTokens(ranges, k, perChar)
+                if (used > 0 && used + t > budgetTokens) continue
+                chosen[k] = true
+                used += t
+            }
+            return finish(text, ranges, chosen, sentenceCount, used, budgetHit = used >= budgetTokens, lightweight = true)
+        }
+
+        // 块与句都按位置有序，用移动游标避免「每块从头扫一遍句界」
+        var cursor = 0
         for (c in index.chunks.indices) {
             if (used >= budgetTokens) break
-            val best = bestEligibleIn(index.chunks[c], ranges, scores, eligible, chosen)
+            val chunk = index.chunks[c]
+            while (cursor < sentenceCount && ranges[cursor * 2] < chunk.start) cursor++
+            var best = -1
+            var bestScore = -1.0
+            var k = cursor
+            while (k < sentenceCount && ranges[k * 2] < chunk.end) {
+                if (eligible[k] && !chosen[k] && scores[k] > bestScore) {
+                    bestScore = scores[k]
+                    best = k
+                }
+                k++
+            }
             if (best >= 0) {
                 chosen[best] = true
                 used += tokens[best]
@@ -152,6 +189,24 @@ object CoverageCompressor {
         }
 
         // ── 5. 按原文顺序拼接，省略处插入标记 ──
+        return finish(text, ranges, chosen, sentenceCount, used, budgetHit = used >= budgetTokens, lightweight = false)
+    }
+
+    private fun sentenceTokens(ranges: IntArray, k: Int, perChar: Double): Int {
+        val len = ranges[k * 2 + 1] - ranges[k * 2]
+        return maxOf(1, (len * perChar).toInt())
+    }
+
+    /** 按原文顺序拼接选中的句子，省略处插入标记 */
+    private fun finish(
+        text: CharSequence,
+        ranges: IntArray,
+        chosen: BooleanArray,
+        sentenceCount: Int,
+        used: Int,
+        budgetHit: Boolean,
+        lightweight: Boolean,
+    ): CoverageResult {
         val sb = StringBuilder(minOf(text.length, used * 2 + 64))
         var kept = 0
         var lastEnd = -1
@@ -171,43 +226,24 @@ object CoverageCompressor {
             totalSentences = sentenceCount,
             keptChars = out.length,
             originalChars = text.length,
-            budgetHit = used >= budgetTokens,
+            budgetHit = budgetHit,
+            lightweight = lightweight,
         )
     }
 
+    /**
+     * 标记每块的首句。
+     *
+     * 句界与块都是有序的，因此这里是一次线性归并，而不是对每块都从头扫一遍句界——
+     * 后者在 20 万字章节（约 4000 句 × 100 块）上会变成 40 万次比较。
+     */
     private fun markChunkFirsts(ranges: IntArray, index: ChapterIndex, out: BooleanArray) {
         val n = ranges.size / 2
+        var k = 0
         for (c in index.chunks) {
-            for (k in 0 until n) {
-                if (ranges[k * 2] >= c.start) {
-                    out[k] = true
-                    break
-                }
-            }
+            while (k < n && ranges[k * 2] < c.start) k++
+            if (k < n) out[k] = true
         }
-    }
-
-    private fun bestEligibleIn(
-        chunk: TextChunk,
-        ranges: IntArray,
-        scores: DoubleArray,
-        eligible: BooleanArray,
-        chosen: BooleanArray,
-    ): Int {
-        val n = ranges.size / 2
-        var best = -1
-        var bestScore = -1.0
-        for (k in 0 until n) {
-            val s = ranges[k * 2]
-            if (s < chunk.start) continue
-            if (s >= chunk.end) break
-            if (!eligible[k] || chosen[k]) continue
-            if (scores[k] > bestScore) {
-                bestScore = scores[k]
-                best = k
-            }
-        }
-        return best
     }
 
     private fun hasDialogue(view: CharSequence): Boolean {

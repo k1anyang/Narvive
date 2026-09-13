@@ -94,6 +94,41 @@ class RetrievalFlowTest {
     // ── 覆盖式压缩 ──
 
     @Test
+    fun `本地预算用尽时转入轻量模式且仍保证每块有内容`() {
+        // 低配机保护：打分为主的本地工作超时后退化为「每块保留首句」，
+        // 覆盖性不能丢——丢掉覆盖就等于把长章节打回「只读了几块」的老问题。
+        val text = buildChapter()
+        val index = TextChunker.index(text)
+        val out = CoverageCompressor.compress(
+            text = text,
+            index = index,
+            budgetTokens = 2_000,
+            purpose = CoveragePurpose.SUMMARY,
+            isActive = { true },
+            budget = LocalBudget.EXPIRED,
+        )
+
+        assertTrue("应标记为轻量模式", out.lightweight)
+        assertTrue("轻量模式仍必须产出内容", out.keptChars > 0)
+        assertTrue("轻量模式不应把全文原样返回", out.text.length < text.length)
+        assertTrue(
+            "覆盖保证不能被预算降级破坏：保留句数应不少于块数，实际 ${out.keptSentences} 句 / ${index.chunks.size} 块",
+            out.keptSentences >= index.chunks.size,
+        )
+    }
+
+    @Test
+    fun `索引构建超时只影响线索不影响分块本身`() {
+        val text = buildChapter()
+        val normal = TextChunker.index(text)
+        val starved = TextChunker.index(text, budget = LocalBudget.EXPIRED)
+
+        assertEquals("块划分不应受本地预算影响", normal.chunks.size, starved.chunks.size)
+        assertTrue("放弃人名候选后线索为空", starved.nameCandidates.isEmpty())
+        assertTrue("其余结构仍可用", starved.chunks.all { it.digest.isNotBlank() })
+    }
+
+    @Test
     fun `压缩到预算内且每块都保留了内容`() {
         val text = buildChapter()
         val index = TextChunker.index(text)
@@ -111,8 +146,7 @@ class RetrievalFlowTest {
     }
 
     @Test
-    fun `压缩保持原文顺序`() {
-        val text = buildChapter()
+    fun `压缩保持原文顺序`() {        val text = buildChapter()
         val index = TextChunker.index(text)
         val out = CoverageCompressor.compress(text, index, 2_000, CoveragePurpose.SUMMARY)
 

@@ -20,4 +20,11 @@
     <!-- 图表失败提示 -->
     <string name="chat_vm_graph_failed">生成失败，请检查 AI 配置或稍后重试</string>
     <string name="chat_vm_graph_parse_failed">AI 输出无法解析，请重试</string>
+
+    <!-- 长章节检索：进度提示（正文字数超过单次可发送上限时才会出现） -->
+    <string name="chat_vm_retrieving">正在本章中筛选相关段落…</string>
+    <string name="chat_vm_condensing">正在整理本章内容…</string>
+
+    <!-- 检索降级提示：智能选段失败，已改用本地关键词匹配 -->
+    <string name="chat_vm_retrieval_degraded">智能选段未完成，本轮改用本地关键词匹配，回答可能不完整</string>
 </resources>
