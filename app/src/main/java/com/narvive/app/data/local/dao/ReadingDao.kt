@@ -32,6 +32,13 @@ interface ReadingDao {
     @Query("SELECT * FROM chapter_summary_cache WHERE bookId = :bookId AND chapterHref = :chapterHref LIMIT 1")
     suspend fun getSummary(bookId: String, chapterHref: String): ChapterSummaryCacheEntity?
 
+    /** 全书检索用：取本书已缓存的全部章节摘要（按写入顺序，即阅读/提问顺序） */
+    @Query("SELECT * FROM chapter_summary_cache WHERE bookId = :bookId ORDER BY createdAt ASC")
+    suspend fun getSummaries(bookId: String): List<ChapterSummaryCacheEntity>
+
+    @Query("SELECT COUNT(*) FROM chapter_summary_cache WHERE bookId = :bookId")
+    suspend fun countSummaries(bookId: String): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertSummary(summary: ChapterSummaryCacheEntity)
 }

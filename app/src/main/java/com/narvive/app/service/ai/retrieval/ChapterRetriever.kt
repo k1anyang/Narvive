@@ -40,6 +40,12 @@ enum class RetrievalMode {
     /** 模型判定「概览即可回答」或本地无任何信号 */
     OVERVIEW_ONLY,
 
+    /**
+     * 全书检索专用：模型认为无需细看，但全书范围并不注入概览，
+     * 于是按「开头几章 + 最近读的几章」补上，保证模型手里至少有真实内容。
+     */
+    RECENT_FALLBACK,
+
     /** 覆盖式压缩（总结 / 关系图 / 时间线） */
     COVERAGE,
 }
@@ -73,6 +79,22 @@ class QaRetrieval(
     /** 与 [pickedLabels] 一一对应的正文片段 */
     val pickedTexts: List<String>,
     val stats: RetrievalStats,
+)
+
+/**
+ * 全书检索的候选：一章的摘要。
+ *
+ * @param label 章节标题（用于概览行，便于模型与用户对上号）
+ * @param text 摘要正文
+ */
+class BookSummary(val label: String, val text: String)
+
+class BookRetrieval(
+    val mode: RetrievalMode,
+    val overviewLines: List<String>,
+    /** 被选中的摘要下标（0 基，与传入顺序一致） */
+    val pickedIndices: List<Int>,
+    val pickedSummaries: List<BookSummary>,
 )
 
 /**
@@ -170,7 +192,7 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
         var mode: RetrievalMode
         var chunkIndices: List<Int>
 
-        val fastPick = fastPathPick(index, lexical, maxChunks)
+        val fastPick = strongFastPath(lexical, maxChunks)
         if (fastPick != null) {
             mode = RetrievalMode.FAST_PATH
             chunkIndices = fastPick
@@ -226,6 +248,95 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
         )
     }
 
+    /**
+     * 全书检索：在**章节摘要**上做同一套两阶段检索。
+     *
+     * 摘要不是预生成的，而是用户在「本章」范围提问过的章节增量积累下来的
+     * （见 ChatViewModel 的缓存回写），因此这里可能只有零星几章；
+     * 调用方在 [summaries] 为空时应保持原有的「本地无正文」行为。
+     */
+    suspend fun retrieveBook(
+        summaries: List<BookSummary>,
+        question: String,
+        maxPick: Int = DEFAULT_BOOK_PICKS,
+        isActive: () -> Boolean = { true },
+        selector: ChunkSelector,
+    ): BookRetrieval? {
+        if (summaries.isEmpty()) return null
+
+        // 把摘要拼成一段文本，每章一个「块」，直接复用词法打分
+        val text = summaries.joinToString("\n") { it.text }
+        val chunks = ArrayList<TextChunk>(summaries.size)
+        var cursor = 0
+        summaries.forEach { s ->
+            val start = cursor
+            cursor += s.text.length + 1
+            chunks.add(TextChunk(start, start + s.text.length, s.text.take(OVERVIEW_CHARS), emptyList(), false))
+        }
+        val overview = summaries.mapIndexed { i, s ->
+            "[${i + 1}] ${s.label}：" + s.text.replace(WHITESPACE_RUN, " ").take(OVERVIEW_CHARS)
+        }
+
+        val local = LocalBudget.ofMillis()
+        val lexical = LexicalScorer.score(text, chunks, question) { isActive() && !local.expired() }
+
+        val fast = strongFastPath(lexical, maxPick)
+        val picked: List<Int>
+        val mode: RetrievalMode
+        if (fast != null) {
+            mode = RetrievalMode.FAST_PATH
+            picked = fast
+        } else {
+            when (val pick = selector(overview.joinToString("\n"), question, summaries.size, maxPick)) {
+                is ChunkPick.OverviewEnough -> {
+                    mode = RetrievalMode.OVERVIEW_ONLY
+                    picked = emptyList()
+                }
+                is ChunkPick.Picked -> {
+                    mode = RetrievalMode.MODEL_PICK
+                    // 与章节内检索一样对编号做范围过滤：注入的 selector 可能来自任何实现，
+                    // 越界索引绝不能留在结果里（否则调用方拿到的 pickedIndices 会指向不存在的章）
+                    picked = pick.indices.filter { it in summaries.indices }.distinct().sorted()
+                }
+                is ChunkPick.Failed -> {
+                    val fallback = lexical.topIndices(maxPick)
+                    mode = if (fallback.isEmpty()) RetrievalMode.OVERVIEW_ONLY else RetrievalMode.LEXICAL_FALLBACK
+                    picked = fallback
+                }
+            }
+        }
+        // 补章：模型漏选而词法高度可疑时补一章（与章节内检索同一策略）
+        var finalPicked = if (mode == RetrievalMode.MODEL_PICK && lexical.hasSignal) {
+            val best = lexical.best
+            if (best >= 0 && picked.none { it == best }) (picked + best).distinct().sorted() else picked
+        } else {
+            picked
+        }
+        var finalMode = mode
+        if (finalPicked.isEmpty()) {
+            // 全书范围不注入概览，所以「概览已足够」不能真的什么都不给：
+            // 取开头几章（回答「这本书讲什么」）与最近读的几章（回答「主角后来怎样」）。
+            finalPicked = bookends(summaries.size, maxPick)
+            finalMode = RetrievalMode.RECENT_FALLBACK
+        }
+
+        return BookRetrieval(
+            mode = finalMode,
+            overviewLines = overview,
+            pickedIndices = finalPicked,
+            pickedSummaries = finalPicked.mapNotNull { summaries.getOrNull(it) },
+        )
+    }
+
+    /** 取开头与结尾各一半，覆盖「书讲什么」与「读到哪了」两类提问 */
+    private fun bookends(total: Int, maxPick: Int): List<Int> {
+        if (total <= 0) return emptyList()
+        if (total <= maxPick) return (0 until total).toList()
+        val head = (maxPick + 1) / 2
+        val tail = maxPick - head
+        return ((0 until head) + (total - tail until total)).distinct().sorted()
+    }
+
     /** 覆盖式压缩（总结 / 关系图 / 时间线）：一次调用看全章主干 */
     fun coverage(
         text: String,
@@ -255,7 +366,7 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
      * 2. 最好块分数 ≥ 阈值，且明显高于第二块；
      * 3. 稀有词足够长（拉丁词 ≥ 4 字母），排除「he」「of」这类偶然命中。
      */
-    private fun fastPathPick(index: ChapterIndex, lexical: LexicalScorer.Result, maxChunks: Int): List<Int>? {
+    private fun strongFastPath(lexical: LexicalScorer.Result, maxChunks: Int): List<Int>? {
         if (!lexical.hasSignal) return null
         val best = lexical.best
         val rare = lexical.rareByChunk[best] ?: return null
@@ -342,5 +453,13 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
         const val MAX_PICKED_CHUNKS = 6
         const val FAST_PATH_MIN_SCORE = 1.2
         const val FAST_PATH_MARGIN = 1.6
+
+        /** 全书检索默认注入几章摘要（摘要都很短，可以比块多给几章） */
+        const val DEFAULT_BOOK_PICKS = 4
+
+        /** 概览行里每章摘要的展示长度 */
+        const val OVERVIEW_CHARS = 90
+
+        val WHITESPACE_RUN = Regex("[\\s\\u3000]+")
     }
 }

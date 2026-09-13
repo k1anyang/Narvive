@@ -56,7 +56,23 @@ interface ReadingRepository {
     fun observeSessionsByBook(bookId: String): Flow<List<ReadingSession>>
     suspend fun cacheSummary(bookId: String, chapterHref: String, summary: String, providerId: String?)
     suspend fun getCachedSummary(bookId: String, chapterHref: String): String?
+
+    /**
+     * 本书已缓存的章节摘要，按写入顺序返回。
+     *
+     * 全书问答的检索索引就是它——摘要是「用户实际问过的章节」增量积累起来的，
+     * 不做预生成，因此不会为了一本书一次性打出几百次模型调用。
+     */
+    suspend fun getCachedSummaries(bookId: String): List<CachedChapterSummary>
+
+    suspend fun cachedSummaryCount(bookId: String): Int
 }
+
+/** 章节摘要缓存条目（chapterHref 对 TXT 是 locator JSON，对 EPUB 是 spine href） */
+data class CachedChapterSummary(
+    val chapterHref: String,
+    val summary: String,
+)
 
 /** AI 会话存储：围绕本书对话（ai_conversations/ai_messages）+ 角色扮演（roleplay_sessions/roleplay_messages） */
 interface AiChatRepository {

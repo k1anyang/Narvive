@@ -13,6 +13,8 @@ import com.narvive.app.domain.repository.AiChatRepository
 import com.narvive.app.domain.repository.AiConversationInfo
 import com.narvive.app.domain.repository.AnnotationRepository
 import com.narvive.app.domain.repository.BookshelfRepository
+import com.narvive.app.domain.repository.CachedChapterSummary
+import com.narvive.app.domain.repository.ReadingRepository
 import com.narvive.app.service.ai.AiMessage
 import com.narvive.app.service.ai.AiService
 import com.narvive.app.service.ai.AiText
@@ -28,6 +30,8 @@ import com.narvive.app.service.ai.parseRelationshipGraph
 import com.narvive.app.service.ai.parseTimeline
 import com.narvive.app.service.ai.retrieval.ChapterIndex
 import com.narvive.app.service.ai.retrieval.ChapterRetriever
+import com.narvive.app.service.ai.retrieval.BookRetrieval
+import com.narvive.app.service.ai.retrieval.BookSummary
 import com.narvive.app.service.ai.retrieval.ChunkPick
 import com.narvive.app.service.ai.retrieval.ChunkSelectionParser
 import com.narvive.app.service.ai.retrieval.CoveragePurpose
@@ -127,6 +131,7 @@ class ChatViewModel @Inject constructor(
     private val fallbackChain: FallbackChain,
     private val promptService: PromptService,
     private val bookshelfRepo: BookshelfRepository,
+    private val readingRepo: ReadingRepository,
     private val annotationRepo: AnnotationRepository,
     private val aiChatRepo: AiChatRepository,
     private val tocLoader: TocLoader,
@@ -320,6 +325,7 @@ class ChatViewModel @Inject constructor(
                             sb.append("\n").append("  ".repeat(item.depth.coerceIn(0, 3))).append(item.title)
                         }
                     }
+                    sb.append(buildBookSummaryContext(b.id))
                 }
             }
         }
@@ -424,6 +430,91 @@ class ChatViewModel @Inject constructor(
     /** 取章节索引（CPU 密集，放后台线程；按正文哈希缓存） */
     private suspend fun indexOfChapter(text: String): ChapterIndex =
         withContext(Dispatchers.Default) { retrievalCache.indexOf(text) }
+
+    // ---------- 全书范围：章节摘要（增量缓存 + 两阶段检索） ----------
+
+    /**
+     * 在「已读章节摘要」上做两阶段检索。
+     *
+     * 摘要不是预生成的：只有用户真正在「本章」范围提问过的章节才会留下摘要
+     * （见 [cacheChapterSummaryIfNeeded]），因此这里通常只有零星几章，
+     * 但**永远不会为了一本书一次性打出几百次调用**。
+     *
+     * @return null 表示本地还没有任何摘要，调用方应保持原有的「只有书目信息」行为
+     */
+    private suspend fun retrieveBookSummaries(bookId: String, question: String): BookRetrieval? {
+        val cached = readingRepo.getCachedSummaries(bookId)
+        if (cached.isEmpty()) return null
+        val summaries = cached.mapIndexed { i, s -> s.toBookSummary(i + 1) }
+        val ctx = currentCoroutineContext()
+        return withStage(RetrievalStage.SELECTING) {
+            retriever.retrieveBook(summaries, question, isActive = { ctx.isActive }) { overview, q, itemCount, maxPick ->
+                aiSelectChunks(overview, q, itemCount, maxPick)
+            }
+        }
+    }
+
+    /** 摘要文本的约定：首行是章节标题（写入时前置），其余是摘要正文 */
+    private fun CachedChapterSummary.toBookSummary(ordinal: Int): BookSummary {
+        val lines = summary.lineSequence().filter { it.isNotBlank() }.toList()
+        if (lines.size <= 1) return BookSummary("第 $ordinal 章", lines.firstOrNull() ?: "")
+        return BookSummary(lines.first().take(48), lines.drop(1).joinToString("\n"))
+    }
+
+    private suspend fun buildBookSummaryContext(bookId: String): String {
+        val lang = lang()
+        val question = _uiState.value.messages.lastOrNull { it.role == "user" }?.content.orEmpty()
+        val result = retrieveBookSummaries(bookId, question)
+            ?: return AiText.bookSummaryNoneNote(lang)
+        val sb = StringBuilder()
+        sb.append(AiText.bookSummaryHeader(lang, result.pickedSummaries.size, result.overviewLines.size))
+        result.pickedSummaries.forEach { s ->
+            sb.append("\n【").append(s.label).append("】").append(s.text)
+        }
+        if (result.mode == RetrievalMode.LEXICAL_FALLBACK) sb.append(AiText.retrievalDegradedNote(lang))
+        return sb.toString()
+    }
+
+    /**
+     * 为刚问过的长章节回填一份摘要，供以后的全书提问检索。
+     *
+     * 三条纪律：
+     * 1. **只在长到已经走检索的章节上做**——短章节本来就整章发送，摘要没有增量价值；
+     * 2. **已缓存就跳过**，同一章无论问多少次都只花一次调用；
+     * 3. 在回答完成之后另行发起，不阻塞、不影响本轮回答。
+     */
+    private suspend fun cacheChapterSummaryIfNeeded() {
+        val b = book ?: return
+        val text = chapterTextCache ?: return
+        val key = currentLocatorJson
+        if (key.isBlank() || key == "{}") return
+        if (readingRepo.getCachedSummary(b.id, key) != null) return
+
+        val index = indexOfChapter(text)
+        val budget = retrievalBudget()
+        if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return
+
+        val lang = lang()
+        val compressed = withContext(Dispatchers.Default) {
+            retriever.coverage(text, index, budget, CoveragePurpose.SUMMARY)
+        }
+        val title = _uiState.value.chapterTitle.orEmpty()
+        val prompt = AiText.chapterSummaryPrompt(lang, title, compressed.text)
+        for (provider in fallbackChain.getEnabledProviders()) {
+            if (provider.isDegraded) continue
+            aiService.simpleChat(provider, listOf(AiMessage("user", prompt)))
+                .onSuccess { raw ->
+                    fallbackChain.recordUtilitySuccess(provider.id)
+                    val body = raw.trim().take(SUMMARY_MAX_CHARS)
+                    if (body.isBlank()) return@onSuccess
+                    val stored = if (title.isBlank()) body else "$title\n$body"
+                    readingRepo.cacheSummary(b.id, key, stored, provider.id)
+                }
+                .onFailure { fallbackChain.recordUtilityFailure(provider.id) }
+            // 只尝试当前可用的第一个 Provider，失败也不重试——这是后台回填，不值得占用链路
+            return
+        }
+    }
 
     private fun retrievalBudget(): RetrievalBudget = RetrievalBudgetConfig.of(activeContextTokens)
 
@@ -550,6 +641,11 @@ class ChatViewModel @Inject constructor(
                         }
                     fallbackChain.recordSuccess(provider.id)
                     history.add(AiMessage("assistant", finalContent))
+                    // 长章节答完后顺带回填一份章节摘要，供以后的全书提问检索；
+                    // 单独起协程，既不阻塞本轮回答，也不影响流式结束状态。
+                    if (_uiState.value.contextScope == ChatContextScope.CHAPTER) {
+                        launch { runCatching { cacheChapterSummaryIfNeeded() } }
+                    }
                     conversationId?.let { cid ->
                         aiChatRepo.addAiMessage(cid, "ASSISTANT", finalContent, null, null)
                         aiChatRepo.touchConversation(cid)
@@ -653,7 +749,7 @@ class ChatViewModel @Inject constructor(
         val isBookScope = _uiState.value.contextScope == ChatContextScope.BOOK
         val chapterText = if (isBookScope) "" else loadChapterText()?.let { buildGraphContext(it, purpose) }.orEmpty()
         val chapterBlock = if (isBookScope) {
-            AiText.graphBookScopeFallback(lang, b?.title ?: "")
+            buildBookGraphScopeContext(b) ?: AiText.graphBookScopeFallback(lang, b?.title ?: "")
         } else if (chapterText.isBlank()) {
             AiText.graphNoChapterFallback(lang)
         } else {
@@ -680,6 +776,32 @@ class ChatViewModel @Inject constructor(
     }
 
     /**
+     * 全书图表的输入：已缓存的章节摘要。
+     *
+     * 图表要的是**覆盖面**而不是相似度，所以这里不做 top-k 选择，而是按预算尽量多地带；
+     * 章数超过预算时**等距抽样**，保证覆盖全书各阶段而不是只留开头。
+     *
+     * @return null 表示本地还没有摘要，调用方回落到「结合你自己的了解」的既有文案
+     */
+    private suspend fun buildBookGraphScopeContext(b: Book?): String? {
+        val id = b?.id ?: return null
+        val cached = readingRepo.getCachedSummaries(id)
+        if (cached.isEmpty()) return null
+        val summaries = cached.mapIndexed { i, s -> s.toBookSummary(i + 1) }
+
+        val perChapter = summaries.sumOf { TokenEstimator.estimate(it.text) } / summaries.size.coerceAtLeast(1)
+        val affordable = (BOOK_GRAPH_SUMMARY_TOKENS / perChapter.coerceAtLeast(1)).coerceAtLeast(1)
+        val stride = if (summaries.size <= affordable) 1 else (summaries.size + affordable - 1) / affordable
+        val picked = summaries.filterIndexed { i, _ -> i % stride == 0 }
+
+        val lang = lang()
+        val sb = StringBuilder()
+        sb.append(AiText.bookSummaryHeader(lang, picked.size, summaries.size))
+        picked.forEach { s -> sb.append("\n【").append(s.label).append("】").append(s.text) }
+        return sb.toString()
+    }
+
+    /**
      * 生图正文。
      *
      * 关系图与时间线要的是**覆盖率**而不是相似度：人物的出场、事件的先后分布在全章，
@@ -701,5 +823,11 @@ class ChatViewModel @Inject constructor(
     companion object {
         /** 正文直接全量注入的字符上限；与 token 预算共同决定是否进入检索模式 */
         const val CHAPTER_FULL_LIMIT = 50_000
+
+        /** 单章摘要的字符上限（回填时截断，避免模型写成长文） */
+        const val SUMMARY_MAX_CHARS = 800
+
+        /** 全书图表可注入的摘要总量上限（token） */
+        const val BOOK_GRAPH_SUMMARY_TOKENS = 20_000
     }
 }

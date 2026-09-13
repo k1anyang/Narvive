@@ -389,6 +389,63 @@ object AiText {
         AppLang.EN -> "\n\n[Chunk $index]\n"
     }
 
+    // ── 全书范围的章节摘要（增量缓存 + 两阶段检索） ──
+
+    /** 生成／回填单章摘要的提示词：要求保覆盖而非提炼观点 */
+    fun chapterSummaryPrompt(lang: AppLang, chapterTitle: String, text: String): String = when (lang) {
+        AppLang.ZH_HANS ->
+            "请用 200 字以内总结下面这一章的主要情节、关键事件与人物动向。\n" +
+                "要求：按事件发生的先后顺序写，不要评论、不要剧透后文；只输出摘要正文。\n" +
+                (if (chapterTitle.isNotBlank()) "章节：$chapterTitle\n" else "") +
+                "\"\"\"\n$text\n\"\"\""
+        AppLang.ZH_HANT ->
+            "請用 200 字以內總結下面這一章的主要情節、關鍵事件與人物動向。\n" +
+                "要求：按事件發生的先後順序寫，不要評論、不要劇透後文；只輸出摘要正文。\n" +
+                (if (chapterTitle.isNotBlank()) "章節：$chapterTitle\n" else "") +
+                "\"\"\"\n$text\n\"\"\""
+        AppLang.EN ->
+            "Summarise this chapter in at most 120 words: the main plot, key events and what the characters do.\n" +
+                "Write in chronological order, do not comment, do not spoil later chapters; output the summary only.\n" +
+                (if (chapterTitle.isNotBlank()) "Chapter: $chapterTitle\n" else "") +
+                "\"\"\"\n$text\n\"\"\""
+    }
+
+    /**
+     * 全书范围注入的章节摘要块头。
+     *
+     * [total] 是已缓存摘要的章数，[shown] 是本轮选中的章数——必须如实写明，
+     * 否则模型会误以为这就是全书内容。
+     */
+    fun bookSummaryHeader(lang: AppLang, shown: Int, total: Int): String = when (lang) {
+        AppLang.ZH_HANS -> "\n\n── 已读章节摘要（本地缓存 $total 章，以下为与问题最相关的 $shown 章）──\n"
+        AppLang.ZH_HANT -> "\n\n── 已讀章節摘要（本機快取 $total 章，以下為與問題最相關的 $shown 章）──\n"
+        AppLang.EN -> "\n\n── Summaries of chapters read so far ($total cached locally; the $shown most relevant below) ──\n"
+    }
+
+    fun bookSummaryOverviewHeader(lang: AppLang, total: Int): String = when (lang) {
+        AppLang.ZH_HANS -> "\n\n已读章节摘要一览（共 $total 章）：\n"
+        AppLang.ZH_HANT -> "\n\n已讀章節摘要一覽（共 $total 章）：\n"
+        AppLang.EN -> "\n\nOverview of cached chapter summaries ($total chapters):\n"
+    }
+
+    /**
+     * 全书范围且本地还没有任何章节摘要时的说明。
+     *
+     * 此时模型只有书名/作者/目录，明确说明可以避免它假装读过正文。
+     */
+    fun bookSummaryNoneNote(lang: AppLang): String = when (lang) {
+        AppLang.ZH_HANS ->
+            "\n\n（本地尚无章节摘要：用户还没有在本章范围内向 AI 提问过。请仅依据以上书目信息与目录回答，" +
+                "结合你对本书的了解时须说明这是背景知识，不要编造具体情节。）"
+        AppLang.ZH_HANT ->
+            "\n\n（本機尚無章節摘要：使用者還沒有在本章範圍內向 AI 提問過。請僅依據以上書目資訊與目錄回答，" +
+                "結合你對本書的了解時須說明這是背景知識，不要編造具體情節。）"
+        AppLang.EN ->
+            "\n\n(No chapter summaries cached yet: the user has not asked the AI anything in chapter scope. " +
+                "Answer from the bibliographic metadata and table of contents only; if you draw on your own knowledge of the book, " +
+                "say so, and never invent plot details.)"
+    }
+
     /**
      * 选块提示词。
      *

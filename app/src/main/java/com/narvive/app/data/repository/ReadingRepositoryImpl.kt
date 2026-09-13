@@ -4,6 +4,7 @@ import com.narvive.app.data.local.dao.ReadingDao
 import com.narvive.app.data.local.entity.ChapterSummaryCacheEntity
 import com.narvive.app.data.local.entity.ReadingSessionEntity
 import com.narvive.app.domain.model.ReadingSession
+import com.narvive.app.domain.repository.CachedChapterSummary
 import com.narvive.app.domain.repository.ReadingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -59,6 +60,11 @@ class ReadingRepositoryImpl @Inject constructor(
 
     override suspend fun getCachedSummary(bookId: String, chapterHref: String): String? =
         dao.getSummary(bookId, chapterHref)?.summary
+
+    override suspend fun getCachedSummaries(bookId: String): List<CachedChapterSummary> =
+        dao.getSummaries(bookId).map { CachedChapterSummary(it.chapterHref, it.summary) }
+
+    override suspend fun cachedSummaryCount(bookId: String): Int = dao.countSummaries(bookId)
 
     private fun ReadingSessionEntity.toDomain() = ReadingSession(
         id = id, bookId = bookId, startAt = startAt,
