@@ -18,6 +18,7 @@ import com.narvive.app.service.ai.AiProfileStore
 import com.narvive.app.service.ai.AiService
 import com.narvive.app.service.ai.AiText
 import com.narvive.app.service.ai.FallbackChain
+import com.narvive.app.service.ai.IntentTitles
 import com.narvive.app.service.ai.PromptLocaleProvider
 import com.narvive.app.service.ai.observeLanguageChanges
 import com.narvive.app.ui.message.UiMessage
@@ -275,13 +276,18 @@ class GlobalChatViewModel @Inject constructor(
     fun regenerate() {
         if (_uiState.value.isStreaming) return
         if (history.lastOrNull()?.role == "assistant") history.removeAt(history.lastIndex)
-        if (history.lastOrNull { it.role == "user" } == null) return
+        val lastUser = history.lastOrNull { it.role == "user" }?.content ?: return
         _uiState.update { state ->
             var msgs = state.messages
             if (msgs.lastOrNull()?.role == "assistant") msgs = msgs.dropLast(1)
             state.copy(messages = msgs)
         }
-        runCompletion()
+        viewModelScope.launch {
+            // 重新生成必须重建意图上下文：runCompletion 每轮都会清空 intentContext，
+            // 不重算的话「阅读日报 / 推荐」这类回答在重新生成后会突然失去本地数据。
+            resolveIntentContext(lastUser)
+            runCompletion()
+        }
     }
 
     /** 按当前上下文组装 system prompt（每次发送重建，保证偏好/跨书/书库即时生效） */
@@ -436,42 +442,56 @@ class GlobalChatViewModel @Inject constructor(
 
     // ── 意图路由（本地规则，命中才取本地数据注入） ──
 
+    /**
+     * 规则匹配先于数据库读取。
+     *
+     * 旧实现无论是否命中意图都会先 `observeAllBooks().first()`，等于每条消息都做一次
+     * 全量书库查询；这里改为先算零成本的正则判定，只有真的需要书库数据时才查。
+     */
     private suspend fun resolveIntentContext(text: String) {
         intentContext = null
         val t = text.trim()
-        val lang = lang()
+
+        val wantsStats = AiText.INTENT_STATS.containsMatchIn(t)
+        val wantsRecommend = AiText.INTENT_RECOMMEND.containsMatchIn(t)
+        val wantsProgress = AiText.INTENT_PROGRESS.containsMatchIn(t)
+        val quoted = Regex("《([^》]+)》").find(t)?.groupValues?.get(1)?.trim()
+
+        if (!wantsStats && !wantsRecommend && !wantsProgress && quoted == null) {
+            // 无意图关键词时，只有提问里出现了完整书名（或加书名号的片段）才注入书籍上下文
+            bookshelfRepo.observeAllBooks().first()
+                .firstOrNull { b -> IntentTitles.hit(t, b.title, quoted) }
+                ?.let { intentContext = buildBookContext(it) }
+            return
+        }
+
         val books = bookshelfRepo.observeAllBooks().first()
 
         // 1 统计/日报/周报
-        if (AiText.intentStats(lang).containsMatchIn(t)) {
+        if (wantsStats) {
             intentContext = buildStatsContext(books)
             return
         }
         // 2 推荐
-        if (AiText.intentRecommend(lang).containsMatchIn(t)) {
+        if (wantsRecommend) {
             intentContext = buildRecommendContext(books)
             return
         }
-        // 3 具体书名（《》或整名包含）
-        val quoted = Regex("《([^》]+)》").find(t)?.groupValues?.get(1)?.trim()
-        val exact = books.firstOrNull { b ->
-            quoted != null && (b.title == quoted || b.title.contains(quoted) || quoted.contains(b.title))
-        } ?: books.firstOrNull { b -> b.title.isNotBlank() && t.contains(b.title) }
-        if (exact != null) {
-            intentContext = buildBookContext(exact)
+        // 3 具体书名（《》内片段，或整名出现）
+        books.firstOrNull { b -> IntentTitles.hit(t, b.title, quoted) }?.let {
+            intentContext = buildBookContext(it)
             return
         }
         // 4 进度/接着读
-        if (AiText.intentProgress(lang).containsMatchIn(t)) {
+        if (wantsProgress) {
             books.filter { it.lastReadAt > 0 }.maxByOrNull { it.lastReadAt }?.let {
                 intentContext = buildBookContext(it)
             }
             return
         }
-        // 5 模糊书名（标题任意 2 字连续命中）
-        books.firstOrNull { b ->
-            b.title.length >= 2 && b.title.windowed(2).any { seg -> t.contains(seg) }
-        }?.let { intentContext = buildBookContext(it) }
+        // 5 模糊书名：连续片段足够长且覆盖标题一半以上。
+        //   旧实现是「任意 2 字窗口命中即注入」，任何含 the/th/he 的英文句子都会误命中一本书。
+        books.firstOrNull { b -> IntentTitles.fuzzyHit(t, b.title) }?.let { intentContext = buildBookContext(it) }
     }
 
     private suspend fun buildStatsContext(books: List<Book>): String {
@@ -525,13 +545,14 @@ class GlobalChatViewModel @Inject constructor(
             if (provider.isDegraded) continue
             aiService.simpleChat(provider, listOf(AiMessage("user", prompt)))
                 .onSuccess { raw ->
-                    fallbackChain.recordSuccess(provider.id)
+                    // 标题生成属于辅助调用：失败不应把主对话的 Provider 标记为降级
+                    fallbackChain.recordUtilitySuccess(provider.id)
                     val t = raw.trim().replace(Regex("[\"“”‘’]"), "").take(limit)
                     if (t.isNotBlank()) globalAiDao.renameConversation(cid, t)
                     refreshConversations()
                     return
                 }
-                .onFailure { fallbackChain.recordFailure(provider.id) }
+                .onFailure { fallbackChain.recordUtilityFailure(provider.id) }
         }
     }
 

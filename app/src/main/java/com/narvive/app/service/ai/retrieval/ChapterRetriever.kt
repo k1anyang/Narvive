@@ -1,7 +1,21 @@
 package com.narvive.app.service.ai.retrieval
 
-/** 模型选块的调用入口（由调用方负责 Provider 遍历与 Fallback 记账，便于单测注入假实现） */
-typealias ChunkSelector = suspend (overview: String, question: String, maxPick: Int) -> ChunkPick
+/**
+ * 模型选块的调用入口。
+ *
+ * @param overview 已格式化的概览文本（含编号）
+ * @param question 当前提问
+ * @param itemCount 概览条数，用于校验模型返回的编号是否越界
+ * @param maxPick 最多采纳几条
+ *
+ * 由调用方负责 Provider 遍历与 Fallback 记账，便于单测注入假实现。
+ */
+typealias ChunkSelector = suspend (
+    overview: String,
+    question: String,
+    itemCount: Int,
+    maxPick: Int,
+) -> ChunkPick
 
 /** 概览里线索标签的本地化文案（由 `AiText` 提供，保证跟随界面语言） */
 class CueLabels(val namesLabel: String, val timeLabel: String) {
@@ -161,7 +175,7 @@ class ChapterRetriever(private val config: ChunkConfig = ChunkConfig()) {
         } else {
             // 概览可能很长（父块模式），但仍在选择器输入的可接受范围内
             val pickLimit = if (index.singleLevel) maxChunks else maxOf(1, minOf(3, maxChunks / 2))
-            val pick = selector(overview.joinToString("\n"), question, pickLimit)
+            val pick = selector(overview.joinToString("\n"), question, overview.size, pickLimit)
             when (pick) {
                 is ChunkPick.OverviewEnough -> {
                     mode = RetrievalMode.OVERVIEW_ONLY

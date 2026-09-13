@@ -25,14 +25,30 @@ import com.narvive.app.service.ai.RelationshipGraph
 import com.narvive.app.service.ai.TimelineStage
 import com.narvive.app.service.ai.parseRelationshipGraph
 import com.narvive.app.service.ai.parseTimeline
+import com.narvive.app.service.ai.retrieval.ChapterIndex
+import com.narvive.app.service.ai.retrieval.ChapterRetriever
+import com.narvive.app.service.ai.retrieval.ChunkPick
+import com.narvive.app.service.ai.retrieval.ChunkSelectionParser
+import com.narvive.app.service.ai.retrieval.CoveragePurpose
+import com.narvive.app.service.ai.retrieval.CueLabels
+import com.narvive.app.service.ai.retrieval.QaRetrieval
+import com.narvive.app.service.ai.retrieval.RetrievalBudget
+import com.narvive.app.service.ai.retrieval.RetrievalBudgetConfig
+import com.narvive.app.service.ai.retrieval.RetrievalCache
+import com.narvive.app.service.ai.retrieval.RetrievalMode
+import com.narvive.app.service.ai.retrieval.TokenEstimator
 import com.narvive.app.service.reader.TocLoader
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 
@@ -94,6 +110,7 @@ class ChatViewModel @Inject constructor(
     private val aiChatRepo: AiChatRepository,
     private val tocLoader: TocLoader,
     private val localeProvider: PromptLocaleProvider,
+    private val retrievalCache: RetrievalCache,
     @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
@@ -114,6 +131,12 @@ class ChatViewModel @Inject constructor(
     private var currentLocatorJson: String = "{}"
     private var conversationId: String? = null
     private var inited = false
+
+    /** 章节检索编排（纯逻辑，无 Android 依赖） */
+    private val retriever = ChapterRetriever()
+
+    /** 「总结本章」等快捷指令显式要求覆盖全章，由下一次组装上下文时消费一次 */
+    private var coverageRequested = false
 
     /**
      * @param selectedText 阅读器选区文本（问 AI 入口）
@@ -269,56 +292,113 @@ class ChatViewModel @Inject constructor(
         return sb.toString()
     }
 
-    /** 本章正文：≤5万字完整；>5万字分块（AI 先看概览选 2 块，泛问题仅凭概览） */
+    /**
+     * 本章正文上下文。
+     *
+     * 三条分流：
+     * 1. 未超预算（默认约 5 万字符，与旧实现一致）→ 原样注入全文，**行为与旧版相同**；
+     * 2. 覆盖型提问（总结 / 梳理 / 人物关系）→ 本地覆盖式压缩，一次调用看到全章主干；
+     * 3. 其余提问 → 概览 + 精读选中块（模型选块 → 失败则本地词法兜底）。
+     */
     private suspend fun buildChapterContext(text: String): String {
-        if (text.length <= CHAPTER_FULL_LIMIT) return text
         val lang = lang()
-        val chunks = chunkText(text, CHUNK_SIZE)
-        val overview = chunks.mapIndexed { i, c -> "[${i + 1}] ${c.take(80).replace('\n', ' ')}" }.joinToString("\n")
-        val question = _uiState.value.messages.lastOrNull { it.role == "user" }?.content ?: ""
-        val selected = aiSelectChunks(overview, question)
-
-        val sb = StringBuilder()
-        sb.append(AiText.chunkOverviewHeader(lang, text.length, chunks.size)).append(overview)
-        if (selected.isEmpty()) {
-            sb.append(AiText.vagueQuestionNote(lang))
-        } else {
-            sb.append(AiText.relevantChunksHeader(lang))
-            selected.forEach { i ->
-                chunks.getOrNull(i)?.let { sb.append(AiText.chunkLabel(lang, i + 1)).append(it) }
-            }
+        val budget = retrievalBudget()
+        // 快速跳过：即使整章全是汉字，估算 token 也不会超预算——此时连索引都不必建，
+        // 与旧实现逐字节一致，短章节在低配机上零额外开销。
+        if (text.length <= CHAPTER_FULL_LIMIT &&
+            text.length * TokenEstimator.CJK_WEIGHT <= budget.fullTextTokens
+        ) {
+            return text
         }
+        val index = indexOfChapter(text)
+        if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return text
+
+        val question = _uiState.value.messages.lastOrNull { it.role == "user" }?.content.orEmpty()
+        val wantCoverage = coverageRequested || AiText.INTENT_COVERAGE.containsMatchIn(question)
+        coverageRequested = false
+        if (wantCoverage) return buildCoverageContext(text, lang, index, budget, CoveragePurpose.SUMMARY)
+
+        val ctx = currentCoroutineContext()
+        val result = retriever.retrieveQa(
+            text = text,
+            index = index,
+            question = question,
+            budget = budget,
+            labels = cueLabels(lang),
+            isActive = { ctx.isActive },
+        ) { overview, q, itemCount, maxPick -> aiSelectChunks(overview, q, itemCount, maxPick) }
+        return assembleQaContext(lang, text, index, result)
+    }
+
+    /** 组装问答上下文：概览 + 选中块全文，并按检索模式给出**如实**的说明 */
+    private fun assembleQaContext(lang: AppLang, text: String, index: ChapterIndex, result: QaRetrieval): String {
+        val sb = StringBuilder()
+        sb.append(AiText.chunkOverviewHeader(lang, text.length, result.overviewLines.size, !index.singleLevel))
+        sb.append(result.overviewLines.joinToString("\n"))
+        if (result.pickedTexts.isEmpty()) {
+            // 只有「模型明确说概览够」才是问题较泛；检索降级必须如实说明
+            sb.append(
+                if (result.mode == RetrievalMode.LEXICAL_FALLBACK) AiText.retrievalDegradedNote(lang)
+                else AiText.vagueQuestionNote(lang),
+            )
+            return sb.toString()
+        }
+        sb.append(AiText.relevantChunksHeader(lang))
+        result.pickedLabels.forEachIndexed { i, label ->
+            sb.append(AiText.chunkLabel(lang, label)).append(result.pickedTexts[i])
+        }
+        if (result.mode == RetrievalMode.LEXICAL_FALLBACK) sb.append(AiText.retrievalDegradedNote(lang))
         return sb.toString()
     }
 
-    private fun chunkText(text: String, target: Int): List<String> {
-        val chunks = mutableListOf<String>()
-        val cur = StringBuilder()
-        text.split("\n").forEach { p ->
-            if (cur.isNotEmpty() && cur.length + p.length + 1 > target) {
-                chunks.add(cur.toString()); cur.clear()
-            }
-            cur.append(p).append("\n")
+    /** 覆盖式压缩上下文：把整章压进预算，保证每块都有内容进上下文 */
+    private suspend fun buildCoverageContext(
+        text: String,
+        lang: AppLang,
+        index: ChapterIndex,
+        budget: RetrievalBudget,
+        purpose: CoveragePurpose,
+    ): String {
+        val ctx = currentCoroutineContext()
+        val result = withContext(Dispatchers.Default) {
+            retriever.coverage(text, index, budget, purpose) { ctx.isActive }
         }
-        if (cur.isNotBlank()) chunks.add(cur.toString())
-        return chunks.ifEmpty { listOf(text) }
+        // 几乎没有压缩空间时不加说明头，直接用全文（短章节的既有表现）
+        if (result.keptRatio >= 0.995) return text
+        return AiText.coverageHeader(lang) + result.text
     }
 
-    private suspend fun aiSelectChunks(overview: String, question: String, maxBlocks: Int = 2): List<Int> {
+    /** 取章节索引（CPU 密集，放后台线程；按正文哈希缓存） */
+    private suspend fun indexOfChapter(text: String): ChapterIndex =
+        withContext(Dispatchers.Default) { retrievalCache.indexOf(text) }
+
+    private fun retrievalBudget(): RetrievalBudget = RetrievalBudgetConfig.of()
+
+    private fun cueLabels(lang: AppLang): CueLabels =
+        CueLabels(AiText.cueNamesLabel(lang), AiText.cueTimeLabel(lang))
+
+    /**
+     * 让模型从概览里选块。
+     *
+     * 三条硬约束：
+     * 1. 返回 [ChunkPick] **三态**而不是空列表——「模型说够了」与「调用失败」必须能区分；
+     * 2. 计入**辅助调用**失败计数，不参与主对话的 Provider 降级判定；
+     * 3. 解析只接受纯编号列表，避免把模型复述的概览当成选择结果。
+     */
+    private suspend fun aiSelectChunks(overview: String, question: String, itemCount: Int, maxPick: Int): ChunkPick {
         val providers = fallbackChain.getEnabledProviders()
-        if (providers.isEmpty()) return emptyList()
+        if (providers.isEmpty()) return ChunkPick.Failed("no-provider")
         val prompt = AiText.chunkSelectPrompt(lang(), question, overview)
         for (provider in providers) {
             if (provider.isDegraded) continue
             aiService.simpleChat(provider, listOf(AiMessage("user", prompt)))
                 .onSuccess { raw ->
-                    fallbackChain.recordSuccess(provider.id)
-                    return Regex("\\d+").findAll(raw).mapNotNull { it.value.toIntOrNull() }
-                        .filter { it >= 1 }.distinct().take(maxBlocks).map { it - 1 }.toList()
+                    fallbackChain.recordUtilitySuccess(provider.id)
+                    return ChunkSelectionParser.parse(raw, itemCount, maxPick)
                 }
-                .onFailure { fallbackChain.recordFailure(provider.id) }
+                .onFailure { fallbackChain.recordUtilityFailure(provider.id) }
         }
-        return emptyList()
+        return ChunkPick.Failed("all-providers-failed")
     }
 
     fun sendMessage(text: String) {
@@ -362,7 +442,9 @@ class ChatViewModel @Inject constructor(
                 else -> return@launch
             }
             if (command == QuickCommand.SUMMARIZE) {
+                // 总结要的是「读完整章」而不是「读最相关的几块」——显式标记走覆盖式压缩
                 _uiState.update { it.copy(contextScope = ChatContextScope.CHAPTER) }
+                coverageRequested = true
             }
             val text = PromptRenderer.render(promptService.get(templateId), emptyMap())
             sendMessage(text)
@@ -478,7 +560,7 @@ class ChatViewModel @Inject constructor(
         if (_uiState.value.graphLoading || _uiState.value.isStreaming) return
         _uiState.update { it.copy(graphLoading = true, graphSheet = null) }
         viewModelScope.launch {
-            val raw = graphCompletion(PromptTemplates.RELATIONSHIP_GRAPH, AiText.graphPurposeRelationship(lang()))
+            val raw = graphCompletion(PromptTemplates.RELATIONSHIP_GRAPH, CoveragePurpose.GRAPH)
             val sheet = when {
                 raw == null -> GraphSheet.Error(tr(R.string.chat_vm_graph_failed))
                 else -> parseRelationshipGraph(raw)?.let { GraphSheet.Relationship(it) }
@@ -492,7 +574,7 @@ class ChatViewModel @Inject constructor(
         if (_uiState.value.graphLoading || _uiState.value.isStreaming) return
         _uiState.update { it.copy(graphLoading = true, graphSheet = null) }
         viewModelScope.launch {
-            val raw = graphCompletion(PromptTemplates.TIMELINE, AiText.graphPurposeTimeline(lang()))
+            val raw = graphCompletion(PromptTemplates.TIMELINE, CoveragePurpose.TIMELINE)
             val sheet = when {
                 raw == null -> GraphSheet.Error(tr(R.string.chat_vm_graph_failed))
                 else -> parseTimeline(raw)?.let { GraphSheet.TimelineGraph(it) }
@@ -504,8 +586,8 @@ class ChatViewModel @Inject constructor(
 
     fun dismissGraphSheet() { _uiState.update { it.copy(graphSheet = null) } }
 
-    /** 图表用：按范围组装 prompt（本章分块提取；全书让 AI 结合自身知识/公开信息补足）→ 非流式请求 */
-    private suspend fun graphCompletion(templateId: String, purpose: String): String? {
+    /** 图表用：按范围组装 prompt（本章压缩/全文；全书让 AI 结合自身知识/公开信息补足）→ 非流式请求 */
+    private suspend fun graphCompletion(templateId: String, purpose: CoveragePurpose): String? {
         val providers = fallbackChain.getEnabledProviders()
         if (providers.isEmpty()) return null
         val lang = lang()
@@ -539,31 +621,27 @@ class ChatViewModel @Inject constructor(
         return null
     }
 
-    /** 生图正文：≤5万字全量；>5万字分块（AI 看概览选最多 3 块） */
-    private suspend fun buildGraphContext(text: String, purpose: String): String {
-        if (text.length <= CHAPTER_FULL_LIMIT) return text
-        val lang = lang()
-        val chunks = chunkText(text, CHUNK_SIZE)
-        val overview = chunks.mapIndexed { i, c -> "[${i + 1}] ${c.take(80).replace('\n', ' ')}" }.joinToString("\n")
-        val selected = aiSelectChunks(overview, purpose, maxBlocks = 3)
-        val sb = StringBuilder()
-        sb.append(AiText.chunkOverviewHeader(lang, text.length, chunks.size)).append(overview)
-        if (selected.isEmpty()) {
-            sb.append(AiText.graphVagueNote(lang))
-        } else {
-            sb.append(AiText.graphRelevantChunksHeader(lang, purpose))
-            selected.forEach { i ->
-                chunks.getOrNull(i)?.let { sb.append(AiText.chunkLabel(lang, i + 1)).append(it) }
-            }
+    /**
+     * 生图正文。
+     *
+     * 关系图与时间线要的是**覆盖率**而不是相似度：人物的出场、事件的先后分布在全章，
+     * 只挑「最相关的 3 块」必然漏人漏事。因此这里改为覆盖式压缩——
+     * 全章压进预算、每块都有内容，且仍只花一次调用（对比按块摘要有 N+1 次调用）。
+     */
+    private suspend fun buildGraphContext(text: String, purpose: CoveragePurpose): String {
+        val budget = retrievalBudget()
+        if (text.length <= CHAPTER_FULL_LIMIT &&
+            text.length * TokenEstimator.CJK_WEIGHT <= budget.fullTextTokens
+        ) {
+            return text
         }
-        return sb.toString()
+        val index = indexOfChapter(text)
+        if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return text
+        return buildCoverageContext(text, lang(), index, budget, purpose)
     }
 
-    private fun truncate(text: String, maxChars: Int): String =
-        if (text.length <= maxChars) text else text.take(maxChars) + AiText.truncatedSuffix(lang())
-
     companion object {
+        /** 正文直接全量注入的字符上限；与 token 预算共同决定是否进入检索模式 */
         const val CHAPTER_FULL_LIMIT = 50_000
-        const val CHUNK_SIZE = 8_000
     }
 }

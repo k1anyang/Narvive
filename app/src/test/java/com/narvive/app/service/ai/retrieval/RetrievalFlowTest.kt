@@ -155,7 +155,7 @@ class RetrievalFlowTest {
             question = "这一章大概讲了什么",
             budget = RetrievalBudgetConfig.of(),
             labels = CueLabels.NEUTRAL,
-        ) { _, _, _ -> ChunkPick.OverviewEnough }
+        ) { _, _, _, _ -> ChunkPick.OverviewEnough }
 
         assertEquals(RetrievalMode.OVERVIEW_ONLY, result.mode)
         assertTrue(result.pickedTexts.isEmpty())
@@ -173,7 +173,7 @@ class RetrievalFlowTest {
             question = "慕容雪后来怎么样了",
             budget = RetrievalBudgetConfig.of(),
             labels = CueLabels.NEUTRAL,
-        ) { _, _, _ -> ChunkPick.Failed("http 500") }
+        ) { _, _, _, _ -> ChunkPick.Failed("http 500") }
 
         // 该提问命中独有专名 → 会先走快路径；无论快路径还是兜底，都必须是「注入了正文」而不是「仅概览」
         assertTrue(
@@ -195,7 +195,7 @@ class RetrievalFlowTest {
             question = "嗯",
             budget = RetrievalBudgetConfig.of(),
             labels = CueLabels.NEUTRAL,
-        ) { _, _, _ -> ChunkPick.Failed("timeout") }
+        ) { _, _, _, _ -> ChunkPick.Failed("timeout") }
 
         assertEquals(RetrievalMode.OVERVIEW_ONLY, result.mode)
         assertTrue(result.pickedTexts.isEmpty())
@@ -218,7 +218,7 @@ class RetrievalFlowTest {
             question = "慕容雪做了什么",
             budget = RetrievalBudgetConfig.of(),
             labels = CueLabels.NEUTRAL,
-        ) { _, _, _ -> ChunkPick.Picked(listOf(wrong)) }
+        ) { _, _, _, _ -> ChunkPick.Picked(listOf(wrong)) }
 
         if (result.mode == RetrievalMode.MODEL_PICK) {
             assertTrue("词法最可疑块应被补入", result.pickedLabels.contains(target + 1))
@@ -237,7 +237,7 @@ class RetrievalFlowTest {
             question = "请把这一章的细节都列出来，包括每个人物的行动",
             budget = budget,
             labels = CueLabels.NEUTRAL,
-        ) { _, _, maxPick -> ChunkPick.Picked((1..maxPick).toList()) }
+        ) { _, _, _, maxPick -> ChunkPick.Picked((1..maxPick).toList()) }
 
         val injected = result.pickedTexts.sumOf { TokenEstimator.estimate(it) }
         assertTrue(

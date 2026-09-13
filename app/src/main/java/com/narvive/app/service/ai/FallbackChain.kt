@@ -28,6 +28,16 @@ class FallbackChain @Inject constructor(
     private val _failureCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
     val failureCounts: StateFlow<Map<String, Int>> = _failureCounts.asStateFlow()
 
+    /**
+     * 辅助调用（选块、生成标题等内部请求）的失败计数。
+     *
+     * 与 [failureCounts] **分开记账**：这些调用不是用户直接发起的主对话，
+     * 一次选块超时不应该把主对话的 Provider 标记为降级——否则用户会遇到
+     * 「明明聊天正常，Provider 却被禁用」的怪现象。这里只做可观测性统计。
+     */
+    private val _utilityFailureCounts = MutableStateFlow<Map<String, Int>>(emptyMap())
+    val utilityFailureCounts: StateFlow<Map<String, Int>> = _utilityFailureCounts.asStateFlow()
+
     val degradationThreshold = 3
 
     /**
@@ -78,6 +88,17 @@ class FallbackChain @Inject constructor(
 
     fun recordSuccess(providerId: String) {
         _failureCounts.value = _failureCounts.value + (providerId to 0)
+    }
+
+    /** 辅助调用成功：只清辅助计数，不影响主链路的降级判定 */
+    fun recordUtilitySuccess(providerId: String) {
+        _utilityFailureCounts.value = _utilityFailureCounts.value + (providerId to 0)
+    }
+
+    /** 辅助调用失败：只累计辅助计数，**不**触发降级 */
+    fun recordUtilityFailure(providerId: String) {
+        _utilityFailureCounts.value =
+            _utilityFailureCounts.value + (providerId to ((_utilityFailureCounts.value[providerId] ?: 0) + 1))
     }
 
     fun resetDegradation(providerId: String) {

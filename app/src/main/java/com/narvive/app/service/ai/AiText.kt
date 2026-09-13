@@ -13,8 +13,9 @@ import com.narvive.app.core.AppLang
  * 且它们多数是「发给模型」的上下文说明而非屏幕文案。用代码内表比资源文件更直接，
  * 也便于把「意图路由关键词」与「问候语池」这类结构化的东西放在一起维护。
  *
- * ⚠️ 改动 [intentStats] / [intentRecommend] / [intentProgress] 时务必**保留中文分支**：
- * 意图路由是并集匹配，删掉中文会让中文用户的功能静默失效。
+ * ⚠️ 改动 [INTENT_STATS] / [INTENT_RECOMMEND] / [INTENT_PROGRESS] 时务必**保留中文分支**：
+ * 意图路由是中英并集匹配，删掉中文会让中文用户的功能静默失效；
+ * 同时必须保留 [RegexOption.IGNORE_CASE]，否则英文建议卡自己都命中不了。
  */
 object AiText {
 
@@ -90,28 +91,52 @@ object AiText {
         AppLang.EN -> "Summarise “$title”"
     }
 
-    // ── L3：意图路由关键词（中英并集） ──
+    // ── L3：意图路由关键词（中英并集，大小写不敏感） ──
+
+    /**
+     * 三条意图正则。
+     *
+     * 两个必须坚持的约束：
+     * 1. **中英并集**：中文界面下用户也可能打 `stats`，英文界面下也可能打「推荐」，
+     *    所以不再按界面语言分叉，统一用同一份并集。
+     * 2. **[RegexOption.IGNORE_CASE]**：旧实现是大小写敏感的，于是 App 自己的英文建议卡
+     *    「Recommend what I should read」永远命中不了 `recommend` 规则，
+     *    快路径静默失效，还会掉进下面的模糊书名匹配。
+     */
+    private val INTENT_OPTIONS = setOf(RegexOption.IGNORE_CASE)
 
     /** 统计 / 日报 / 周报 */
-    fun intentStats(lang: AppLang): Regex = when (lang) {
-        AppLang.ZH_HANS, AppLang.ZH_HANT ->
-            Regex("统计|統計|日报|日報|周报|週報|读了多少|讀了多少|阅读报告|閱讀報告|阅读时长|閱讀時長|读了多久|讀了多久|读了多少时间|讀了多少時間")
-        AppLang.EN ->
-            // 英文界面下同时接受中文关键词：用户可能用中文提问
-            Regex("统计|統計|日报|日報|周报|週報|读了多少|閱讀報告|阅读报告|阅读时长|statistics|stats|report|how much (have i|did i) read|reading time|reading report")
-    }
+    val INTENT_STATS: Regex = Regex(
+        "统计|統計|日报|日報|周报|週報|读了多少|讀了多少|阅读报告|閱讀報告|阅读时长|閱讀時長|读了多久|讀了多久|" +
+            "statistics|stats|report|how much (have i|did i) read|reading time|reading report",
+        INTENT_OPTIONS,
+    )
 
     /** 推荐 */
-    fun intentRecommend(lang: AppLang): Regex = when (lang) {
-        AppLang.ZH_HANS, AppLang.ZH_HANT -> Regex("推荐|推薦|有什么书|有什麼書|读什么书|讀什麼書|挑几本|挑幾本|选几本|選幾本")
-        AppLang.EN -> Regex("推荐|推薦|有什么书|recommend|suggest (me )?(some )?books|what should i read|which book")
-    }
+    val INTENT_RECOMMEND: Regex = Regex(
+        "推荐|推薦|有什么书|有什麼書|读什么书|讀什麼書|挑几本|挑幾本|选几本|選幾本|" +
+            "recommend|suggest (me )?(some )?books|what should i read|which book",
+        INTENT_OPTIONS,
+    )
 
     /** 进度 / 接着读 */
-    fun intentProgress(lang: AppLang): Regex = when (lang) {
-        AppLang.ZH_HANS, AppLang.ZH_HANT -> Regex("读到哪|讀到哪|接着读|接著讀|继续读|繼續讀|上次读到|上次讀到|读到哪里|讀到哪裡|进度|進度")
-        AppLang.EN -> Regex("读到哪|接着读|进度|進度|where did i (stop|leave off)|continue reading|resume reading|my progress|reading progress")
-    }
+    val INTENT_PROGRESS: Regex = Regex(
+        "读到哪|讀到哪|接着读|接著讀|继续读|繼續讀|上次读到|上次讀到|读到哪里|讀到哪裡|进度|進度|" +
+            "where did i (stop|leave off)|continue reading|resume reading|my progress|reading progress",
+        INTENT_OPTIONS,
+    )
+
+    /**
+     * 覆盖型意图：需要「读完整章」而不是「读最相关的几块」。
+     *
+     * 阅读器面板用它决定走覆盖式压缩还是精读检索——「总结本章」与
+     * 「主角最后怎么样了」对上下文的需求是相反的。
+     */
+    val INTENT_COVERAGE: Regex = Regex(
+        "总结|總結|概括|概要|摘要|讲了什么|講了什麼|说了什么|說了什麼|梳理|梗概|大意|全书脉络|" +
+            "summar|overview|outline|what happened|recap|synopsis|tl;?dr",
+        INTENT_OPTIONS,
+    )
 
     // ── 注入给模型的本地数据说明 ──
 
@@ -295,16 +320,61 @@ object AiText {
         AppLang.EN -> "\nSummary: $text"
     }
 
-    fun chunkOverviewHeader(lang: AppLang, charCount: Int, chunkCount: Int): String = when (lang) {
-        AppLang.ZH_HANS -> "本章共 $charCount 字，已分 $chunkCount 块。各块概览：\n"
-        AppLang.ZH_HANT -> "本章共 $charCount 字，已分 $chunkCount 塊。各塊概覽：\n"
-        AppLang.EN -> "This chapter has $charCount characters, split into $chunkCount chunks. Overview:\n"
+    fun chunkOverviewHeader(lang: AppLang, charCount: Int, itemCount: Int, grouped: Boolean): String = when (lang) {
+        AppLang.ZH_HANS ->
+            if (grouped) "本章共 $charCount 字，已分 $itemCount 组（每组含若干小节）。各组概览：\n"
+            else "本章共 $charCount 字，已分 $itemCount 块。各块概览：\n"
+        AppLang.ZH_HANT ->
+            if (grouped) "本章共 $charCount 字，已分 $itemCount 組（每組含若干小節）。各組概覽：\n"
+            else "本章共 $charCount 字，已分 $itemCount 塊。各塊概覽：\n"
+        AppLang.EN ->
+            if (grouped) "This chapter has $charCount characters, split into $itemCount groups (each group holds several sections). Overview:\n"
+            else "This chapter has $charCount characters, split into $itemCount chunks. Overview:\n"
     }
 
+    /** 模型判定「仅凭概览即可回答」时的说明。**只在真的如此时使用**，不能用来表示检索失败。 */
     fun vagueQuestionNote(lang: AppLang): String = when (lang) {
         AppLang.ZH_HANS -> "\n\n（用户问题较泛，请仅基于以上概览回答，不要编造细节。）"
         AppLang.ZH_HANT -> "\n\n（使用者問題較廣泛，請僅依以上概覽回答，不要編造細節。）"
         AppLang.EN -> "\n\n(The user's question is broad; answer only from the overview above and do not invent details.)"
+    }
+
+    /**
+     * 检索降级说明：模型选块失败后改用本地词法兜底。
+     *
+     * 与 [vagueQuestionNote] 严格区分——把网络故障说成「问题较泛」，
+     * 等于把系统故障转写成模型幻觉的许可证。
+     */
+    fun retrievalDegradedNote(lang: AppLang): String = when (lang) {
+        AppLang.ZH_HANS ->
+            "\n\n（说明：本轮未能完成智能选段，以下片段由本地关键词匹配得到，可能不完整；若信息不足请如实告知用户。）"
+        AppLang.ZH_HANT ->
+            "\n\n（說明：本輪未能完成智慧選段，以下片段由本機關鍵字比對取得，可能不完整；若資訊不足請如實告知使用者。）"
+        AppLang.EN ->
+            "\n\n(Note: chunk selection could not be completed this round; the passages below come from local keyword matching and may be incomplete. If the information is insufficient, tell the user honestly.)"
+    }
+
+    /** 覆盖式压缩正文的说明头（总结 / 关系图 / 时间线）；正文本身由 chapterContentHeader 的引号包裹 */
+    fun coverageHeader(lang: AppLang): String = when (lang) {
+        AppLang.ZH_HANS ->
+            "\n\n── 本章精简版全文（保留全部情节主干，句子有删减，省略处以「……」标记）──\n"
+        AppLang.ZH_HANT ->
+            "\n\n── 本章精簡版全文（保留全部情節主幹，句子有刪減，省略處以「……」標記）──\n"
+        AppLang.EN ->
+            "\n\n── Condensed full text of this chapter (all plot threads kept, some sentences omitted, gaps marked with \"...\") ──\n"
+    }
+
+    /** 概览线索标签：出场人物 / 时间 */
+    fun cueNamesLabel(lang: AppLang): String = when (lang) {
+        AppLang.ZH_HANS -> "人物"
+        AppLang.ZH_HANT -> "人物"
+        AppLang.EN -> "characters"
+    }
+
+    fun cueTimeLabel(lang: AppLang): String = when (lang) {
+        AppLang.ZH_HANS -> "含时间线索"
+        AppLang.ZH_HANT -> "含時間線索"
+        AppLang.EN -> "time cues"
     }
 
     fun relevantChunksHeader(lang: AppLang): String = when (lang) {
@@ -319,26 +389,28 @@ object AiText {
         AppLang.EN -> "\n\n[Chunk $index]\n"
     }
 
-    fun graphVagueNote(lang: AppLang): String = when (lang) {
-        AppLang.ZH_HANS -> "\n\n（请仅基于以上概览生成，不要编造细节。）"
-        AppLang.ZH_HANT -> "\n\n（請僅依以上概覽生成，不要編造細節。）"
-        AppLang.EN -> "\n\n(Generate only from the overview above; do not invent details.)"
-    }
-
-    fun graphRelevantChunksHeader(lang: AppLang, purpose: String): String = when (lang) {
-        AppLang.ZH_HANS -> "\n\n以下为与「$purpose」最相关的块全文："
-        AppLang.ZH_HANT -> "\n\n以下為與「$purpose」最相關的區塊全文："
-        AppLang.EN -> "\n\nFull text of the chunks most relevant to \"$purpose\":"
-    }
-
-    /** 分块选择器的提示词（让模型返回需要阅读的块编号） */
+    /**
+     * 选块提示词。
+     *
+     * 输出格式是**硬契约**：调用方只接受「纯编号列表」，任何解释性文字都会被判为不可解析
+     * 并转入本地兜底。因此这里必须明确禁止解释，否则等于每次都在浪费一次调用。
+     */
     fun chunkSelectPrompt(lang: AppLang, question: String, overview: String): String = when (lang) {
         AppLang.ZH_HANS ->
-            "下面是一本书某一章的分块概览。关注点：$question\n\n$overview\n\n请只返回需要阅读的块编号（1~N，多个用逗号分隔）；若仅凭概览即可回答，只返回 0。"
+            "下面是一本书某一章的概览。请判断回答下面的问题时，需要阅读哪些条目的全文。\n" +
+                "问题：$question\n\n$overview\n\n" +
+                "只输出编号，用英文逗号分隔（例如：2,5）；若仅凭概览即可回答，只输出 0。\n" +
+                "不要输出解释、标题或标点以外的任何文字。最多选择 3 个。"
         AppLang.ZH_HANT ->
-            "下面是一本書某一章的分塊概覽。關注點：$question\n\n$overview\n\n請只回傳需要閱讀的區塊編號（1~N，多個以逗號分隔）；若僅憑概覽即可回答，只回傳 0。"
+            "下面是一本書某一章的概覽。請判斷回答下面的問題時，需要閱讀哪些條目的全文。\n" +
+                "問題：$question\n\n$overview\n\n" +
+                "只輸出編號，用英文逗號分隔（例如：2,5）；若僅憑概覽即可回答，只輸出 0。\n" +
+                "不要輸出解釋、標題或標點以外的任何文字。最多選擇 3 個。"
         AppLang.EN ->
-            "Below is a chunk overview of one chapter of a book. Focus: $question\n\n$overview\n\nReturn only the numbers of the chunks that need to be read (1~N, comma-separated); if the overview alone is enough to answer, return only 0."
+            "Below is an overview of one chapter of a book. Decide which items must be read in full to answer the question.\n" +
+                "Question: $question\n\n$overview\n\n" +
+                "Return only the numbers, comma-separated (e.g. 2,5); if the overview alone is enough, return only 0.\n" +
+                "Do not output any explanation, heading or other text. Pick at most 3."
     }
 
     /** 图表请求：全书范围无正文时的兜底说明 */
@@ -372,23 +444,5 @@ object AiText {
         AppLang.ZH_HANS -> "本章"
         AppLang.ZH_HANT -> "本章"
         AppLang.EN -> "this chapter"
-    }
-
-    fun graphPurposeRelationship(lang: AppLang): String = when (lang) {
-        AppLang.ZH_HANS -> "人物关系"
-        AppLang.ZH_HANT -> "人物關係"
-        AppLang.EN -> "character relationships"
-    }
-
-    fun graphPurposeTimeline(lang: AppLang): String = when (lang) {
-        AppLang.ZH_HANS -> "时间线"
-        AppLang.ZH_HANT -> "時間線"
-        AppLang.EN -> "timeline"
-    }
-
-    fun truncatedSuffix(lang: AppLang): String = when (lang) {
-        AppLang.ZH_HANS -> "...[已截断]"
-        AppLang.ZH_HANT -> "...[已截斷]"
-        AppLang.EN -> "...[truncated]"
     }
 }
