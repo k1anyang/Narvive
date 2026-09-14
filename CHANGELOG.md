@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0-beta.3] - 2026-09-14
+
 ### Added
 
 - **Chapter retrieval pipeline (`service/ai/retrieval/`)** — the long-chapter AI paths no longer rely on a single "let the model pick 2 chunks" call. Chunking is now newline-independent (paragraph → sentence → hard cut, with sentence-aligned overlap), sizes come from a **token budget** instead of the fixed 8,000 characters, the overview carries locally extracted cues (characters present, time markers), and the number of injected chunks adapts to the budget instead of being hard-coded to 2 (Q&A) / 3 (charts). All local work runs on `Dispatchers.Default`, is cancellable, keeps chunks as `(start, end)` ranges rather than text copies, and caches one index per chapter (LRU 2) keyed by content hash.
@@ -23,6 +25,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Batch chapter extraction** — `ChapterTextExtractor.forEachChapter` / `chapterInventory` walk a whole book with a **single** `Publication` open and stream chapter by chapter without holding the entire text in memory. The previous per-chapter path re-opened and re-parsed the EPUB for every chapter, which is why pre-generating summaries used to be unaffordable.
 - **`ChapterKey`** — chapter identity is now normalised to `txt:<index>` / `epub:<href>` instead of the raw locator JSON. The locator carries progression, so the same chapter used to produce a different cache key at every reading position: summaries were duplicated, and the entries written while reading never matched the ones a full-book index would write.
 - `RetrievalBenchmarkTest` — a reproducible JVM benchmark that prints the real cost of the local work so the low-end budget can be checked rather than assumed: a 200k-character chapter indexes in ~41 ms, matches lexically in ~38 ms and compresses in ~50 ms; a 500k-character chapter in ~55 / ~14 / ~70 ms.
+
+### Changed
+
+- Long chapters now split into ~1,500-token semantic chunks rather than 8,000-character newline-delimited ones; the model sees one overview line per chunk (grouped into parent blocks when a chapter has more than 40 chunks) and only the selected chunks are injected. Chapters at or under 50,000 characters keep the previous full-text path byte for byte, and the fast skip means no index is built for them at all.
+- The "is this chapter too long to send whole" decision now uses the configured provider's context size rather than a fixed 128K assumption, so switching to a small-context model automatically switches long chapters to retrieval.
+- **"Summarise chapter" is now disabled outside chapter scope.** Its label says *this chapter*, but tapping it in whole-book scope used to silently switch the scope chip; it is greyed out instead, so the chip the user picked stays the one that applies.
+- **The fixed 50,000-character cap is gone.** "Send this chapter whole or retrieve instead" is now decided by a single criterion — the token budget (context × 0.45, ~82,000 Chinese characters at the default 128K). Previously two thresholds with different units were ANDed together, and because 50,000 characters is only ~35K tokens, the constant always fired first and the token budget never did: a 51,000-character chapter was retrieved while a 90,000-character one would have fit. The 50,000-character check survives only as a zero-cost fast path that skips building the index.
+- The provider list shows the model name and the protocol on separate lines; long model names used to push the protocol out of the single line with an ellipsis.
+- **Removing a custom provider now asks for confirmation.** The delete button used to act immediately, while deletion also clears the saved API key (`removeProvider` → `apiKeyStore.removeApiKey`) and discards a hand-typed base URL and model name — neither is recoverable. The dialog names the provider, spells out what is lost, and its confirm button uses the error colour like the app's other destructive dialogs.
+- **Summarise / character graph / timeline now read the whole chapter instead of the "most relevant" three chunks.** Those tasks need coverage, not similarity, so a long chapter is compressed locally to the budget first and still costs one model call (a per-chunk map-reduce would cost N+1 calls for the same coverage).
+- `FallbackChain` tracks auxiliary calls (chunk selection, title generation) separately from user-facing ones: a flaky utility call no longer counts towards provider degradation.
+
+### Fixed
+
+- **Chunking collapsed to a single chunk for EPUB chapters.** `EpubReaderController.extractChapterText()` collapses every whitespace run to one space, so the old `split("\n")` chunker produced exactly one chunk — the model's `1~N` choice had a single option and the whole chapter was injected, making the documented 4%–9% compression unreachable. The new chunker aligns on sentence boundaries, so the reader's text extraction (and therefore reading progress, search and character counts) is untouched.
+- **Retrieval failure was reported to the model as "the user's question is broad"**, turning a network error into a licence to answer from an 80-character-per-chunk overview. Failures are now distinguished from a genuine "overview is enough" reply.
+- **Echoed overviews were parsed as a selection.** `Regex("\d+").findAll(raw).take(2)` picked up the `[1] [2]` markers whenever the model restated the overview, so "retrieval" silently always returned the first two chunks.
+- **Intent routing was case-sensitive**, so the app's own English suggestion chips ("Recommend what I should read") never hit the local-data fast path. The patterns are now case-insensitive unions of Chinese and English, and are no longer branched per interface language.
+- **"Regenerate" lost the intent context.** `runCompletion()` clears it every round, so regenerating a reading-report question answered without the local reading data; regeneration now resolves the intent again.
+- **Fuzzy book-title matching injected unrelated books.** Any two-character window hit was treated as a mention, so ordinary English sentences containing `the`/`he` matched a book title; a mention now requires a long-enough contiguous fragment covering at least half the title.
+- Removed dead helpers (`truncate`/`truncatedSuffix`, `graphVagueNote`, `graphPurposeRelationship`, `graphPurposeTimeline`).
+
+### Notes
+
+- `AiText` intent patterns, `IntentTitles` and the whole retrieval module are covered by unit tests (`IntentRoutingTest`, `RetrievalFlowTest`, `TextChunkerTest`), including every failure branch listed above.
+
+## [1.0.0-beta.2] - 2026-09-11
+
+### Added
+
 - **Trilingual interface** — 简体中文 (default), 繁體中文 and English, switchable at **Settings → Language**, a page of its own. Built on AndroidX per-app language (`AppCompatDelegate.setApplicationLocales`); the choice applies immediately, preserves your navigation state, and on Android 13+ also appears under the system **Settings → Apps → Narvive → Language** entry (`res/xml/locales_config.xml`).
 - **Traditional Chinese font support** — the app now bundles two HarmonyOS Sans families, SC and TC, and selects the typeface from the interface language (`narviveTypography()` in `ui/theme/Type.kt`). The bundled fonts total roughly 36 MB, which grows the debug APK to about 59 MB.
 - **AI output follows the interface language** — system prompt, the 12 default prompt templates, greeting and suggestion copy, and the intent-routing patterns. The intent-routing regexes are Chinese + English unions, so English questions hit the local reading-data injection just as Chinese ones do. Prompts you have customised yourself are never overwritten by a language change.
@@ -47,25 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Language-switch flicker removed by suppressing the Activity recreation.** Letting AppCompat recreate the activity exposed a frame of the system's default window colour between teardown and redraw (black on a light theme, white on a dark one), and that frame cannot be covered from app code — matching `windowBackground` only helps the cold-start frame, and a fade-in made it worse. `MainActivity` now declares `android:configChanges="locale|layoutDirection"` and handles `onConfigurationChanged` itself, so the window is never torn down. `attachBaseContext` still applies the persisted per-app locale so the first frame of any creation is already correct. The Android 13+ system app-language entry is unaffected (`res/xml/locales_config.xml`).
   - **Consequence, and the rule that follows:** ViewModels now survive a language change, so localised text cached in state would go stale. Every value that can outlive a switch was migrated to `@StringRes Int` or `UiMessage` (resolved at render time): `StatsViewModel.chartLabel` and `FinishedBook.dateLabel`, `GlobalChatViewModel` greeting/suggestions plus a new `useEmoji` flag (the emoji suffix is now appended while rendering), `RoleplayViewModel` chapter/knowledge labels, `CharacterCardViewModel.chapterLabel`, the roleplay session preview, `ReaderViewModel.fatalError`, `RewriteViewModel.error` and `FontSettingsViewModel.error`. Suggestion prompts are now built on tap instead of being baked into the action. Short-lived dialog/snackbar errors are deliberately left as `String`. See `docs/i18n.md` §2.1.
 - **Copy fixes.** The English reader HUD now reads **"Prev chapter"** instead of "Previous chapter", and the Notes empty state gained horizontal padding with centred text so the longer English hints no longer hug the screen edges.
-- Long chapters now split into ~1,500-token semantic chunks rather than 8,000-character newline-delimited ones; the model sees one overview line per chunk (grouped into parent blocks when a chapter has more than 40 chunks) and only the selected chunks are injected. Chapters at or under 50,000 characters keep the previous full-text path byte for byte, and the fast skip means no index is built for them at all.
-- The "is this chapter too long to send whole" decision now uses the configured provider's context size rather than a fixed 128K assumption, so switching to a small-context model automatically switches long chapters to retrieval.
-- **"Summarise chapter" is now disabled outside chapter scope.** Its label says *this chapter*, but tapping it in whole-book scope used to silently switch the scope chip; it is greyed out instead, so the chip the user picked stays the one that applies.
-- **The fixed 50,000-character cap is gone.** "Send this chapter whole or retrieve instead" is now decided by a single criterion — the token budget (context × 0.45, ~82,000 Chinese characters at the default 128K). Previously two thresholds with different units were ANDed together, and because 50,000 characters is only ~35K tokens, the constant always fired first and the token budget never did: a 51,000-character chapter was retrieved while a 90,000-character one would have fit. The 50,000-character check survives only as a zero-cost fast path that skips building the index.
-- The provider list shows the model name and the protocol on separate lines; long model names used to push the protocol out of the single line with an ellipsis.
-- **Removing a custom provider now asks for confirmation.** The delete button used to act immediately, while deletion also clears the saved API key (`removeProvider` → `apiKeyStore.removeApiKey`) and discards a hand-typed base URL and model name — neither is recoverable. The dialog names the provider, spells out what is lost, and its confirm button uses the error colour like the app's other destructive dialogs.
-- **Summarise / character graph / timeline now read the whole chapter instead of the "most relevant" three chunks.** Those tasks need coverage, not similarity, so a long chapter is compressed locally to the budget first and still costs one model call (a per-chunk map-reduce would cost N+1 calls for the same coverage).
-- `FallbackChain` tracks auxiliary calls (chunk selection, title generation) separately from user-facing ones: a flaky utility call no longer counts towards provider degradation.
-- **Chunking collapsed to a single chunk for EPUB chapters.** `EpubReaderController.extractChapterText()` collapses every whitespace run to one space, so the old `split("\n")` chunker produced exactly one chunk — the model's `1~N` choice had a single option and the whole chapter was injected, making the documented 4%–9% compression unreachable. The new chunker aligns on sentence boundaries, so the reader's text extraction (and therefore reading progress, search and character counts) is untouched.
-- **Retrieval failure was reported to the model as "the user's question is broad"**, turning a network error into a licence to answer from an 80-character-per-chunk overview. Failures are now distinguished from a genuine "overview is enough" reply.
-- **Echoed overviews were parsed as a selection.** `Regex("\d+").findAll(raw).take(2)` picked up the `[1] [2]` markers whenever the model restated the overview, so "retrieval" silently always returned the first two chunks.
-- **Intent routing was case-sensitive**, so the app's own English suggestion chips ("Recommend what I should read") never hit the local-data fast path. The patterns are now case-insensitive unions of Chinese and English, and are no longer branched per interface language.
-- **"Regenerate" lost the intent context.** `runCompletion()` clears it every round, so regenerating a reading-report question answered without the local reading data; regeneration now resolves the intent again.
-- **Fuzzy book-title matching injected unrelated books.** Any two-character window hit was treated as a mention, so ordinary English sentences containing `the`/`he` matched a book title; a mention now requires a long-enough contiguous fragment covering at least half the title.
-- Removed dead helpers (`truncate`/`truncatedSuffix`, `graphVagueNote`, `graphPurposeRelationship`, `graphPurposeTimeline`).
-
-### Notes
-
-- `AiText` intent patterns, `IntentTitles` and the whole retrieval module are covered by unit tests (`IntentRoutingTest`, `RetrievalFlowTest`, `TextChunkerTest`), including every failure branch listed above.
 
 ## [1.0.0]
 
@@ -84,5 +97,7 @@ Initial release.
 - Encrypted storage of API keys and the WebDAV password via `EncryptedSharedPreferences`; credentials are never included in backup archives.
 - Downloadable reader fonts from a remote catalogue.
 
-[Unreleased]: https://github.com/k1anyang/Narvive/compare/v1.0.0-beta.2...HEAD
+[Unreleased]: https://github.com/k1anyang/Narvive/compare/v1.0.0-beta.3...HEAD
+[1.0.0-beta.3]: https://github.com/k1anyang/Narvive/compare/v1.0.0-beta.2...v1.0.0-beta.3
+[1.0.0-beta.2]: https://github.com/k1anyang/Narvive/releases/tag/v1.0.0-beta.2
 [1.0.0]: https://github.com/k1anyang/Narvive/releases/tag/v1.0.0-beta.2
