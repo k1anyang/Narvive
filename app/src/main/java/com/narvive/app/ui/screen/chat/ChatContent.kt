@@ -62,6 +62,7 @@ import com.narvive.app.R
 import com.narvive.app.service.ai.AiMessage
 import com.narvive.app.ui.components.StreamingCursor
 import com.narvive.app.ui.theme.NarviveShape
+import kotlin.math.roundToInt
 
 /**
  * AI 对话共享内容：上下文 chips + 发送范围说明条 + 快捷指令 + 消息流 + 输入行。
@@ -147,11 +148,22 @@ fun ChatContent(
             Row(Modifier.padding(horizontal = 8.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.Info, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(6.dp))
-                Text(
-                    sendScopeText(uiState),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                Column {
+                    Text(
+                        sendScopeText(uiState),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    // 第二行解释「为什么整章发送 / 为什么改走检索」——
+                    // 只看第一行的话，用户无法理解本章为什么没有整章发送
+                    sendScopeDetailText(uiState)?.let { detail ->
+                        Text(
+                            detail,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
         }
 
@@ -282,6 +294,47 @@ fun ChatContent(
             }
         }
     }
+}
+
+/**
+ * 发送范围说明第二行：把「整章发送 / 已改为检索」的结论与数字讲清楚。
+ *
+ * 单位统一用 K token，与设置页「上下文规模（K tokens）」口径一致，
+ * 也避免中文「万」与英文没有对应单位的问题。
+ */
+@Composable
+private fun sendScopeDetailText(uiState: ChatUiState): String? {
+    val detail = uiState.scopeDetail
+    return when (uiState.contextScope) {
+        ChatContextScope.SELECTION -> null
+        ChatContextScope.BOOK ->
+            if (detail.bookIndexed > 0) {
+                stringResource(R.string.chat_scope_detail_book, detail.bookIndexed, detail.bookInjected)
+            } else {
+                null
+            }
+        ChatContextScope.CHAPTER -> when (detail.mode) {
+            ScopeSendMode.NO_TEXT -> stringResource(R.string.chat_scope_detail_no_text)
+            ScopeSendMode.FULL_TEXT -> stringResource(
+                R.string.chat_scope_detail_full,
+                kTokens(detail.chapterTokens),
+                kTokens(detail.limitTokens),
+            )
+            ScopeSendMode.RETRIEVED -> stringResource(
+                R.string.chat_scope_detail_retrieved,
+                kTokens(detail.chapterTokens),
+                kTokens(detail.limitTokens),
+                kTokens(if (detail.injectedTokens > 0) detail.injectedTokens else detail.chapterTokens),
+            )
+            ScopeSendMode.NONE -> null
+        }
+    }
+}
+
+/** token 数按 K 展示，保留一位小数并去掉多余的 .0 */
+private fun kTokens(tokens: Int): String {
+    val k = (tokens / 100.0).roundToInt() / 10.0
+    return if (k == k.toInt().toDouble()) k.toInt().toString() else k.toString()
 }
 
 @Composable

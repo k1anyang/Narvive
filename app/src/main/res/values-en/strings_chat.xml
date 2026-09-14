@@ -35,6 +35,11 @@
     <string name="chat_send_scope_chapter_title"> \"%1$s\"</string>
     <string name="chat_send_scope_chapter_chars"> (~%1$d chars)</string>
     <string name="chat_send_scope_book">Will send: bibliographic metadata and table of contents · book text is not sent</string>
+    <!-- Second line of the scope bar: why the chapter is sent whole or retrieved instead. K matches the settings field -->
+    <string name="chat_scope_detail_full">Whole chapter sent, ~%1$sK tokens (per-send limit %2$sK)</string>
+    <string name="chat_scope_detail_retrieved">Chapter is ~%1$sK tokens, over the %2$sK limit → retrieved instead, ~%3$sK this round</string>
+    <string name="chat_scope_detail_no_text">No chapter text available locally</string>
+    <string name="chat_scope_detail_book">%1$d chapter summaries indexed, %2$d injected this round</string>
     <string name="chat_thinking">Thinking…</string>
     <string name="chat_input_placeholder">Ask a follow-up…</string>
     <string name="chat_action_send">Send</string>

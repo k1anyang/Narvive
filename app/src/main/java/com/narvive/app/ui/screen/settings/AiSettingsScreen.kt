@@ -440,8 +440,16 @@ private fun ProviderCard(
                         if (provider.isDegraded) Text(stringResource(R.string.ai_settings_degrades), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
                     }
                     Text(
-                        "${provider.modelName}  ·  ${provider.protocol.label}",
+                        provider.modelName,
                         style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    // 协议单独一行：模型名往往很长，挤在一行会被省略号截掉协议
+                    Text(
+                        provider.protocol.label,
+                        style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,

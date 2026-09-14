@@ -254,9 +254,9 @@ sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk
 
 | id | 名称 | Base URL | 默认模型 | 协议 |
 | --- | --- | --- | --- | --- |
-| `deepseek` | DeepSeek | `https://api.deepseek.com` | `deepseek-chat` | OpenAI Chat |
+| `deepseek` | DeepSeek | `https://api.deepseek.com` | `deepseek-flash` | OpenAI Chat |
 | `openai` | OpenAI | `https://api.openai.com` | `gpt-4o-mini` | OpenAI Chat |
-| `gemini` | Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` | OpenAI Chat |
+| `gemini` | Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-3.5-flash` | OpenAI Chat |
 
 支持协议（`AiProtocol`）：
 

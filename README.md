@@ -154,9 +154,9 @@ Preset AI providers (stored in `ai_providers_json`, never with the key):
 
 | id | Name | Base URL | Default model | Protocol |
 | --- | --- | --- | --- | --- |
-| `deepseek` | DeepSeek | `https://api.deepseek.com` | `deepseek-chat` | OpenAI Chat |
+| `deepseek` | DeepSeek | `https://api.deepseek.com` | `deepseek-flash` | OpenAI Chat |
 | `openai` | OpenAI | `https://api.openai.com` | `gpt-4o-mini` | OpenAI Chat |
-| `gemini` | Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` | OpenAI Chat |
+| `gemini` | Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-3.5-flash` | OpenAI Chat |
 
 Supported protocols (`AiProtocol`): `OPENAI_CHAT` (OpenAI Chat Completions), `OPENAI_RESPONSES` (OpenAI Responses API), `ANTHROPIC` (Anthropic Messages).
 

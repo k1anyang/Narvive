@@ -79,6 +79,38 @@ enum class RetrievalStage {
     CONDENSING,
 }
 
+/** 本次发送范围与「整章直发 / 已改为检索」的结论 */
+enum class ScopeSendMode {
+    NONE,
+
+    /** 未超预算，整章原样发送 */
+    FULL_TEXT,
+
+    /** 超过直发上限，已改为检索或覆盖式压缩 */
+    RETRIEVED,
+
+    /** 本地取不到本章正文 */
+    NO_TEXT,
+}
+
+/**
+ * 范围说明条的数字（文案在 Compose 侧按 @StringRes 解析，ViewModel 不做本地化缓存）。
+ *
+ * @param chapterTokens 本章正文的估算 token
+ * @param limitTokens 单次请求的正文直发上限（= 上下文 × 0.45）
+ * @param injectedTokens 本次实际注入的估算 token
+ * @param bookIndexed 全书范围：已建立索引的章数
+ * @param bookInjected 全书范围：本次注入了几章摘要
+ */
+data class ScopeDetail(
+    val mode: ScopeSendMode = ScopeSendMode.NONE,
+    val chapterTokens: Int = 0,
+    val limitTokens: Int = 0,
+    val injectedTokens: Int = 0,
+    val bookIndexed: Int = 0,
+    val bookInjected: Int = 0,
+)
+
 /** 快捷指令（原型屏15 chips；rewrite/continue/roleplay 由 UI 层接管跳转） */
 enum class QuickCommand(@StringRes val labelRes: Int) {
     EXPLAIN(R.string.chat_vm_cmd_explain),
@@ -132,6 +164,8 @@ data class ChatUiState(
     val indexTotal: Int = 0,
     /** 本书已缓存摘要的章数（0 = 全书检索尚未就绪） */
     val indexedChapters: Int = 0,
+    /** 发送范围说明条的数字（见 [ScopeDetail]） */
+    val scopeDetail: ScopeDetail = ScopeDetail(),
 )
 
 @HiltViewModel
@@ -232,6 +266,7 @@ class ChatViewModel @Inject constructor(
                 val text = loadChapterText()
                 _uiState.update { it.copy(chapterChars = text?.length ?: 0) }
             }
+            refreshScopeDetail()
             // F3：恢复历史——加载本书会话列表，并自动恢复最近一个会话的消息
             val conversations = aiChatRepo.getConversations(bookId)
             _uiState.update { it.copy(conversations = conversations) }
@@ -297,6 +332,7 @@ class ChatViewModel @Inject constructor(
     fun setScope(scope: ChatContextScope) {
         if (scope == ChatContextScope.SELECTION && _uiState.value.selectionText == null) return
         _uiState.update { it.copy(contextScope = scope) }
+        viewModelScope.launch { refreshScopeDetail() }
     }
 
     private suspend fun loadChapterText(): String? {
@@ -349,31 +385,43 @@ class ChatViewModel @Inject constructor(
     /**
      * 本章正文上下文。
      *
+     * 只有**一个**决定「整章直发还是走检索」的口径：token 预算
+     * （`上下文 × 0.45`，默认约 5.7 万 token ≈ 8.2 万中文字符）。
+     * 旧实现叠加了一个与模型无关的「5 万字符」硬上限，两者语义不同却混在一个判断里，
+     * 结果默认配置下真正卡住的永远是那个常数，而 token 预算形同虚设。
+     *
      * 三条分流：
-     * 1. 未超预算（默认约 5 万字符，与旧实现一致）→ 原样注入全文，**行为与旧版相同**；
-     * 2. 覆盖型提问（总结 / 梳理 / 人物关系）→ 本地覆盖式压缩，一次调用看到全章主干；
+     * 1. 未超 token 预算 → 原样注入全文（含一条零本地开销的快速路径）；
+     * 2. 覆盖型提问（总结 / 梳理）→ 本地覆盖式压缩，一次调用看到全章主干；
      * 3. 其余提问 → 概览 + 精读选中块（模型选块 → 失败则本地词法兜底）。
      */
     private suspend fun buildChapterContext(text: String): String {
         val lang = lang()
         val budget = retrievalBudget()
-        // 快速跳过：即使整章全是汉字，估算 token 也不会超预算——此时连索引都不必建，
-        // 与旧实现逐字节一致，短章节在低配机上零额外开销。
-        if (text.length <= CHAPTER_FULL_LIMIT &&
-            text.length * TokenEstimator.CJK_WEIGHT <= budget.fullTextTokens
-        ) {
+        // 快速路径：即使整章全是汉字也不超预算——此时连索引都不必建，低配机零额外开销
+        if (text.length * TokenEstimator.CJK_WEIGHT <= budget.fullTextTokens) {
+            updateScopeDetail(ScopeSendMode.FULL_TEXT, chapterTokens = (text.length * TokenEstimator.CJK_WEIGHT).toInt())
             return text
         }
         val index = indexOfChapter(text)
-        if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return text
+        if (index.estTokens <= budget.fullTextTokens) {
+            updateScopeDetail(ScopeSendMode.FULL_TEXT, chapterTokens = index.estTokens)
+            return text
+        }
 
         val question = _uiState.value.messages.lastOrNull { it.role == "user" }?.content.orEmpty()
         val wantCoverage = coverageRequested || AiText.INTENT_COVERAGE.containsMatchIn(question)
         coverageRequested = false
         if (wantCoverage) {
-            return withStage(RetrievalStage.CONDENSING) {
+            val result = withStage(RetrievalStage.CONDENSING) {
                 buildCoverageContext(text, lang, index, budget, CoveragePurpose.SUMMARY)
             }
+            updateScopeDetail(
+                ScopeSendMode.RETRIEVED,
+                chapterTokens = index.estTokens,
+                injectedTokens = TokenEstimator.estimate(result),
+            )
+            return result
         }
 
         val ctx = currentCoroutineContext()
@@ -390,7 +438,62 @@ class ChatViewModel @Inject constructor(
         if (result.mode == RetrievalMode.LEXICAL_FALLBACK) {
             _uiState.update { it.copy(retrievalDegraded = true) }
         }
-        return assembleQaContext(lang, text, index, result)
+        val assembled = assembleQaContext(lang, text, index, result)
+        updateScopeDetail(
+            ScopeSendMode.RETRIEVED,
+            chapterTokens = index.estTokens,
+            injectedTokens = TokenEstimator.estimate(assembled),
+        )
+        return assembled
+    }
+
+    // ---------- 发送范围说明（让「为什么走了检索」可见） ----------
+
+    /**
+     * 刷新范围说明条上的数字。
+     *
+     * 只算**估算值**且不建索引（[TokenEstimator.estimate] 是一次线性扫描），
+     * 因此可以在切换范围时安全调用；实际注入量在发送后用 [updateScopeDetail] 覆盖。
+     */
+    private suspend fun refreshScopeDetail() {
+        val budget = retrievalBudget()
+        when (_uiState.value.contextScope) {
+            ChatContextScope.SELECTION -> updateScopeDetail(ScopeSendMode.NONE)
+            ChatContextScope.CHAPTER -> {
+                val text = loadChapterText()
+                if (text.isNullOrBlank()) {
+                    updateScopeDetail(ScopeSendMode.NO_TEXT)
+                } else {
+                    val tokens = withContext(Dispatchers.Default) { TokenEstimator.estimate(text) }
+                    updateScopeDetail(
+                        if (tokens <= budget.fullTextTokens) ScopeSendMode.FULL_TEXT else ScopeSendMode.RETRIEVED,
+                        chapterTokens = tokens,
+                    )
+                }
+            }
+            ChatContextScope.BOOK -> {
+                updateScopeDetail(ScopeSendMode.NONE)
+                _uiState.update { it.copy(scopeDetail = it.scopeDetail.copy(bookIndexed = it.indexedChapters)) }
+            }
+        }
+    }
+
+    private fun updateScopeDetail(
+        mode: ScopeSendMode,
+        chapterTokens: Int = _uiState.value.scopeDetail.chapterTokens,
+        injectedTokens: Int = 0,
+    ) {
+        val budget = retrievalBudget()
+        _uiState.update {
+            it.copy(
+                scopeDetail = it.scopeDetail.copy(
+                    mode = mode,
+                    chapterTokens = chapterTokens,
+                    limitTokens = budget.fullTextTokens,
+                    injectedTokens = if (mode == ScopeSendMode.FULL_TEXT) chapterTokens else injectedTokens,
+                ),
+            )
+        }
     }
 
     /** 在本地检索/压缩期间暴露进度阶段，结束（含异常）后必定复位 */
@@ -483,6 +586,15 @@ class ChatViewModel @Inject constructor(
         val question = _uiState.value.messages.lastOrNull { it.role == "user" }?.content.orEmpty()
         val result = retrieveBookSummaries(bookId, question)
             ?: return AiText.bookSummaryNoneNote(lang)
+        _uiState.update {
+            it.copy(
+                scopeDetail = it.scopeDetail.copy(
+                    mode = ScopeSendMode.RETRIEVED,
+                    bookIndexed = result.overviewLines.size,
+                    bookInjected = result.pickedSummaries.size,
+                ),
+            )
+        }
         val sb = StringBuilder()
         sb.append(AiText.bookSummaryHeader(lang, result.pickedSummaries.size, result.overviewLines.size))
         result.pickedSummaries.forEach { s ->
@@ -508,7 +620,8 @@ class ChatViewModel @Inject constructor(
 
         val index = indexOfChapter(text)
         val budget = retrievalBudget()
-        if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return
+        // 只有「大到需要检索」的章节才值得回填摘要：整章直发的章节本就没有增量价值
+        if (index.estTokens <= budget.fullTextTokens) return
 
         val provider = fallbackChain.getEnabledProviders().firstOrNull { !it.isDegraded } ?: return
         val title = _uiState.value.chapterTitle.orEmpty()
@@ -598,7 +711,9 @@ class ChatViewModel @Inject constructor(
     private suspend fun refreshSummaryStats() {
         val id = book?.id ?: return
         val count = readingRepo.cachedSummaryCount(id)
-        _uiState.update { it.copy(indexedChapters = count) }
+        _uiState.update {
+            it.copy(indexedChapters = count, scopeDetail = it.scopeDetail.copy(bookIndexed = count))
+        }
     }
 
     private fun retrievalBudget(): RetrievalBudget = RetrievalBudgetConfig.of(activeContextTokens)
@@ -895,20 +1010,14 @@ class ChatViewModel @Inject constructor(
      */
     private suspend fun buildGraphContext(text: String, purpose: CoveragePurpose): String {
         val budget = retrievalBudget()
-        if (text.length <= CHAPTER_FULL_LIMIT &&
-            text.length * TokenEstimator.CJK_WEIGHT <= budget.fullTextTokens
-        ) {
-            return text
-        }
+        // 与问答同一条口径：只看 token 预算，不再叠加与模型无关的字符常数
+        if (text.length * TokenEstimator.CJK_WEIGHT <= budget.fullTextTokens) return text
         val index = indexOfChapter(text)
-        if (text.length <= CHAPTER_FULL_LIMIT && index.estTokens <= budget.fullTextTokens) return text
+        if (index.estTokens <= budget.fullTextTokens) return text
         return buildCoverageContext(text, lang(), index, budget, purpose)
     }
 
     companion object {
-        /** 正文直接全量注入的字符上限；与 token 预算共同决定是否进入检索模式 */
-        const val CHAPTER_FULL_LIMIT = 50_000
-
         /** 单章摘要的字符上限（回填时截断，避免模型写成长文） */
         const val SUMMARY_MAX_CHARS = 800
 

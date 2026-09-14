@@ -203,7 +203,7 @@
     <string name="ai_settings_protocol_prefix">协议：%1$s</string>
     <string name="ai_settings_protocol_preset_fixed">协议：%1$s（预设固定）</string>
     <string name="ai_settings_model_name">模型名</string>
-    <string name="ai_settings_model_placeholder">如 gpt-4o, deepseek-chat</string>
+    <string name="ai_settings_model_placeholder">如 gpt-4o, deepseek-flash</string>
     <string name="ai_settings_context_window">上下文规模（K tokens）</string>
     <string name="ai_settings_context_window_hint">用于决定长章节是整章发送还是先做检索，留空按 %1$dK</string>
     <string name="ai_settings_fetch_models">获取模型列表</string>

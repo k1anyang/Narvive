@@ -237,9 +237,9 @@ macOS / Linux：
 
 | id | 名稱 | Base URL | 預設模型 | 協定 |
 | --- | --- | --- | --- | --- |
-| `deepseek` | DeepSeek | `https://api.deepseek.com` | `deepseek-chat` | OpenAI Chat |
+| `deepseek` | DeepSeek | `https://api.deepseek.com` | `deepseek-flash` | OpenAI Chat |
 | `openai` | OpenAI | `https://api.openai.com` | `gpt-4o-mini` | OpenAI Chat |
-| `gemini` | Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-2.0-flash` | OpenAI Chat |
+| `gemini` | Gemini | `https://generativelanguage.googleapis.com/v1beta/openai` | `gemini-3.5-flash` | OpenAI Chat |
 
 支援協定（`AiProtocol`）：
 

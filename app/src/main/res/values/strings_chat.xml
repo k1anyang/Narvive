@@ -35,6 +35,11 @@
     <string name="chat_send_scope_chapter_title">《%1$s》</string>
     <string name="chat_send_scope_chapter_chars">约 %1$d 字</string>
     <string name="chat_send_scope_book">本次将发送：书目元数据与目录信息 · 不发送正文内容</string>
+    <!-- 范围说明第二行：解释「为什么整章发送 / 为什么改走检索」。单位统一用 K，与设置页的上下文规模口径一致 -->
+    <string name="chat_scope_detail_full">整章发送，约 %1$sK token（单次上限 %2$sK）</string>
+    <string name="chat_scope_detail_retrieved">本章约 %1$sK token，超过单次上限 %2$sK → 已改为检索，本次约 %3$sK</string>
+    <string name="chat_scope_detail_no_text">本地未取到本章正文</string>
+    <string name="chat_scope_detail_book">已索引 %1$d 章摘要，本次注入 %2$d 章</string>
     <string name="chat_thinking">正在思考…</string>
     <string name="chat_input_placeholder">继续提问…</string>
     <string name="chat_action_send">发送</string>

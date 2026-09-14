@@ -43,7 +43,13 @@ data class ProviderConfig(
         )
 
     companion object {
-        /** 默认按主流云 API 的 128K 档；低于此值的模型会自动转为检索模式，而不是硬塞整章导致报错 */
+        /**
+         * 默认上下文规模。
+         *
+         * 三个预设统一按 128K 设定：这是主流云 API 的常见档位，
+         * 折算出「正文直发上限」约 5.7 万 token，既不会一上来就撑爆小模型，
+         * 也不至于让普通章节频繁走检索。用户可在设置里按模型实际能力调整。
+         */
         const val DEFAULT_CONTEXT_WINDOW = 128_000
 
         /** 允许的上下文范围：过小会让检索本身失去意义，过大则失去保护作用 */
@@ -55,8 +61,8 @@ data class ProviderConfig(
 object ProviderPresets {
     val deepseek = ProviderConfig(
         id = "deepseek", name = "DeepSeek",
-        baseUrl = "https://api.deepseek.com", modelName = "deepseek-chat",
-        contextWindow = 64_000,
+        baseUrl = "https://api.deepseek.com", modelName = "deepseek-flash",
+        contextWindow = 128_000,
     )
     val openai = ProviderConfig(
         id = "openai", name = "OpenAI",
@@ -65,8 +71,8 @@ object ProviderPresets {
     )
     val gemini = ProviderConfig(
         id = "gemini", name = "Gemini",
-        baseUrl = "https://generativelanguage.googleapis.com/v1beta/openai", modelName = "gemini-2.0-flash",
-        contextWindow = 1_000_000,
+        baseUrl = "https://generativelanguage.googleapis.com/v1beta/openai", modelName = "gemini-3.5-flash",
+        contextWindow = 128_000,
     )
     val all = listOf(deepseek, openai, gemini)
 

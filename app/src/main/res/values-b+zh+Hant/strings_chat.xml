@@ -35,6 +35,11 @@
     <string name="chat_send_scope_chapter_title">《%1$s》</string>
     <string name="chat_send_scope_chapter_chars">約 %1$d 字</string>
     <string name="chat_send_scope_book">本次將傳送：書目中介資料與目錄資訊 · 不傳送正文內容</string>
+    <!-- 範圍說明第二行：解釋「為什麼整章傳送 / 為什麼改走檢索」。單位統一用 K，與設定頁的上下文規模口徑一致 -->
+    <string name="chat_scope_detail_full">整章傳送，約 %1$sK token（單次上限 %2$sK）</string>
+    <string name="chat_scope_detail_retrieved">本章約 %1$sK token，超過單次上限 %2$sK → 已改為檢索，本次約 %3$sK</string>
+    <string name="chat_scope_detail_no_text">本機未取得本章正文</string>
+    <string name="chat_scope_detail_book">已索引 %1$d 章摘要，本次注入 %2$d 章</string>
     <string name="chat_thinking">正在思考…</string>
     <string name="chat_input_placeholder">繼續提問…</string>
     <string name="chat_action_send">傳送</string>
