@@ -196,6 +196,8 @@
     <string name="ai_settings_edit_provider">Edit provider</string>
     <string name="ai_settings_protocols_supported">Supports OpenAI Chat Completions / OpenAI Responses API / Anthropic Messages</string>
     <string name="ai_settings_preset_model_only">Preset providers only allow changing the model name</string>
+    <string name="ai_settings_remove_title">Remove this custom provider?</string>
+    <string name="ai_settings_remove_body">The base URL, model name and any saved API key for “%1$s” will be deleted. This cannot be undone.</string>
     <string name="ai_settings_name">Name</string>
     <string name="ai_settings_base_url">Base URL</string>
     <string name="ai_settings_url_invalid">Must start with http:// or https://</string>

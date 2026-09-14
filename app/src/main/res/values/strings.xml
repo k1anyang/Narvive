@@ -197,6 +197,8 @@
     <string name="ai_settings_edit_provider">编辑 Provider</string>
     <string name="ai_settings_protocols_supported">支持 OpenAI Chat Completions / OpenAI Responses API / Anthropic Messages</string>
     <string name="ai_settings_preset_model_only">预设 Provider 仅支持修改模型名</string>
+    <string name="ai_settings_remove_title">删除这个自定义 Provider？</string>
+    <string name="ai_settings_remove_body">「%1$s」的地址、模型名等配置与已保存的 API Key 会一并删除，且无法恢复。</string>
     <string name="ai_settings_name">名称</string>
     <string name="ai_settings_base_url">Base URL</string>
     <string name="ai_settings_url_invalid">需以 http:// 或 https:// 开头</string>

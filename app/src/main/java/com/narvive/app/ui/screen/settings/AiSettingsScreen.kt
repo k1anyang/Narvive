@@ -76,6 +76,7 @@ fun AiSettingsScreen(
     var editing by remember { mutableStateOf<ProviderConfig?>(null) }
     var showKeyDialogFor by remember { mutableStateOf<String?>(null) }
     var keyInput by remember { mutableStateOf("") }
+    var removeTarget by remember { mutableStateOf<ProviderConfig?>(null) }
 
     // Key input dialog
     showKeyDialogFor?.let { providerId ->
@@ -117,6 +118,26 @@ fun AiSettingsScreen(
                 showAddSheet = false
             },
             onDismiss = { showAddSheet = false },
+        )
+    }
+
+    // 删除自定义 Provider 的二次确认：
+    // 删除会同时清掉已保存的 API Key（removeProvider → apiKeyStore.removeApiKey），
+    // 且自定义配置是用户手填的 URL/模型名，误触后无法恢复，所以必须确认一次。
+    removeTarget?.let { target ->
+        AlertDialog(
+            onDismissRequest = { removeTarget = null },
+            title = { Text(stringResource(R.string.ai_settings_remove_title)) },
+            text = { Text(stringResource(R.string.ai_settings_remove_body, target.name)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.removeProvider(target.id)
+                        removeTarget = null
+                    },
+                ) { Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = { TextButton(onClick = { removeTarget = null }) { Text(stringResource(R.string.common_cancel)) } },
         )
     }
 
@@ -171,7 +192,7 @@ fun AiSettingsScreen(
                     onTest = { viewModel.testConnection(provider.id) },
                     onReset = { viewModel.resetDegradation(provider.id) },
                     testResult = uiState.testResults[provider.id],
-                    onRemove = if (provider.isCustom) ({ viewModel.removeProvider(provider.id) }) else null,
+                    onRemove = if (provider.isCustom) ({ removeTarget = provider }) else null,
                 )
                 Spacer(Modifier.height(8.dp))
             }
