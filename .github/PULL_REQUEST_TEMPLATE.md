@@ -34,7 +34,6 @@
 - [ ] `stringResource` is only called from `@Composable` scope (not inside `LaunchedEffect` / `remember` / event lambdas)
 - [ ] If a Room entity changed, a `MIGRATION_n_n+1` was added and registered in `NarviveDatabase`
 - [ ] No API key, keystore or other secret is included in the diff
-- [ ] `CHANGELOG.md` updated under `[Unreleased]` (for user-visible changes)
 
 ## Screenshots / recordings
 

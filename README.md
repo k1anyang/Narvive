@@ -23,7 +23,6 @@
 - [Tech Stack](#tech-stack)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
-- [Build a release APK](#build-a-release-apk)
 - [Quick start](#quick-start)
 - [Configuration](#configuration)
 - [Interface language](#interface-language)
@@ -120,18 +119,6 @@ Windows (use `./gradlew` instead of `.\gradlew.bat` on macOS / Linux):
 ```
 
 Or open the project in Android Studio and press **Run ▶**. Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
-
----
-
-## Build a release APK
-
-```powershell
-.\gradlew.bat :app:assembleRelease
-```
-
-**There is no release signing configuration in `app/build.gradle.kts`.** `assembleRelease` therefore produces an **unsigned** APK (`app-release-unsigned.apk`) that cannot be installed as-is — sign it yourself before distributing. Release builds enable R8 minification (`isMinifyEnabled = true`); rules live in `app/proguard-rules.pro`.
-
-When a version tag is pushed, CI attaches **two** APKs to the GitHub Release: the unsigned R8-optimised release APK, and a debug-signed APK that installs directly for trying the app out.
 
 ---
 
@@ -342,7 +329,6 @@ Narvive
 - [docs/i18n.md](docs/i18n.md) — interface languages, resource layout, adding a new language
 - [docs/DESIGN.md](docs/DESIGN.md) — visual design specification
 - [CONTRIBUTING.md](CONTRIBUTING.md) — contribution guide, including the localization rules
-- [CHANGELOG.md](CHANGELOG.md) — release history
 
 ---
 

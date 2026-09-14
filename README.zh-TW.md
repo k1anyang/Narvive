@@ -194,22 +194,9 @@ macOS / Linux：
 
 或直接以 Android Studio 開啟專案，點擊 **Run ▶** 選擇目標裝置執行。
 
-### 4. 建置 Release 套件
-
-```powershell
-.\gradlew.bat :app:assembleRelease
-```
-
-> **專案未設定 release 簽章**（`app/build.gradle.kts` 中沒有 `signingConfig`），因此 `assembleRelease` 產出的是**未簽章** APK（`app/build/outputs/apk/release/app-release-unsigned.apk`），無法直接安裝，散布前需自行簽章。
-
-> Release 建置開啟了程式碼混淆（`isMinifyEnabled = true`），規則見 `app/proguard-rules.pro`。
-
 產物路徑：
 
 - Debug：`app/build/outputs/apk/debug/app-debug.apk`
-- Release：`app/build/outputs/apk/release/app-release-unsigned.apk`（未簽章）
-
-推送版本 tag 時，CI 會向 GitHub Release 附上**兩個** APK：R8 最佳化後的未簽章 release 套件，以及可直接安裝體驗的 debug 簽章套件。
 
 ---
 

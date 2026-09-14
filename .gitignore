@@ -56,3 +56,7 @@ signing.properties
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+# ── 仅本地维护 ──
+# CHANGELOG 只作为本地发布记录，不再随仓库发布（发布说明由 GitHub Release 自动生成）
+CHANGELOG.md

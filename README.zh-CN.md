@@ -211,22 +211,9 @@ sdk.dir=C\:\\Users\\<you>\\AppData\\Local\\Android\\Sdk
 
 或直接用 Android Studio 打开项目，点击 **Run ▶** 选择目标设备运行。
 
-### 4. 构建 Release 包
-
-```powershell
-.\gradlew.bat :app:assembleRelease
-```
-
-> **项目未配置 release 签名**（`app/build.gradle.kts` 中没有 `signingConfig`），因此 `assembleRelease` 产出的是**未签名** APK（`app/build/outputs/apk/release/app-release-unsigned.apk`），无法直接安装，分发前需自行签名。
-
-> Release 构建开启了代码混淆（`isMinifyEnabled = true`），规则见 `app/proguard-rules.pro`。
-
 产物路径：
 
 - Debug：`app/build/outputs/apk/debug/app-debug.apk`
-- Release：`app/build/outputs/apk/release/app-release-unsigned.apk`（未签名）
-
-推送版本 tag 时，CI 会向 GitHub Release 附带**两个** APK：R8 优化后的未签名 release 包，以及可直接安装体验的 debug 签名包。
 
 ---
 
